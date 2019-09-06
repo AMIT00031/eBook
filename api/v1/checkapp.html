@@ -1,0 +1,47 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+	<title>Check App </title>
+</head>
+<body>
+<script type="text/javascript">
+	(function() {
+  var app = {
+    launchApp: function() {
+      window.location.replace("storytime://");
+      this.timer = setTimeout(this.openWebApp, 1000);
+    },
+
+    openWebApp: function() {
+      window.location.replace("https://stackoverflow.com/questions/14048159/redirect-to-application-if-installed-otherwise-to-appstore");
+    }
+  };
+
+  app.launchApp();
+})();
+</script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>iOS Automatic Deep Linking</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script type="text/javascript">
+	var redirect = function (location) {
+   window.location.href=location;
+};
+
+setTimeout(function () {
+    redirect('https://stackoverflow.com/questions/1108693/is-it-possible-to-register-a-httpdomain-based-url-scheme-for-iphone-apps-like/2391031#2391031');
+}, 2000);
+
+redirect('storytime://');
+</script>
+    </head>
+    <body>
+    
+    </body>
+</html>
