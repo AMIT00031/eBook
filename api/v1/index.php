@@ -43,7 +43,6 @@ $app->post('/createUser', function () use ($app) {
         $phone_no = $resParse[2];
         $full_name = $resParse[3];
         $res = $resParse[4];
-
     if($res == 0){
         $response["error"] = false;
         $response["user_id"] = $user_id;
@@ -59,14 +58,11 @@ $app->post('/createUser', function () use ($app) {
         $response["message"] = $_[$lang . '_create_user_msg2'];
         echoResponse(200, $response);
     } else if($res == 2){
-        $response["error"] = true;
-        $response["user_id"] = $user_id;
-        $response["email"] = $email;
-        $response["phone_no"] = $phone_no;
-        $response["full_name"] = $full_name;
-        $users = $db->getUserInfoOnEmail($email);
+         //echo "<pre>";print_r($email);exit();
+        $response["error"] = false;
+        $users = $db->getUserInfoByEmail($email);
         $response['user_data'] = $users;
-        $response["message"] = $_[$lang . '_create_user_msg3'];
+        $response["message"] = $_[$lang .'_create_user_msg3'];
         echoResponse(200, $response);
     }
 });
@@ -91,6 +87,7 @@ $app->post('/userLogin', function () use ($app) {
     $response = array();
     if ($db->userlogin($email, $user_name, $password, $device_token, $device_type)){
         $users = $db->getUser($email, $user_name, $password);
+        //echo "<pre>";print_r($users);exit();
         $response['error'] = false;
         $response['response'] = $users;
        
@@ -138,13 +135,11 @@ $app->post('/userEdit', function () use ($app) {
     $_['en_userEdit'] = " Profile successfully updated.";
 
         $user_id = $app->request->post('user_id');
-        $full_name = $app->request->post('full_name');
-        $phone = $app->request->post('phone');
         $address = $app->request->post('address');
     	$country = $app->request->post('country');
         $password = $app->request->post('password');
         $publisher_type = $app->request->post('publisher_type');
-        $gender = $app->request->post('gender');
+        $email = $app->request->post('email');
         $lang = 'en';
         $upload_path = 'upload/';
         $fileinfo = pathinfo($_FILES['profile_image']['name']);
@@ -157,7 +152,7 @@ $app->post('/userEdit', function () use ($app) {
 
         $db = new DbOperation();
         $response = array();
-        $res = $db->userEdit($full_name, $address, $user_id, $file_url, $phone, $country, $password,$publisher_type, $gender);
+        $res = $db->userEdit($address, $user_id, $file_url, $country, $password,$publisher_type, $email);
         if ($res == 0) {
             $response["error"] = false;
             $response["message"] = $_[$lang . '_userEdit'];
@@ -171,6 +166,44 @@ $app->post('/userEdit', function () use ($app) {
         }
 });
 
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/UpdatePrfilePic
+ * Parameters: user_id
+ * Method: POST
+ * */ 
+
+$app->post('/UpdatePrfilePic', function () use ($app) {
+    verifyRequiredParams(array('user_id'));
+    $_['en_oops_error'] = "Oops! some error occurs.";
+    $_['en_userEdit'] = " Profile Picture updated successfully.";
+        $user_id = $app->request->post('user_id');
+
+        //echo "<pre>";print_r(base64_decode($_POST['profile_image']));exit('profile_image');
+        $lang = 'en';
+        $upload_path = 'upload/';
+        $fileinfo = pathinfo($_FILES['profile_image']['name']);
+        $extension = $fileinfo['extension'];
+            if (!empty($extension)){
+                $file_url = $upload_url . 'pic_' . time() . '.' . $extension;
+                $file_path = $upload_path . 'pic_' . time() . '.' . $extension;
+                move_uploaded_file($_FILES['profile_image']['tmp_name'], $file_path);
+            }
+
+        $db = new DbOperation();
+        $response = array();
+        $res = $db->userEditProfilePic($user_id, $file_url);
+        if ($res == 0) {
+            $response["error"] = false;
+            $response["message"] = $_[$lang . '_userEdit'];
+            $users = $db->getUserInfo($user_id);
+            $response['user_data'] = $users;
+            echoResponse(201, $response);
+        } else if ($res == 1) {
+            $response["error"] = true;
+            $response["message"] = $_[$lang . '_oops_error'];
+            echoResponse(200, $response);
+        }
+});
 
 /**
  * URL: http://dnddemo.com/ebooks/api/v1/updatePassword
@@ -235,6 +268,115 @@ $app->post('/forgetPassword', function () use ($app) {
     }
 });
 
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/getAllCategory
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/getAllCategory', function() use ($app) {
+    $_['en_categorymsg'] = "listed all category successfully.";
+    $lang = 'en';
+    $db = new DbOperation();
+    $response = array();
+    $res = $db->allCategoryList();
+    if($res!= 1){
+        $response['error'] = false;
+        $response['response'] = $res;
+    }else{
+        $response['error'] = true;
+        $response['message'] = $_[$lang . '_categorymsg'];
+    }
+    echoResponse(200, $response);
+});
+
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/addNewBook
+ * Parameters: 
+ * Method: POST
+ * */
+
+
+$app->post('/addNewBook', function () use ($app){
+    verifyRequiredParams(array('user_id','category_id','book_title'));
+    $response = array();  
+    $user_id = $app->request->post('user_id');
+    $category_id = $app->request->post('category_id');
+    $book_title = $app->request->post('book_title');
+    $book_description = $app->request->post('book_description');
+    $author_name = $app->request->post('author_name');
+    $status = $app->request->post('status');
+            /****Cover image*/
+            $upload_path = 'upload/books/';
+            $fileinfo = pathinfo($_FILES['thubm_image']['name']);
+            $extension = $fileinfo['extension'];
+            $file_url = $upload_url.'book_'.time().'.'.$extension;
+            $file_path = $upload_path .'book_'.time().'.'.$extension;
+            move_uploaded_file($_FILES['thubm_image']['tmp_name'], $file_path);
+
+            /****Document file*/
+            $upload_path = 'upload/books/document/';
+            $fileinfo = pathinfo($_FILES['pdf_url']['name']);
+            $extension = $fileinfo['extension'];
+            $pdf_url = $upload_url.'document_'.time().'.'.$extension;
+            $file_path = $upload_path .'document_'.time().'.'.$extension;
+            move_uploaded_file($_FILES['pdf_url']['tmp_name'], $file_path);
+
+            /****audio file*/
+            $upload_path = 'upload/books/audio/';
+            $fileinfo = pathinfo($_FILES['audio_url']['name']);
+            $extension = $fileinfo['extension'];
+            $audio_url = $upload_url.'audio_'.time().'.'.$extension;
+            $file_path = $upload_path .'audio_'.time().'.'.$extension;
+            move_uploaded_file($_FILES['audio_url']['tmp_name'], $file_path);
+
+            /****gallery file*/
+            $upload_path = 'upload/books/gallery/';
+            $fileinfo = pathinfo($_FILES['book_image']['name']);
+            $extension = $fileinfo['extension'];
+            $book_image = $upload_url.'gallery_'.time().'.'.$extension;
+            $file_path = $upload_path .'gallery_'.time().'.'.$extension;
+            move_uploaded_file($_FILES['book_image']['tmp_name'], $file_path);
+
+            /****video file*/
+            $upload_path = 'upload/books/video/';
+            $fileinfo = pathinfo($_FILES['video_url']['name']);
+            $extension = $fileinfo['extension'];
+            $video_url = $upload_url.'video_'.time().'.'.$extension;
+            $file_path = $upload_path .'video_'.time().'.'.$extension;
+            move_uploaded_file($_FILES['video_url']['tmp_name'], $file_path);
+
+    $sendData = array(
+        'user_id' => $user_id,
+        'category_id' => $category_id,
+        'book_title' => htmlspecialchars_decode(html_entity_decode($book_title)),
+        'book_description' => htmlspecialchars_decode(html_entity_decode($book_description)),
+        'author_name' => $author_name,
+        'thubm_image' => $file_url,
+        'pdf_url' => $pdf_url,
+        'audio_url' => $audio_url,
+        'book_image' => $book_image,
+        'video_url' => $video_url,
+        'status' => $status
+    );
+
+    $db = new DbOperation();
+    $res = $db->publishNewBook($sendData);
+    if($res){
+        $arr = array();
+        $arr = $db->getbookByid($res);
+        $response["error"] = false;
+        $response["data"] = $arr;
+        $response["message"] = "Book published successfully.";
+        echoResponse(200, $response);
+    }else if($res == false){
+        $response["error"] = true;
+        $response["message"] = "failed.";
+        echoResponse(200, $response);
+    }
+});
 
 
 /******************************************************************************* */
