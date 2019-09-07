@@ -9,10 +9,9 @@ class DbOperation {
     */
 
     public function createUser($full_name, $pass, $email, $phone_no, $file_url, $device_token, $device_type, $random_number, $country="",$gender,$publisher_type,$user_name){
-        if (!$this->isUserExists($email)){
-            $password = md5($pass);
-            date_default_timezone_set('Asia/Calcutta');
-
+        if (!$this->isUserExists($email,$user_name)){
+            $password = base64_encode($pass);
+            date_default_timezone_set('America/Los_Angeles');
             //echo "<pre>";print_r($_POST);exit();
             $mysql = "INSERT INTO user_login_table set full_name       ='".$full_name."',
                                                         email          ='".$email."',
@@ -29,9 +28,7 @@ class DbOperation {
                                                         user_name      ='".$user_name."'";
                         $result = mysql_query($mysql);
                         $user_login_id = mysql_insert_id();
-                        //$return_data=array(email=>$email,suseremail=>$suseremail,full_name=>$full_name);
                         $return_data = $user_login_id.'&'.$email.'&'.$phone_no.'&'.$full_name;
-
                         if($result){
                             $data = 'Now you can login with this email and password';
                             $to = $email;
@@ -39,11 +36,9 @@ class DbOperation {
                             /* Let's Prepare The Message For The E-mail */
                             $message = 'Hello '.$username.'
                             Your email and password is following:
-                            E-mail: '.$email.'
+                            Username : '.$user_name.'
                             password: '.$pass.'';
-                            
                             /* Send The Message Using mail() Function */
-
                             if(mail($to, $subject, $message)){
                                 return $user_login_id.'&'.$email.'&'.$phone_no.'&'.$full_name.'&'.'0';
                             }
@@ -62,7 +57,7 @@ class DbOperation {
 */
 
     public function userlogin($email, $user_name, $pass, $device_token, $device_type){
-        $password = md5($pass);
+        $password = base64_encode($pass);
         $mysql = "SELECT * FROM user_login_table WHERE (user_name='".$user_name."') and password='".$password."'";
         $run = mysql_query($mysql);
         $num_rows = mysql_num_rows($run);
@@ -75,26 +70,32 @@ class DbOperation {
 *User profile updation...........
 *
 */
-    function userEdit($full_name, $address, $user_id, $file_url, $phone , $country="",$password,$publisher_type,$gender) {
-        $password = md5($password);
-        if(!empty($file_url)){
-            $mysql = "update user_login_table set full_name      ='".$full_name."',
-		                                             address      ='".$address."',
-		                                             country     ='".$country."',
-											         thumb_image ='".$file_url."',
-											         phone_no    ='".$phone."',
-                                                     password    ='".$password."',
-                                                     publisher_type ='".$publisher_type."',
-                                                     gender ='".$gender."' where id='".$user_id."'";
+    function userEdit($address, $user_id, $file_url, $country="",$password,$publisher_type,$email) {
+        $password = base64_encode($password);
+        $mysql = "update user_login_table set  address ='".$address."',
+                                               country ='".$country."',
+                                               password ='".$password."',
+                                               publisher_type ='".$publisher_type."',
+                                               email ='".$email."' where id='".$user_id."'";
+        
+        $run = mysql_query($mysql);
+        if($run > 0){
+            return 0;
         }else{
+            return 1;
+        }
+    }
 
-            $mysql = "update user_login_table set full_name ='".$full_name."',
-                                                    address ='".$address."',
-                                                    country ='".$country."',
-											       phone_no ='".$phone."',
-                                                   password ='".$password."',
-                                                   publisher_type ='".$publisher_type."',
-                                                   gender ='".$gender."' where id='".$user_id."'";
+
+/*
+*
+*User prfile pic updation...........
+*
+*/
+    function userEditProfilePic($user_id, $file_url) {
+        echo $file_url;
+        if($file_url){
+            $mysql = "update user_login_table set url ='".$file_url."' where id='".$user_id."'";
         }
         $run = mysql_query($mysql);
         if($run > 0){
@@ -109,9 +110,8 @@ class DbOperation {
 *User password updation...........
 *
 */
-
     function updatePassword($user_id, $opass, $npass){
-        $password = md5($npass);
+        $password = base64_encode($npass);
         $mysql = "update user_login_table set password='" . $password . "' where id='" . $user_id . "' and password='" . md5($opass) . "'";
         $run = mysql_query($mysql);
         if(mysql_affected_rows() > 0){
@@ -130,7 +130,7 @@ class DbOperation {
     function forgetPassword($email){
         $chars = "0123456789";
         $pass = substr(str_shuffle($chars), 0, 6);
-        $password = md5($pass);
+        $password = base64_encode($pass);
 
         $mysql = "update user_login_table set password='".$password."' where email='".$email."'";
         $run = mysql_query($mysql);
@@ -187,8 +187,8 @@ class DbOperation {
 *
 */
 
-    private function isUserExists($email) {
-        $mysql = "SELECT id from user_login_table WHERE email ='".$email."'";
+    private function isUserExists($email,$user_name) {
+        $mysql = "SELECT id from user_login_table WHERE email ='".$email."' AND user_name='".$user_name."'";
         $result = mysql_query($mysql);
         $num_rows = mysql_num_rows($result);
         return $num_rows > 0;
@@ -201,13 +201,11 @@ class DbOperation {
 */
 
     public function getUser($email, $user_name, $pass) {
-        $password = md5($pass);
-        $rows = array();
+        $password = base64_encode($pass);
         $mysql = "SELECT * FROM user_login_table WHERE (user_name = '".$user_name."') and password='".$password."'";
         $run = mysql_query($mysql);
         $user = mysql_fetch_object($run);
-        $rows[] = $user;
-        return $rows;
+        return $user;
     }
 
   
@@ -238,6 +236,28 @@ class DbOperation {
             while ($res = mysql_fetch_object($result)) {
                 $rows[] = $res;
             }
+            $rows = array(
+                'id' => $rows[0]->id,
+                'register_id' => $rows[0]->register_id,
+                'full_name' => $rows[0]->full_name,
+                'user_name' => $rows[0]->user_name,
+                'url' => $rows[0]->url,
+                'email' => $rows[0]->email,
+                'gender' => $rows[0]->gender,
+                'phone_no' => $rows[0]->phone_no,
+                'country' => $rows[0]->country,
+                'password' => base64_decode($rows[0]->password),
+                'date_edited' => $rows[0]->date_edited,
+                'status' => $rows[0]->status,
+                'message_status' => $rows[0]->message_status,
+                'publisher_type' => $rows[0]->publisher_type,
+                'device_token' => $rows[0]->device_token,
+                'device_type' => $rows[0]->device_type,
+                'address' => $rows[0]->address,
+                'global_posting' => $rows[0]->global_posting,
+
+                );
+            
             return $rows;
         } else {
             return 1;
@@ -255,8 +275,29 @@ class DbOperation {
         $mysql = "SELECT * FROM user_login_table WHERE email ='".$email."'";
         $result = mysql_query($mysql);
         $num_rows = mysql_num_rows($result);
-        $rows = array();
+      
         if ($num_rows > 0) {
+            while ($res = mysql_fetch_object($result)) {
+                $rows = $res;
+            }
+            return $rows;
+        } else {
+            return 1;
+        }
+    }
+
+
+/*
+*
+*Get all category ...........
+*
+*/
+    public function allCategoryList() {
+        $mysql = "SELECT * FROM tbl_category";
+        $result = mysql_query($mysql);
+        $num_rows = mysql_num_rows($result);
+        $rows = array();
+        if ($num_rows > 0){
             while ($res = mysql_fetch_object($result)) {
                 $rows[] = $res;
             }
@@ -266,9 +307,67 @@ class DbOperation {
         }
     }
 
+/*
+*
+*Publish new book ...........
+*
+*/
+
+public function publishNewBook($data){
+        date_default_timezone_set('America/Los_Angeles');
+        $user_id          = $data['user_id'];
+        $category_id      = $data['category_id'];
+        $book_title       = $data['book_title'];
+        $book_description = $data['book_description'];
+        $author_name      = $data['author_name'];
+        $thubm_image      = $data['thubm_image'];
+        $pdf_url          = $data['pdf_url'];
+        $audio_url        = $data['audio_url'];
+        $book_image       = $data['book_image'];
+        $video_url        = $data['video_url'];
+        $date             = date('Y-m-d');
+        $status           = $data['status'];
+        $book_slug = strtolower($data['book_title']);
+   
+        $mysql = "INSERT INTO tbl_books set user_id     = '".$user_id."',
+                                       category_id      = '".$category_id."',
+                                       book_title       ='".$book_title."',
+                                       book_slug        =  '".$book_slug."',
+                                       thubm_image      = '".$thubm_image."',
+                                       pdf_url          = '".$pdf_url."',
+                                       audio_url        = '".$audio_url."',
+                                       book_image       = '".$book_image."',
+                                       video_url        = '".$video_url."',
+                                       book_description = '".$book_description."',
+                                       author_name      = '".$author_name."',
+                                       status           = '".$status."',
+                                       created_at       = '".$date."'";          
+
+        $result = mysql_query($mysql);
+        $books_id = mysql_insert_id();
+        if ($result){
+            return $books_id;
+        } else {
+            return false;
+        }
+    }
+
+/*
+*
+*Get book by id ...........
+*
+*/
+
+ public function getbookByid($id) {
+        $mysql = "SELECT * FROM tbl_books WHERE  id='".$id."'";
+        $run = mysql_query($mysql);
+        $row = mysql_fetch_object($run);
+
+        return $row;
+    }
 
 
-    //Method to generate a unique api key every time
+//Method to generate a unique api key every time
     private function generateApiKey() {
         return md5(uniqid(rand(), true));
     }
