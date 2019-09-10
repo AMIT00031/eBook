@@ -1,6 +1,7 @@
 <?php
 require_once('DbConnect.php');
 require_once('PHPMailerAutoload.php');
+
 $db = new DbConnect();
 class DbOperation {
     /*
@@ -93,7 +94,6 @@ class DbOperation {
 *
 */
     function userEditProfilePic($user_id, $file_url) {
-        echo $file_url;
         if($file_url){
             $mysql = "update user_login_table set url ='".$file_url."' where id='".$user_id."'";
         }
@@ -362,9 +362,84 @@ public function publishNewBook($data){
         $mysql = "SELECT * FROM tbl_books WHERE  id='".$id."'";
         $run = mysql_query($mysql);
         $row = mysql_fetch_object($run);
-
         return $row;
     }
+
+/*
+*
+*Get All books ...........
+*
+*/    
+
+public function getBookbyCategoryId($cat_id) {
+
+    //echo "<pre>";print_r($_POST);exit();
+        date_default_timezone_set('America/Los_Angeles');
+        $rows = array();
+        $mysql = "SELECT id ,book_title, thubm_image, author_name FROM tbl_books WHERE category_id='".$cat_id."' and status=1";
+        //echo $mysql;die;
+        $result = mysql_query($mysql);
+        $num_rows = mysql_num_rows($result);
+        if ($num_rows > 0) {
+            while($res = mysql_fetch_object($result)){
+                $res->book_title = strip_tags($res->book_title);
+                $res->thubm_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.strip_tags($res->thubm_image);
+                $res->book_description = strip_tags($res->book_description);
+                $rows[] = $res;
+            }
+            return $rows;
+        } else {
+            return 1;
+        }
+    }
+
+
+
+/*
+*
+*Get book details by id ...........
+*
+*/
+
+ public function getbooksDetailByid($bookId) {
+        $mysql = "SELECT * FROM tbl_books WHERE  id='".$bookId."'";
+        $run = mysql_query($mysql);
+        $row = mysql_fetch_object($run);
+        $row->book_title = strip_tags($row->book_title);
+        $row->book_description = strip_tags($row->book_description);
+        $row->thubm_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->thubm_image;
+        $row->book_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->book_image;
+        $row->video_url = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->video_url;
+        $row->audio_url = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->audio_url;
+        $row->pdf_url = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->pdf_url;
+        return $row;
+    }
+
+
+
+/*
+*
+*Get book details by id ...........
+*
+*/
+
+
+public function addUpdateBookmark($bookId, $bookmarStatus) {
+        if($bookId!=='' && $bookmarStatus == 1){
+            $date_edited = date("Y-m-d H:i:s");
+                $mysql = "update tbl_books set bookMark ='1',updated_at ='".$date_edited."' WHERE  id='".$bookId."'";
+                $result = mysql_query($mysql);
+                //echo "<pre>";print_r($result);exit();
+                return 'active';
+            }else{
+                $date_edited = date("y-m-d h:i:s");
+                $mysql = "update tbl_books set bookMark ='0',updated_at ='".$date_edited."' WHERE  id='".$bookId."'";
+                $result = mysql_query($mysql);
+                return 'deactive';
+                }
+            }
+
+ 
 
 
 //Method to generate a unique api key every time
