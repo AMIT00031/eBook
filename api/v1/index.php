@@ -300,6 +300,8 @@ $app->post('/getAllCategory', function() use ($app) {
 
 
 $app->post('/addNewBook', function () use ($app){
+    /*echo "<pre>";print_r($_FILES);
+    echo "<pre>";print_r($_POST);exit;*/
     verifyRequiredParams(array('user_id','category_id','book_title'));
     $response = array();  
     $user_id = $app->request->post('user_id');
@@ -376,6 +378,70 @@ $app->post('/addNewBook', function () use ($app){
         $response["message"] = "failed.";
         echoResponse(200, $response);
     }
+});
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/getAllBooks
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/getBooksByTypes', function () use ($app) {
+    $cat_id = $app->request->post('category_id');
+    $response = array();
+    $db = new DbOperation();
+    $arr = array();
+    $arr = $db->getBookbyCategoryId($cat_id);
+    $response["error"] = false;
+    $response["data"] = $arr;
+    $response["message"] = "success";
+    echoResponse(200, $response);
+});
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/getBookDetail
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/getBookDetail', function () use ($app) {
+    $bookId = $app->request->post('book_id');
+    $response = array();
+    $db = new DbOperation();
+    $arr = array();
+    $arr = $db->getbooksDetailByid($bookId);
+    $response["error"] = false;
+    $response["data"] = $arr;
+    $response["message"] = "success";
+    echoResponse(200, $response);
+});
+
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/bookMark
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/bookMark', function () use ($app) {
+    $bookId = $app->request->post('book_id');
+    $bookmarStatus = $app->request->post('bookmark_status');
+    $response = array();
+    $db = new DbOperation();
+    $arr = array();
+    $arr = $db->addUpdateBookmark($bookId,$bookmarStatus);
+    
+    if($arr == 'deactive') {
+            $response["error"] = true;
+            $response["message"] = "Bookmark deactive successfully";
+             $response["data"] = 0;
+            echoResponse(200, $response);
+        }else if($arr == 'active') {
+            $response["error"] = true;
+            $response["message"] = "Bookmark Added successfully";
+            $response["data"] = 1;
+            echoResponse(200, $response);
+        }
 });
 
 
