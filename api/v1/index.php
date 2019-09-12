@@ -4,8 +4,8 @@ require_once '../include/Braintree_lib.php';
 require '.././libs/Slim/Slim.php';
 \Slim\Slim::registerAutoloader();
 
-define("ROOT_FOLDER","/ebooks/development/");
-define("DOCUMENTROOT",$_SERVER['DOCUMENT_ROOT'].ROOT_FOLDER);
+/*define("ROOT_FOLDER","/ebooks/development/");
+define("DOCUMENTROOT",$_SERVER['DOCUMENT_ROOT'].ROOT_FOLDER);*/
 
 $app = new \Slim\Slim();
 $app->post('/createUser', function () use ($app) {
@@ -28,6 +28,7 @@ $app->post('/createUser', function () use ($app) {
     $gender = $app->request->post('gender');
     $publisher_type = $app->request->post('publisher_type');
     $user_name = $app->request->post('user_name');
+    $about_me = $app->request->post('about_me');
         $upload_path = 'upload/';
         $fileinfo = pathinfo($_FILES['image']['name']);
         $extension = $fileinfo['extension'];
@@ -36,7 +37,7 @@ $app->post('/createUser', function () use ($app) {
         move_uploaded_file($_FILES['image']['tmp_name'], $file_path);
 
     $db = new DbOperation();
-    $res = $db->createUser($full_name, $password, $email, $phone_no,$file_url, $device_token, $device_type, $random_number, $country, $gender, $publisher_type, $user_name);
+    $res = $db->createUser($full_name, $password, $email, $phone_no,$file_url, $device_token, $device_type, $random_number, $country, $gender, $publisher_type, $user_name,$about_me);
         $resParse = explode('&', $res);
         $user_id = $resParse[0];
         $email = $resParse[1];
@@ -140,6 +141,7 @@ $app->post('/userEdit', function () use ($app) {
         $password = $app->request->post('password');
         $publisher_type = $app->request->post('publisher_type');
         $email = $app->request->post('email');
+        $about_me = $app->request->post('about_me');
         $lang = 'en';
         $upload_path = 'upload/';
         $fileinfo = pathinfo($_FILES['profile_image']['name']);
@@ -152,7 +154,7 @@ $app->post('/userEdit', function () use ($app) {
 
         $db = new DbOperation();
         $response = array();
-        $res = $db->userEdit($address, $user_id, $file_url, $country, $password,$publisher_type, $email);
+        $res = $db->userEdit($address, $user_id, $file_url, $country, $password,$publisher_type, $email,$about_me);
         if ($res == 0) {
             $response["error"] = false;
             $response["message"] = $_[$lang . '_userEdit'];
@@ -311,44 +313,54 @@ $app->post('/addNewBook', function () use ($app){
     $author_name = $app->request->post('author_name');
     $status = $app->request->post('status');
             /****Cover image*/
-            $upload_path = 'upload/books/';
-            $fileinfo = pathinfo($_FILES['thubm_image']['name']);
-            $extension = $fileinfo['extension'];
-            $file_url = $upload_url.'book_'.time().'.'.$extension;
-            $file_path = $upload_path .'book_'.time().'.'.$extension;
-            move_uploaded_file($_FILES['thubm_image']['tmp_name'], $file_path);
+            if(!empty($_FILES['thubm_image'])){
+                $upload_path = 'upload/books/';
+                $fileinfo = pathinfo($_FILES['thubm_image']['name']);
+                $extension = $fileinfo['extension'];
+                $file_url = $upload_url.'book_'.time().'.'.$extension;
+                $file_path = $upload_path .'book_'.time().'.'.$extension;
+                move_uploaded_file($_FILES['thubm_image']['tmp_name'], $file_path);
+            }
+            
 
             /****Document file*/
-            $upload_path = 'upload/books/document/';
-            $fileinfo = pathinfo($_FILES['pdf_url']['name']);
-            $extension = $fileinfo['extension'];
-            $pdf_url = $upload_url.'document_'.time().'.'.$extension;
-            $file_path = $upload_path .'document_'.time().'.'.$extension;
-            move_uploaded_file($_FILES['pdf_url']['tmp_name'], $file_path);
-
+            if(!empty($_FILES['pdf_url'])){
+                $upload_path = 'upload/books/document/';
+                $fileinfo = pathinfo($_FILES['pdf_url']['name']);
+                $extension = $fileinfo['extension'];
+                $pdf_url = $upload_url.'document_'.time().'.'.$extension;
+                $file_path = $upload_path .'document_'.time().'.'.$extension;
+                move_uploaded_file($_FILES['pdf_url']['tmp_name'], $file_path);
+            }
             /****audio file*/
-            $upload_path = 'upload/books/audio/';
-            $fileinfo = pathinfo($_FILES['audio_url']['name']);
-            $extension = $fileinfo['extension'];
-            $audio_url = $upload_url.'audio_'.time().'.'.$extension;
-            $file_path = $upload_path .'audio_'.time().'.'.$extension;
-            move_uploaded_file($_FILES['audio_url']['tmp_name'], $file_path);
+            if(!empty($_FILES['audio_url'])){
+                $upload_path = 'upload/books/audio/';
+                $fileinfo = pathinfo($_FILES['audio_url']['name']);
+                $extension = $fileinfo['extension'];
+                $audio_url = $upload_url.'audio_'.time().'.'.$extension;
+                $file_path = $upload_path .'audio_'.time().'.'.$extension;
+                move_uploaded_file($_FILES['audio_url']['tmp_name'], $file_path);
+            }
 
             /****gallery file*/
-            $upload_path = 'upload/books/gallery/';
-            $fileinfo = pathinfo($_FILES['book_image']['name']);
-            $extension = $fileinfo['extension'];
-            $book_image = $upload_url.'gallery_'.time().'.'.$extension;
-            $file_path = $upload_path .'gallery_'.time().'.'.$extension;
-            move_uploaded_file($_FILES['book_image']['tmp_name'], $file_path);
+             if(!empty($_FILES['book_image'])){
+                $upload_path = 'upload/books/gallery/';
+                $fileinfo = pathinfo($_FILES['book_image']['name']);
+                $extension = $fileinfo['extension'];
+                $book_image = $upload_url.'gallery_'.time().'.'.$extension;
+                $file_path = $upload_path .'gallery_'.time().'.'.$extension;
+                move_uploaded_file($_FILES['book_image']['tmp_name'], $file_path);
+            }
 
             /****video file*/
-            $upload_path = 'upload/books/video/';
-            $fileinfo = pathinfo($_FILES['video_url']['name']);
-            $extension = $fileinfo['extension'];
-            $video_url = $upload_url.'video_'.time().'.'.$extension;
-            $file_path = $upload_path .'video_'.time().'.'.$extension;
-            move_uploaded_file($_FILES['video_url']['tmp_name'], $file_path);
+             if(!empty($_FILES['video_url'])){
+                $upload_path = 'upload/books/video/';
+                $fileinfo = pathinfo($_FILES['video_url']['name']);
+                $extension = $fileinfo['extension'];
+                $video_url = $upload_url.'video_'.time().'.'.$extension;
+                $file_path = $upload_path .'video_'.time().'.'.$extension;
+                move_uploaded_file($_FILES['video_url']['tmp_name'], $file_path);
+            }
 
     $sendData = array(
         'user_id' => $user_id,
@@ -423,25 +435,72 @@ $app->post('/getBookDetail', function () use ($app) {
  * Method: POST
  * */
 
+
 $app->post('/bookMark', function () use ($app) {
-    $bookId = $app->request->post('book_id');
-    $bookmarStatus = $app->request->post('bookmark_status');
     $response = array();
-    $db = new DbOperation();
-    $arr = array();
-    $arr = $db->addUpdateBookmark($bookId,$bookmarStatus);
-    
-    if($arr == 'deactive') {
+    $user_id = $app->request->post('user_id');
+    $bookId = $app->request->post('book_id');
+    if ($user_id == "") {
+        $response["error"] = false;
+        $response["message"] = "Please login first";
+        echoResponse(201, $response);
+    } elseif($bookId == "") {
+        $response["error"] = false;
+        $response["message"] = "error! please try again";
+        echoResponse(201, $response);
+    } else {
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->addUpdateBookmark($user_id, $bookId);
+        if ($arr == 'deactive') {
             $response["error"] = true;
-            $response["message"] = "Bookmark deactive successfully";
+            $response["message"] = "Success.";
              $response["data"] = 0;
             echoResponse(200, $response);
-        }else if($arr == 'active') {
+        } else if ($arr == 'active') {
             $response["error"] = true;
-            $response["message"] = "Bookmark Added successfully";
+            $response["message"] = "Success.";
             $response["data"] = 1;
             echoResponse(200, $response);
+        } else {
+            $response["error"] = false;
+            $response["message"] = "Failed.";
+            echoResponse(201, $response);
         }
+    }
+});
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/getAllbookMarkByUser
+ * Parameters: 
+ * Method: POST
+ * */
+
+
+$app->post('/getAllbookMarkByUser', function () use ($app) {
+    $response = array();
+    $user_id = $app->request->post('user_id');
+    if ($user_id == "") {
+        $response["error"] = false;
+        $response["message"] = "Please login first";
+        echoResponse(201, $response);
+    }else{
+        
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->getUserBookMark($user_id);
+        //echo $arr;
+        if (!empty($arr)) {
+            $response["error"] = true;
+            $response["message"] = "Success.";
+            $response["data"] = $arr;
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = false;
+            $response["message"] = "Failed.";
+            echoResponse(201, $response);
+        }
+    }
 });
 
 
