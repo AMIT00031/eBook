@@ -9,7 +9,7 @@ class DbOperation {
     *
     */
 
-    public function createUser($full_name, $pass, $email, $phone_no, $file_url, $device_token, $device_type, $random_number, $country="",$gender,$publisher_type,$user_name){
+    public function createUser($full_name, $pass, $email, $phone_no, $file_url, $device_token, $device_type, $random_number, $country="",$gender,$publisher_type,$user_name,$about_me){
         if (!$this->isUserExists($email,$user_name)){
             $password = base64_encode($pass);
             date_default_timezone_set('America/Los_Angeles');
@@ -26,7 +26,8 @@ class DbOperation {
                                                         password       ='".$password."',
                                                         gender         ='".$gender."',
                                                         publisher_type ='".$publisher_type."',
-                                                        user_name      ='".$user_name."'";
+                                                        user_name      ='".$user_name."',
+                                                        about_me      ='".$about_me."'";
                         $result = mysql_query($mysql);
                         $user_login_id = mysql_insert_id();
                         $return_data = $user_login_id.'&'.$email.'&'.$phone_no.'&'.$full_name;
@@ -71,13 +72,14 @@ class DbOperation {
 *User profile updation...........
 *
 */
-    function userEdit($address, $user_id, $file_url, $country="",$password,$publisher_type,$email) {
+    function userEdit($address, $user_id, $file_url, $country="",$password,$publisher_type,$email,$about_me) {
         $password = base64_encode($password);
         $mysql = "update user_login_table set  address ='".$address."',
                                                country ='".$country."',
                                                password ='".$password."',
                                                publisher_type ='".$publisher_type."',
-                                               email ='".$email."' where id='".$user_id."'";
+                                               email ='".$email."',
+                                               about_me ='".$about_me."' where id='".$user_id."'";
         
         $run = mysql_query($mysql);
         if($run > 0){
@@ -251,6 +253,7 @@ class DbOperation {
                 'status' => $rows[0]->status,
                 'message_status' => $rows[0]->message_status,
                 'publisher_type' => $rows[0]->publisher_type,
+                'about_me' => $rows[0]->about_me,
                 'device_token' => $rows[0]->device_token,
                 'device_type' => $rows[0]->device_type,
                 'address' => $rows[0]->address,
@@ -376,7 +379,7 @@ public function getBookbyCategoryId($cat_id) {
     //echo "<pre>";print_r($_POST);exit();
         date_default_timezone_set('America/Los_Angeles');
         $rows = array();
-        $mysql = "SELECT id ,book_title, thubm_image, author_name FROM tbl_books WHERE category_id='".$cat_id."' and status=1";
+        $mysql = "SELECT id ,book_title, thubm_image, author_name FROM tbl_books WHERE category_id='".$cat_id."'";
         //echo $mysql;die;
         $result = mysql_query($mysql);
         $num_rows = mysql_num_rows($result);
@@ -389,7 +392,7 @@ public function getBookbyCategoryId($cat_id) {
             }
             return $rows;
         } else {
-            return 1;
+            return NULL;
         }
     }
 
@@ -403,15 +406,18 @@ public function getBookbyCategoryId($cat_id) {
 
  public function getbooksDetailByid($bookId) {
         $mysql = "SELECT * FROM tbl_books WHERE  id='".$bookId."'";
+
+        ///echo $mysql;exit();
         $run = mysql_query($mysql);
         $row = mysql_fetch_object($run);
         $row->book_title = strip_tags($row->book_title);
         $row->book_description = strip_tags($row->book_description);
-        $row->thubm_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->thubm_image;
-        $row->book_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->book_image;
-        $row->video_url = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->video_url;
-        $row->audio_url = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->audio_url;
-        $row->pdf_url = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->pdf_url;
+        if($row->thubm_image)
+        $row->thubm_image = !empty($row->thubm_image) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->thubm_image: NULL;
+        $row->book_image = !empty($row->book_image) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/gallery/'.$row->book_image: NULL;
+        $row->video_url = !empty($row->video_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/video/'.$row->video_url : NULL;
+        $row->audio_url = !empty($row->audio_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/audio/'.$row->audio_url : NULL;
+        $row->pdf_url = !empty($row->pdf_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/document/'.$row->pdf_url : NULL;
         return $row;
     }
 
@@ -419,25 +425,65 @@ public function getBookbyCategoryId($cat_id) {
 
 /*
 *
-*Get book details by id ...........
+*Get bookmark details  ...........
 *
 */
 
+ public function addUpdateBookmark($user_id, $bookId){
+        if ($user_id != '' && $bookId != '') {
+            $mysql = "SELECT * FROM tbl_bookmark WHERE user_id='".$user_id."' and  books_id ='".$bookId."'";
+            $run = mysql_query($mysql);
+            $bookmark = mysql_fetch_object($run);
+            $bmid = $bookmark->id;
 
-public function addUpdateBookmark($bookId, $bookmarStatus) {
-        if($bookId!=='' && $bookmarStatus == 1){
-            $date_edited = date("Y-m-d H:i:s");
-                $mysql = "update tbl_books set bookMark ='1',updated_at ='".$date_edited."' WHERE  id='".$bookId."'";
-                $result = mysql_query($mysql);
-                //echo "<pre>";print_r($result);exit();
-                return 'active';
-            }else{
-                $date_edited = date("y-m-d h:i:s");
-                $mysql = "update tbl_books set bookMark ='0',updated_at ='".$date_edited."' WHERE  id='".$bookId."'";
-                $result = mysql_query($mysql);
-                return 'deactive';
+            if ($bmid != ''){
+                if ($bookmark->status == 1) {
+                    $updated_at = date("Y-m-d H:i:s");
+                    $mysql = "update tbl_bookmark set status ='0',updated_at ='".$updated_at."' WHERE id='".$bmid."'";
+                    $result = mysql_query($mysql);
+                    return 'deactive';
+                } else {
+                    $updated_at = date("y-m-d h:i:s");
+                    $mysql = "update tbl_bookmark set status ='1',updated_at ='".$updated_at."' WHERE id='".$bmid."'";
+                    $result = mysql_query($mysql);
+                    return 'active';
                 }
+            } else {
+                $mysql = "INSERT INTO tbl_bookmark set  books_id ='".$bookId."',user_id ='".$user_id."',status ='1'";
+                $result = mysql_query($mysql);
+                return 'active';
             }
+        } else {
+            return 'failed';
+        }
+    }
+
+
+
+    public function getUserBookMark($userId) {
+
+        date_default_timezone_set('America/Los_Angeles');
+        $rows = array();
+        $mysql = "select b.id,b.book_title,b.thubm_image,b.author_name,b.book_description,bm.user_id as user_id, bm.id as bookmark_id,bm.status as bm_status from tbl_bookmark bm inner join tbl_books b on bm.books_id  = b.id where bm.user_id = ".$userId." AND bm.status =1 order by bm.created_at desc";
+ 
+ 
+        //echo $mysql;exit();
+        $result = mysql_query($mysql);
+        $num_rows = mysql_num_rows($result);
+        
+        if ($num_rows > 0) {
+            while ($res = mysql_fetch_object($result)) {
+                $res->book_title = strip_tags($res->book_title);
+                $res->thubm_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.strip_tags($res->thubm_image);
+                $res->book_description = strip_tags($res->book_description);
+                $rows[] = $res;
+            }
+            return $rows;
+        } else {
+            return 'NULL';
+        }
+
+    }
 
  
 
