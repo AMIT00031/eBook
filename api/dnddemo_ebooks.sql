@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 12, 2019 at 01:15 PM
+-- Generation Time: Sep 13, 2019 at 01:19 PM
 -- Server version: 5.6.45-log
 -- PHP Version: 7.2.7
 
@@ -114,8 +114,9 @@ INSERT INTO `tbl_bookmark` (`id`, `user_id`, `books_id`, `status`, `created_at`,
 (1, '6', '14', '1', '2019-09-12 09:54:08', '2019-09-12 10:14:49'),
 (2, '7', '14', '0', '2019-09-12 10:16:30', '2019-09-12 12:17:30'),
 (3, '7', '13', '0', '2019-09-12 10:17:14', '2019-09-12 12:35:57'),
-(4, '1', '14', '1', '2019-09-12 12:39:40', '2019-09-12 12:39:40'),
-(5, '1', '13', '1', '2019-09-12 12:40:14', '2019-09-12 01:02:12');
+(4, '1', '14', '0', '2019-09-12 12:39:40', '2019-09-13 12:10:25'),
+(5, '1', '13', '0', '2019-09-12 12:40:14', '2019-09-13 12:07:41'),
+(6, '1', '7', '0', '2019-09-13 05:08:21', '2019-09-13 11:45:27');
 
 -- --------------------------------------------------------
 
@@ -189,6 +190,50 @@ INSERT INTO `tbl_category` (`id`, `category_name`, `slug_url`, `status`, `thum_i
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `tbl_note`
+--
+
+CREATE TABLE `tbl_note` (
+  `id` int(11) NOT NULL,
+  `user_id` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `description` text,
+  `status` varchar(10) NOT NULL DEFAULT '1',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `tbl_note`
+--
+
+INSERT INTO `tbl_note` (`id`, `user_id`, `title`, `description`, `status`, `created_at`, `updated_at`) VALUES
+(1, '8', 'Payment account', 'Test payment', '1', '2019-09-13 12:23:25', '2019-09-13 12:23:25'),
+(2, '8', 'Payment account', 'Test payment', '1', '2019-09-13 12:37:15', '2019-09-13 12:37:15'),
+(3, '6', '', 'gshyd jsduy  sdgy jsdg sdhg hdf hdf uyyut ed yskdj yew wy euyi werwer iuyri iuriey ier iyr g ers wer tt wr55 gfg srtt rt trwe 564 gfhhh', '1', '2019-09-13 12:37:25', '2019-09-13 12:37:25'),
+(4, '6', '', 'gshyd jsduy  sdgy jsdg sdhg hdf hdf uyyut ed yskdj yew wy euyi werwer iuyri iuriey ier iyr g ers wer tt wr55 gfg srtt rt trwe 564 gfhhh', '1', '2019-09-13 12:37:39', '2019-09-13 12:37:39'),
+(5, '6', '', 'gshyd jsduy  sdgy jsdg sdhg hdf hdf uyyut ed yskdj yew wy euyi werwer iuyri iuriey ier iyr g ers wer tt wr55 gfg srtt rt trwe 564 gfhhh', '1', '2019-09-13 12:37:40', '2019-09-13 12:37:40'),
+(6, '6', '', 'gshyd js uyyut ed yskdj yew wy euyi werwer iuyri iuriey ier iyr g ers wer tt wr55 gfg srtt rt trwe 564 gfhhh', '1', '2019-09-13 12:37:45', '2019-09-13 12:37:45'),
+(7, '6', '', 'gshyd js uyyut ed yskdj yew wy euyi werwer iuyri iuriey ier iyr g ers wer tt wr55 gfg srtt rt trwe 564 gfhhh', '1', '2019-09-13 12:37:47', '2019-09-13 12:37:47'),
+(8, '6', '', 'gshyd js uyyut ed yskdj yew wy euyi werwer iuyri iuriey ier iyr g ers wer tt wr55 gfg srtt rt trwe 564 gfhhh', '1', '2019-09-13 12:38:01', '2019-09-13 12:38:01'),
+(9, '1', '', 'this is from,of r to the try yaqe yeq. artrt r to RT RT RT RT r', '1', '2019-09-13 12:44:03', '2019-09-13 12:44:03'),
+(10, '1', NULL, 'sdfgsdfsdf dfsdf', '1', '2019-09-13 13:12:30', '2019-09-13 12:46:56'),
+(11, '1', NULL, '', '1', '2019-09-13 12:47:16', '2019-09-13 12:47:16'),
+(12, '1', NULL, '', '1', '2019-09-13 12:47:26', '2019-09-13 12:47:26'),
+(13, '1', NULL, '', '1', '2019-09-13 12:48:10', '2019-09-13 12:48:10'),
+(14, '1', NULL, 'gshyd js uyyut ed yskdj yew wy euyi werwer iuyri iuriey ier iyr g ers wer tt wr55 gfg srtt rt trwe 564 gfhhh', '1', '2019-09-13 13:14:02', '2019-09-13 13:14:02'),
+(15, '1', NULL, 'gshyd js uyyut ed yskdj yew wy euyi werwer iuyri iuriey ier iyr g ers wer tt wr55 gfg srtt rt trwe 564 gfhhh', '1', '2019-09-13 13:14:04', '2019-09-13 13:14:04'),
+(16, '1', NULL, 'gshyd js uyyut ed yskdj yew wy euyi werwer iuyri iuriey ier iyr g ers wer tt wr55 gfg srtt rt trwe 564 gfhhh', '1', '2019-09-13 13:14:05', '2019-09-13 13:14:05'),
+(17, '1', NULL, 'gshyd js uyyut ed yskdj yew wy euyi werwer iuyri iuriey ier iyr g ers wer tt wr55 gfg srtt rt trwe 564 gfhhh', '1', '2019-09-13 13:14:06', '2019-09-13 13:14:06'),
+(18, '1', NULL, 'gshyd js uyyut ed yskdj yew wy euyi werwer iuyri iuriey ier iyr g ers wer tt wr55 gfg srtt rt trwe 564 gfhhh', '1', '2019-09-13 13:14:06', '2019-09-13 13:14:06'),
+(19, '1', NULL, 'etrtrt terwerertrt ett ', '1', '2019-09-13 13:16:14', '2019-09-13 13:16:14'),
+(20, '1', NULL, 'rtyyrt ert ryr yrweyt ', '1', '2019-09-13 13:16:32', '2019-09-13 13:16:32'),
+(21, '1', NULL, 'rtyyrt ert ryr yrweyt ', '1', '2019-09-13 13:16:44', '2019-09-13 13:16:44'),
+(22, '1', NULL, 'rtrtt', '1', '2019-09-13 13:17:04', '2019-09-13 13:17:04');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tbl_review`
 --
 
@@ -240,13 +285,14 @@ CREATE TABLE `user_login_table` (
 --
 
 INSERT INTO `user_login_table` (`id`, `register_id`, `full_name`, `user_name`, `url`, `email`, `gender`, `phone_no`, `about_me`, `country`, `password`, `confirmation_key`, `date_added`, `date_edited`, `status`, `message_status`, `publisher_type`, `device_token`, `device_type`, `address`, `thumb_image`, `createdAt`, `global_posting`) VALUES
-(1, '318527', '', 'VAnsh', 'pic_1568111814.jpg', 'chaudhary.vanshraj@gmail.com', '', '', 'vjj', 'India', 'IA==', '', NULL, 1568028117, 1, '1', 'Writer', '', '', '', '', '2019-09-09 11:21:57', '1'),
+(1, '318527', '', 'VAnsh', 'pic_1568375460.jpg', 'chaudhary.vanshraj@gmail.com', '', '', 'vjj', 'India', 'IA==', '', NULL, 1568028117, 1, '1', 'Writer', '', '', '', '', '2019-09-09 11:21:57', '1'),
 (2, '847942', '', 'Vansh raj', 'pic_1568108462.', 'vansh1996raj@gmail.com', '', '', '', '', 'IA==', '', NULL, 1568108462, 1, '1', 'Writer', '', '', '', '', '2019-09-10 09:41:02', '1'),
 (3, '675018', '', 'dfd', 'pic_1568110414.', 'dfdf', 'male', '', '', 'df', 'ZmRm', '', NULL, 1568110414, 1, '1', 'Writer', '', '', '', '', '2019-09-10 10:13:34', '1'),
 (4, '925860', '', 'fgg', 'pic_1568110461.', 'g', 'male', '', '', 'gfgf', 'Z2Zn', '', NULL, 1568110461, 1, '1', 'Reader', '', '', '', '', '2019-09-10 10:14:21', '1'),
 (5, '103969', '', 'dgdgdggdfgdfdsfd', 'pic_1568110536.', 'sdsf', 'male', '', '', 'sf', 'c2ZkZg==', '', NULL, 1568110536, 1, '1', 'Reader', '', '', '', '', '2019-09-10 10:15:36', '1'),
 (6, '286303', '', 'errer', 'pic_1568110964.jpg', 'frsdfsdf', 'male', '', '', 'sdfd', 'c2Rmc2Rmc2Zz', '', NULL, 1568110911, 0, '1', 'Writer', '', '', '', '', '2019-09-10 10:21:51', '1'),
-(7, '313076', '', 'sdd', 'pic_1568288403.jpg', 'dddd', 'male', '', 'dddddrtrt. rrtr RT ', 'ddd', 'ZGRk', '', NULL, 1568282898, 1, '1', 'Writer', '', '', '', '', '2019-09-12 10:08:18', '1');
+(7, '313076', '', 'sdd', 'pic_1568288403.jpg', 'dddd', 'male', '', 'dddddrtrt. rrtr RT ', 'ddd', 'ZGRk', '', NULL, 1568282898, 1, '1', 'Writer', '', '', '', '', '2019-09-12 10:08:18', '1'),
+(8, '326988', '', 'demo', 'pic_1568367995.', 'dfdfW@gmail.com', 'male', '', 'this is demo', 'ddd', 'ZGQ=', '', NULL, 1568367995, 1, '1', 'Publish House', '', '', '', '', '2019-09-13 09:46:35', '1');
 
 --
 -- Indexes for dumped tables
@@ -290,6 +336,12 @@ ALTER TABLE `tbl_category`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `tbl_note`
+--
+ALTER TABLE `tbl_note`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `tbl_review`
 --
 ALTER TABLE `tbl_review`
@@ -329,7 +381,7 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `tbl_bookmark`
 --
 ALTER TABLE `tbl_bookmark`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `tbl_books`
@@ -344,6 +396,12 @@ ALTER TABLE `tbl_category`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `tbl_note`
+--
+ALTER TABLE `tbl_note`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
 -- AUTO_INCREMENT for table `tbl_review`
 --
 ALTER TABLE `tbl_review`
@@ -353,7 +411,7 @@ ALTER TABLE `tbl_review`
 -- AUTO_INCREMENT for table `user_login_table`
 --
 ALTER TABLE `user_login_table`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
