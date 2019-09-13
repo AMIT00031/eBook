@@ -374,12 +374,10 @@ public function publishNewBook($data){
 *
 */    
 
-public function getBookbyCategoryId($cat_id) {
-
-    //echo "<pre>";print_r($_POST);exit();
+public function getBookbyCategoryId($cat_id){
         date_default_timezone_set('America/Los_Angeles');
         $rows = array();
-        $mysql = "SELECT id ,book_title, thubm_image, author_name FROM tbl_books WHERE category_id='".$cat_id."'";
+        $mysql = "SELECT id ,book_title, thubm_image, author_name,book_description FROM tbl_books WHERE category_id='".$cat_id."'";
         //echo $mysql;die;
         $result = mysql_query($mysql);
         $num_rows = mysql_num_rows($result);
@@ -480,10 +478,68 @@ public function getBookbyCategoryId($cat_id) {
             }
             return $rows;
         } else {
-            return 'NULL';
+            return NULL;
         }
 
     }
+
+
+
+/*
+*
+*Create note book  ...........
+*
+*/
+
+ public function craeteNoteBook($user_id,$description){
+            if(!empty($user_id)){
+                $mysql = "INSERT INTO tbl_note set user_id ='".$user_id."', description ='".$description."',status ='1'";
+                $result = mysql_query($mysql);
+                return TRUE;
+            }else{
+            return FALSE;
+        }
+    }
+
+/*
+*
+*Create note book  ...........
+*
+*/
+
+ public function gteNoteByUser($user_id){
+         $rows = array();
+        $mysql = "SELECT id, description, created_at FROM tbl_note WHERE user_id='".$user_id."'";
+        //echo $mysql;die;
+        $result = mysql_query($mysql);
+        $num_rows = mysql_num_rows($result);
+        if ($num_rows > 0) {
+            while($res = mysql_fetch_object($result)){
+                $rows[] = $res;
+            }
+            return $rows;
+        } else {
+            return NULL;
+        }     
+}
+
+
+/*
+*
+*Update note book  ...........
+*
+*/
+
+ public function UpdateNote($note_id,$description){
+        if(!empty($note_id)){
+            $updated_at = date("Y-m-d H:i:s");
+            $mysql = "update tbl_note set description ='".$description."',created_at ='".$updated_at."' WHERE id='".$note_id."'";
+            $result = mysql_query($mysql);
+            return true;
+      }else{
+        return false;
+      }
+  }
 
  
 
