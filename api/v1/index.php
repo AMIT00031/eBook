@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once '../include/DbOperation.php';
 require_once '../include/Braintree_lib.php';
 require '.././libs/Slim/Slim.php';
@@ -491,17 +494,99 @@ $app->post('/getAllbookMarkByUser', function () use ($app) {
         $arr = $db->getUserBookMark($user_id);
         //echo $arr;
         if (!empty($arr)) {
-            $response["error"] = true;
+            $response["error"] = false;
             $response["message"] = "Success.";
             $response["data"] = $arr;
             echoResponse(200, $response);
           }else{
-            $response["error"] = false;
-            $response["message"] = "Failed.";
+            $response["error"] = true;
+            $response["message"] = NULL;
             echoResponse(201, $response);
         }
     }
 });
+
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/addNote
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/addNote', function () use ($app){
+    $response = array();
+    $user_id = $app->request->post('user_id');
+    $description = $app->request->post('description');
+
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->craeteNoteBook($user_id,$description);
+
+        if (!empty($arr)){
+            $response["error"] = false;
+            $response["message"] = "Note added successfully.";
+            $response["data"] = $arr;
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = true;
+            $response["message"] = NULL;
+            echoResponse(201, $response);
+        }
+});
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/getAllNotebyUser
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/getAllNotebyUser', function () use ($app){
+    $response = array();
+    $user_id = $app->request->post('user_id');
+
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->gteNoteByUser($user_id);
+
+        if (!empty($arr)){
+            $response["error"] = false;
+            $response["message"] = "Note added successfully.";
+            $response["data"] = $arr;
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = true;
+            $response["message"] = NULL;
+            echoResponse(201, $response);
+        }
+});
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/UpdateNoteBook
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/UpdateNoteBook', function () use ($app){
+    $response = array();
+    $note_id = $app->request->post('note_id');
+    $description = $app->request->post('description');
+
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->UpdateNote($note_id,$description);
+
+        if (!empty($arr)){
+            $response["error"] = false;
+            $response["message"] = "Note Updated successfully.";
+            $response["data"] = $arr;
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = true;
+            $response["message"] = NULL;
+            echoResponse(201, $response);
+        }
+});
+
 
 
 /******************************************************************************* */
