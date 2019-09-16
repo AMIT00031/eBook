@@ -1,7 +1,7 @@
 <?php
-ini_set('display_errors', 1);
+/*ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+error_reporting(E_ALL);*/
 require_once '../include/DbOperation.php';
 require_once '../include/Braintree_lib.php';
 require '.././libs/Slim/Slim.php';
@@ -587,6 +587,87 @@ $app->post('/UpdateNoteBook', function () use ($app){
         }
 });
 
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/DeleteNote
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/DeleteNote', function () use ($app) {
+    $note_id = $app->request->post('note_id');
+    $response = array();
+    if (empty($note_id)) {
+        $response["error"] = true;
+        $response["data"] = "";
+        $response["message"] = "Please enter note id.";
+        echoResponse(200, $response);
+    }else{
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->deleteNoteBook($note_id);
+        if ($arr == 1) {
+            $response["error"] = false;
+            $response["message"] = "success.";
+            echoResponse(200, $response);
+        } else {
+            $response["error"] = true;
+            $response["message"] = "Please enter valid note id.";
+            echoResponse(200, $response);
+        }
+    }
+});
+
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/getAllpopularBook
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/getAllpopularBook', function () use ($app){
+    $response = array();
+   
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->GetPopularBook();
+
+        if (!empty($arr)){
+            $response["error"] = false;
+            $response["message"] = "Listed successfully.";
+            $response["data"] = $arr;
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = true;
+            $response["message"] = NULL;
+            echoResponse(201, $response);
+        }
+});
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/saerchAllbooks
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/saerchAllbooks', function () use ($app){
+    $response = array();
+   
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->SearchBook();
+
+        if (!empty($arr)){
+            $response["error"] = false;
+            $response["message"] = "searched successfully.";
+            $response["data"] = $arr;
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = true;
+            $response["message"] = NULL;
+            echoResponse(201, $response);
+        }
+});
 
 
 /******************************************************************************* */
