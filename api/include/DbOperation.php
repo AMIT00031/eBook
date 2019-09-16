@@ -377,7 +377,7 @@ public function publishNewBook($data){
 public function getBookbyCategoryId($cat_id){
         date_default_timezone_set('America/Los_Angeles');
         $rows = array();
-        $mysql = "SELECT id ,book_title, thubm_image, author_name,book_description FROM tbl_books WHERE category_id='".$cat_id."'";
+        $mysql = "SELECT id ,book_title, thubm_image, author_name,book_description,mostView FROM tbl_books WHERE category_id='".$cat_id."'";
         //echo $mysql;die;
         $result = mysql_query($mysql);
         $num_rows = mysql_num_rows($result);
@@ -403,8 +403,8 @@ public function getBookbyCategoryId($cat_id){
 */
 
  public function getbooksDetailByid($bookId) {
-        $mysql = "SELECT * FROM tbl_books WHERE  id='".$bookId."'";
-
+        $mysql = "SELECT tbl_books.* , tbl_bookmark.id as BookmarkId , tbl_bookmark.status as bookmarkStatus FROM tbl_books INNER JOIN tbl_bookmark ON tbl_books.id = tbl_bookmark.books_id WHERE tbl_books.id ='".$bookId."' ORDER BY tbl_books.id DESC";
+        //$mysql = "SELECT * FROM tbl_books WHERE  id='".$bookId."'";
         ///echo $mysql;exit();
         $run = mysql_query($mysql);
         $row = mysql_fetch_object($run);
@@ -416,6 +416,15 @@ public function getBookbyCategoryId($cat_id){
         $row->video_url = !empty($row->video_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/video/'.$row->video_url : NULL;
         $row->audio_url = !empty($row->audio_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/audio/'.$row->audio_url : NULL;
         $row->pdf_url = !empty($row->pdf_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/document/'.$row->pdf_url : NULL;
+        $row->BookmarkId =$row->BookmarkId;
+        $row->bookmarkStatus =$row->bookmarkStatus;
+     
+        if($row->mostView >= 0){
+            $MostVl = $row->mostView+1;
+            $mysql = "update tbl_books set mostView ='".$MostVl."' WHERE id='".$bookId."'";
+            $run = mysql_query($mysql);
+        }
+
         return $row;
     }
 
@@ -540,6 +549,69 @@ public function getBookbyCategoryId($cat_id){
         return false;
       }
   }
+
+/*
+*
+*Delete note book  ...........
+*
+*/
+
+public function deleteNoteBook($note_id) {
+    $mysql = "DELETE from tbl_note where id='".$note_id."'";
+    $result = mysql_query($mysql);
+    return $t = mysql_affected_rows();
+}
+
+/*
+*
+*Get All Popular books ...........
+*
+*/
+
+ public function GetPopularBook() {
+        $mysql = "SELECT id ,book_title, thubm_image, author_name,book_description,mostView FROM tbl_books ORDER BY mostView DESC LIMIT 5";
+        //echo $mysql;exit();
+           $result = mysql_query($mysql);
+            $num_rows = mysql_num_rows($result);
+            if ($num_rows > 0) {
+                while($res = mysql_fetch_object($result)){
+                    $res->book_title = strip_tags($res->book_title);
+                    $res->thubm_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.strip_tags($res->thubm_image);
+                    $res->book_description = strip_tags($res->book_description);
+                    $res->mostView = $res->mostView;
+                    $rows[] = $res;
+                }
+                return $rows;
+            } else {
+                return NULL;
+            }
+    }
+
+
+/*
+*
+*Get All Popular books ...........
+*
+*/
+
+ public function SearchBook() {
+        $mysql = "SELECT id ,book_title, thubm_image, author_name,book_description,mostView FROM tbl_books ORDER BY id DESC";
+        //echo $mysql;exit();
+           $result = mysql_query($mysql);
+            $num_rows = mysql_num_rows($result);
+            if ($num_rows > 0) {
+                while($res = mysql_fetch_object($result)){
+                    $res->book_title = strip_tags($res->book_title);
+                    $res->thubm_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.strip_tags($res->thubm_image);
+                    $res->book_description = strip_tags($res->book_description);
+                    $res->mostView = $res->mostView;
+                    $rows[] = $res;
+                }
+                return $rows;
+            } else {
+                return NULL;
+            }
+    }
 
  
 
