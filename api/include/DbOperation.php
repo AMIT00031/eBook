@@ -403,9 +403,9 @@ public function getBookbyCategoryId($cat_id){
 */
 
  public function getbooksDetailByid($bookId) {
-        $mysql = "SELECT tbl_books.* , tbl_bookmark.id as BookmarkId , tbl_bookmark.status as bookmarkStatus FROM tbl_books INNER JOIN tbl_bookmark ON tbl_books.id = tbl_bookmark.books_id WHERE tbl_books.id ='".$bookId."' ORDER BY tbl_books.id DESC";
+        $mysql = "SELECT tbl_books.* , tbl_bookmark.id as BookmarkId , tbl_bookmark.status as bookmarkStatus FROM tbl_books LEFT JOIN tbl_bookmark ON tbl_books.id = tbl_bookmark.books_id WHERE tbl_books.id ='".$bookId."' ORDER BY tbl_books.id DESC";
         //$mysql = "SELECT * FROM tbl_books WHERE  id='".$bookId."'";
-        ///echo $mysql;exit();
+        //echo $mysql;exit();
         $run = mysql_query($mysql);
         $row = mysql_fetch_object($run);
         $row->book_title = strip_tags($row->book_title);
@@ -443,7 +443,7 @@ public function getBookbyCategoryId($cat_id){
             $bookmark = mysql_fetch_object($run);
             $bmid = $bookmark->id;
 
-            if ($bmid != ''){
+            if($bmid != ''){
                 if ($bookmark->status == 1) {
                     $updated_at = date("Y-m-d H:i:s");
                     $mysql = "update tbl_bookmark set status ='0',updated_at ='".$updated_at."' WHERE id='".$bmid."'";
@@ -590,7 +590,7 @@ public function deleteNoteBook($note_id) {
 
 /*
 *
-*Get All Popular books ...........
+*Get All search books ...........
 *
 */
 
@@ -613,6 +613,46 @@ public function deleteNoteBook($note_id) {
             }
     }
 
+
+/*
+*
+*Create review book  ...........
+*
+*/
+
+ public function craeteReviewaBook($userId,$booksId,$comment,$rating){
+            if(!empty($userId)){
+                $mysql = "INSERT INTO tbl_review set user_id ='".$userId."', books_id ='".$booksId."', comment ='".$comment."', rating ='".$rating."',status ='1'";
+                $result = mysql_query($mysql);
+                return TRUE;
+            }else{
+            return FALSE;
+        }
+    }
+
+/*
+*
+*get review by book id ...........
+*
+*/
+
+ public function getReviewbyBookid($booksId){
+            $mysql = "SELECT tbl_review.id AS ReviewId,tbl_review.comment,tbl_review.rating ,tbl_review.created_at ,user_login_table.user_name,user_login_table.url FROM tbl_books LEFT JOIN tbl_review ON tbl_books.id = tbl_review.books_id LEFT JOIN user_login_table ON tbl_review.user_id = user_login_table.id WHERE tbl_books.id ='".$booksId."' ORDER BY tbl_books.id DESC";
+               //echo $mysql;exit();
+               $result = mysql_query($mysql);
+                $num_rows = mysql_num_rows($result);
+                if ($num_rows > 0) {
+                    while($res = mysql_fetch_object($result)){
+                       $res->url = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/'.strip_tags($res->url);
+                       $rows[] = $res;
+                    }
+                    return $rows;
+                } else {
+            return NULL;
+            }
+         }
+
+ 
  
 
 
