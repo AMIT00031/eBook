@@ -425,8 +425,20 @@ $app->post('/getBookDetail', function () use ($app) {
     $db = new DbOperation();
     $arr = array();
     $arr = $db->getbooksDetailByid($bookId);
+    $reviewData = $db->getReviewbyBookid($arr->id);
+   		$rating = 0;
+    foreach ($reviewData as $reviewVal) {
+    	$totalRating[] = $reviewVal->rating;
+    	$rating += $reviewVal->rating;
+    }
+
+    $averrageRating = $rating/count($totalRating);
+    
     $response["error"] = false;
     $response["data"] = $arr;
+    $response["review"] = $reviewData;
+    $response["averaVal"] = $averrageRating;
+
     $response["message"] = "success";
     echoResponse(200, $response);
 });
@@ -668,6 +680,37 @@ $app->post('/saerchAllbooks', function () use ($app){
             echoResponse(201, $response);
         }
 });
+
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/addReview
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/addReview', function () use ($app){
+    $response = array();
+    $userId = $app->request->post('user_id');
+    $booksId = $app->request->post('books_id');
+    $comment = $app->request->post('comment');
+    $rating = $app->request->post('rating');
+
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->craeteReviewaBook($userId,$booksId,$comment,$rating);
+
+        if (!empty($arr)){
+            $response["error"] = false;
+            $response["message"] = "Review added successfully.";
+            $response["data"] = $arr;
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = true;
+            $response["message"] = NULL;
+            echoResponse(201, $response);
+        }
+});
+
 
 
 /******************************************************************************* */
