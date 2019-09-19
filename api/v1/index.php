@@ -421,23 +421,30 @@ $app->post('/getBooksByTypes', function () use ($app) {
 
 $app->post('/getBookDetail', function () use ($app) {
     $bookId = $app->request->post('book_id');
+    $userid = $app->request->post('user_id');
     $response = array();
     $db = new DbOperation();
     $arr = array();
     $arr = $db->getbooksDetailByid($bookId);
     $reviewData = $db->getReviewbyBookid($arr->id);
-   		$rating = 0;
-    foreach ($reviewData as $reviewVal) {
-    	$totalRating[] = $reviewVal->rating;
-    	$rating += $reviewVal->rating;
+    $Boomark = $db->getbookMarkByBookid($bookId,$userid);
+    
+    if (isset($reviewData)) {
+        $rating = 0;
+        foreach ($reviewData as $reviewVal) {
+            $totalRating[] = $reviewVal->rating;
+            $rating += $reviewVal->rating;
+        }
+        $averrageRating = round($rating/count($totalRating), 1);
     }
+ 
 
-    $averrageRating = $rating/count($totalRating);
     
     $response["error"] = false;
     $response["data"] = $arr;
+    $response["bookMark"] = $Boomark;
     $response["review"] = $reviewData;
-    $response["averaVal"] = $averrageRating;
+    $response["averaVal"] = isset($averrageRating) ? $averrageRating :0;
 
     $response["message"] = "success";
     echoResponse(200, $response);
@@ -638,8 +645,7 @@ $app->post('/DeleteNote', function () use ($app) {
  * */
 
 $app->post('/getAllpopularBook', function () use ($app){
-    $response = array();
-   
+       $response = array();
         $db = new DbOperation();
         $arr = array();
         $arr = $db->GetPopularBook();
