@@ -1,4 +1,8 @@
 <?php
+/*ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);*/
+
 require_once('DbConnect.php');
 require_once('PHPMailerAutoload.php');
 
@@ -27,7 +31,7 @@ class DbOperation {
                                                         gender         ='".$gender."',
                                                         publisher_type ='".$publisher_type."',
                                                         user_name      ='".$user_name."',
-                                                        about_me      ='".$about_me."'";
+                                                        about_me       ='".$about_me."'";
                         $result = mysql_query($mysql);
                         $user_login_id = mysql_insert_id();
                         $return_data = $user_login_id.'&'.$email.'&'.$phone_no.'&'.$full_name;
@@ -403,7 +407,10 @@ public function getBookbyCategoryId($cat_id){
 */
 
  public function getbooksDetailByid($bookId) {
-        $mysql = "SELECT tbl_books.* , tbl_bookmark.id as BookmarkId , tbl_bookmark.status as bookmarkStatus FROM tbl_books LEFT JOIN tbl_bookmark ON tbl_books.id = tbl_bookmark.books_id WHERE tbl_books.id ='".$bookId."' ORDER BY tbl_books.id DESC";
+        //$mysql = "SELECT tbl_books.* , tbl_bookmark.id as BookmarkId , tbl_bookmark.status as bookmarkStatus FROM tbl_books LEFT JOIN tbl_bookmark ON tbl_books.user_id = tbl_bookmark.user_id WHERE tbl_books.id ='".$bookId."' ORDER BY tbl_books.id DESC";
+        
+        $mysql = "SELECT tbl_books.* , user_login_table.id AS userId, user_login_table.user_name FROM tbl_books LEFT JOIN user_login_table ON tbl_books.user_id = user_login_table.id WHERE tbl_books.id ='".$bookId."' ORDER BY tbl_books.id DESC";
+
         //$mysql = "SELECT * FROM tbl_books WHERE  id='".$bookId."'";
         //echo $mysql;exit();
         $run = mysql_query($mysql);
@@ -416,16 +423,33 @@ public function getBookbyCategoryId($cat_id){
         $row->video_url = !empty($row->video_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/video/'.$row->video_url : NULL;
         $row->audio_url = !empty($row->audio_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/audio/'.$row->audio_url : NULL;
         $row->pdf_url = !empty($row->pdf_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/document/'.$row->pdf_url : NULL;
-        $row->BookmarkId =$row->BookmarkId;
-        $row->bookmarkStatus =$row->bookmarkStatus;
      
         if($row->mostView >= 0){
             $MostVl = $row->mostView+1;
             $mysql = "update tbl_books set mostView ='".$MostVl."' WHERE id='".$bookId."'";
             $run = mysql_query($mysql);
         }
-
         return $row;
+    }
+
+    /*
+*
+*Get book details by id ...........
+*
+*/
+
+ public function getbookMarkByBookid($bookId,$userid) {        
+        $mysql = "SELECT id AS bookmarkId, status AS bookmarkStatus FROM tbl_bookmark WHERE books_id ='".$bookId."' AND user_id ='".$userid."'";
+        $run = mysql_query($mysql);
+        $num_rows = mysql_num_rows($run);
+        if ($num_rows > 0) {
+        $markdata = mysql_fetch_object($run);
+        $markdata->bookmarkId = $markdata->bookmarkId;
+        $markdata->bookmarkStatus = $markdata->bookmarkStatus;
+        return $markdata;
+    }else{
+        return NULL;
+    }
     }
 
 
@@ -471,8 +495,8 @@ public function getBookbyCategoryId($cat_id){
 
         date_default_timezone_set('America/Los_Angeles');
         $rows = array();
-        $mysql = "select b.id,b.book_title,b.thubm_image,b.author_name,b.book_description,bm.user_id as user_id, bm.id as bookmark_id,bm.status as bm_status from tbl_bookmark bm inner join tbl_books b on bm.books_id  = b.id where bm.user_id = ".$userId." AND bm.status =1 order by bm.created_at desc";
- 
+        $mysql = "select tbl_books.id,tbl_books.book_title,tbl_books.thubm_image,tbl_books.author_name,tbl_books.book_description,tbl_bookmark.user_id as user_id, tbl_bookmark.id as bookmark_id,tbl_bookmark.status as bm_status, tbl_review.rating FROM tbl_bookmark inner join tbl_books on tbl_bookmark.books_id = tbl_books.id LEFT JOIN tbl_review ON tbl_books.id = tbl_review.books_id where tbl_bookmark.user_id = ".$userId." AND tbl_bookmark.status = 1 GROUP by tbl_bookmark.id desc";
+    
  
         //echo $mysql;exit();
         $result = mysql_query($mysql);
@@ -569,7 +593,7 @@ public function deleteNoteBook($note_id) {
 */
 
  public function GetPopularBook() {
-        $mysql = "SELECT id ,book_title, thubm_image, author_name,book_description,mostView FROM tbl_books ORDER BY mostView DESC LIMIT 5";
+        $mysql = "SELECT tbl_books.id ,tbl_books.book_title, tbl_books.thubm_image, tbl_books.author_name,tbl_books.book_description,tbl_books.mostView,tbl_review.rating FROM tbl_books LEFT JOIN tbl_review on tbl_books.id = tbl_review.books_id ORDER BY tbl_books.mostView DESC LIMIT 5";
         //echo $mysql;exit();
            $result = mysql_query($mysql);
             $num_rows = mysql_num_rows($result);
@@ -595,7 +619,7 @@ public function deleteNoteBook($note_id) {
 */
 
  public function SearchBook() {
-        $mysql = "SELECT id ,book_title, thubm_image, author_name,book_description,mostView FROM tbl_books ORDER BY id DESC";
+        $mysql="SELECT tbl_books.id ,tbl_books.book_title, tbl_books.thubm_image, tbl_books.author_name,tbl_books.book_description,tbl_books.mostView , tbl_review.rating FROM tbl_books LEFT JOIN tbl_review ON tbl_books.id = tbl_review.books_id ORDER BY tbl_books.id DESC";
         //echo $mysql;exit();
            $result = mysql_query($mysql);
             $num_rows = mysql_num_rows($result);
@@ -621,14 +645,35 @@ public function deleteNoteBook($note_id) {
 */
 
  public function craeteReviewaBook($userId,$booksId,$comment,$rating){
-            if(!empty($userId)){
+            if ($userId != '' && $booksId != '') {
+            $mysql = "SELECT * FROM tbl_review WHERE user_id='".$userId."' and  books_id ='".$booksId."'";
+            $run = mysql_query($mysql);
+
+            $ReviewData = mysql_fetch_object($run);
+            $rvid = $ReviewData->id;
+
+            if($rvid != ''){
+                if ($ReviewData->status == 1) {
+                    $updated_at = date("Y-m-d H:i:s");
+                    $mysql = "update tbl_review set status ='1', comment ='".$comment."', rating ='".$rating."',updated_at ='".$updated_at."' WHERE id='".$rvid."'";
+                    $result = mysql_query($mysql);
+                    return TRUE;
+                } else {
+                    $updated_at = date("y-m-d h:i:s");
+                    $mysql = "update tbl_review set status ='1', comment ='".$comment."', rating ='".$rating."', updated_at ='".$updated_at."' WHERE id='".$rvid."'";
+                    $result = mysql_query($mysql);
+                    return TRUE;
+                }
+            } else {
                 $mysql = "INSERT INTO tbl_review set user_id ='".$userId."', books_id ='".$booksId."', comment ='".$comment."', rating ='".$rating."',status ='1'";
                 $result = mysql_query($mysql);
                 return TRUE;
-            }else{
+            }
+        } else {
             return FALSE;
         }
     }
+
 
 /*
 *
@@ -637,8 +682,9 @@ public function deleteNoteBook($note_id) {
 */
 
  public function getReviewbyBookid($booksId){
-            $mysql = "SELECT tbl_review.id AS ReviewId,tbl_review.comment,tbl_review.rating ,tbl_review.created_at ,user_login_table.user_name,user_login_table.url FROM tbl_books LEFT JOIN tbl_review ON tbl_books.id = tbl_review.books_id LEFT JOIN user_login_table ON tbl_review.user_id = user_login_table.id WHERE tbl_books.id ='".$booksId."' ORDER BY tbl_books.id DESC";
-               //echo $mysql;exit();
+
+            $mysql = "SELECT tbl_review.id AS ReviewId,tbl_review.comment,tbl_review.rating ,tbl_review.created_at ,user_login_table.user_name,user_login_table.url FROM tbl_review LEFT JOIN user_login_table ON tbl_review.user_id = user_login_table.id WHERE tbl_review.books_id ='".$booksId."' ORDER BY tbl_review.id DESC";
+               // /echo $mysql;exit();
                $result = mysql_query($mysql);
                 $num_rows = mysql_num_rows($result);
                 if ($num_rows > 0) {
@@ -650,6 +696,7 @@ public function deleteNoteBook($note_id) {
                 } else {
             return NULL;
             }
+
          }
 
  
