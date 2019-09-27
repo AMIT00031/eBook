@@ -139,6 +139,7 @@ class DbOperation {
         $password = base64_encode($pass);
 
         $mysql = "update user_login_table set password='".$password."' where email='".$email."'";
+
         $run = mysql_query($mysql);
         if (mysql_affected_rows() > 0){
             $tos = $email;
@@ -199,6 +200,20 @@ class DbOperation {
         $num_rows = mysql_num_rows($result);
         return $num_rows > 0;
     }
+
+/*
+*
+*User email id vailidation ...........
+*
+*/
+
+    private function isReqValidation($user_id,$frnd_id) {
+        $mysql = "SELECT id from tbl_frnds WHERE user_id ='".$user_id."' AND frnd_id='".$frnd_id."'";
+        $result = mysql_query($mysql);
+        $num_rows = mysql_num_rows($result);
+        return $num_rows > 0;
+    }
+
 
 /*
 *
@@ -316,6 +331,39 @@ class DbOperation {
 
 /*
 *
+* Sending Friend Request  ...........
+*
+*/
+
+ public function sendFrndReq($user_id, $frnd_id){
+           if (!$this->isReqValidation($user_id,$frnd_id)){ 
+                $mysql = "INSERT INTO tbl_frnds set user_id ='".$user_id."', frnd_id ='".$frnd_id."' ";
+                $result = mysql_query($mysql);                
+                return TRUE;
+            }else{
+            return FALSE;
+        }
+    }
+
+/*
+*
+* Creating Chat Room...........
+*
+*/
+
+ public function createChatId($user_id, $chat_id){
+            if(!empty($user_id)){ 
+                $mysql = "Update user_login_table set chat_id ='".$chat_id."' WHERE id= '".$user_id."' ";
+                $result = mysql_query($mysql);                
+                return TRUE;
+            }else{
+            return FALSE;
+        }
+    }
+
+
+/*
+*
 *Publish new book ...........
 *
 */
@@ -407,12 +455,7 @@ public function getBookbyCategoryId($cat_id){
 */
 
  public function getbooksDetailByid($bookId) {
-        //$mysql = "SELECT tbl_books.* , tbl_bookmark.id as BookmarkId , tbl_bookmark.status as bookmarkStatus FROM tbl_books LEFT JOIN tbl_bookmark ON tbl_books.user_id = tbl_bookmark.user_id WHERE tbl_books.id ='".$bookId."' ORDER BY tbl_books.id DESC";
-        
         $mysql = "SELECT tbl_books.* , user_login_table.id AS userId, user_login_table.user_name FROM tbl_books LEFT JOIN user_login_table ON tbl_books.user_id = user_login_table.id WHERE tbl_books.id ='".$bookId."' ORDER BY tbl_books.id DESC";
-
-        //$mysql = "SELECT * FROM tbl_books WHERE  id='".$bookId."'";
-        //echo $mysql;exit();
         $run = mysql_query($mysql);
         $row = mysql_fetch_object($run);
         $row->book_title = strip_tags($row->book_title);
@@ -432,7 +475,50 @@ public function getBookbyCategoryId($cat_id){
         return $row;
     }
 
+
     /*
+*
+*Get author details ...........
+*
+*/
+
+ public function getAuthorDetails($userid) {
+        if($userid !==''){
+            $mysql = "SELECT id,user_name,chat_id,url,email,about_me FROM user_login_table WHERE id ='".$userid."'";
+            $run = mysql_query($mysql);
+            $row = mysql_fetch_object($run);
+            return $row;
+        }else{
+            return NULL;
+        }
+    }
+
+
+/*
+*
+*Get all books author by user id ...........
+*
+*/
+
+ public function getAuthorBooklist($userid) {
+        $mysql = "SELECT tbl_books.id ,tbl_books.book_title, tbl_books.thubm_image, tbl_books.author_name,tbl_books.book_description,tbl_review.rating FROM tbl_books LEFT JOIN tbl_review on tbl_books.id = tbl_review.books_id WHERE tbl_books.user_id= '".$userid."'ORDER BY tbl_books.id DESC";
+           //echo $mysql;exit();
+           $result = mysql_query($mysql);
+            $num_rows = mysql_num_rows($result);
+            if ($num_rows > 0) {
+                while($res = mysql_fetch_object($result)){
+                    $res->book_title = strip_tags($res->book_title);
+                    $res->thubm_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.strip_tags($res->thubm_image);
+                    $res->book_description = strip_tags($res->book_description);
+                    $rows[] = $res;
+                }
+                return $rows;
+            } else {
+                return NULL;
+            }
+    }
+
+/*
 *
 *Get book details by id ...........
 *
@@ -614,6 +700,72 @@ public function deleteNoteBook($note_id) {
 
 /*
 *
+*Get All Requested user ...........
+*
+*/
+
+ public function getRequestedUsers($userId) {
+        $mysql = "SELECT tbl_frnds.id,tbl_frnds.user_id,tbl_frnds.status,tbl_frnds.request_date,user_login_table.url, user_login_table.user_name,user_login_table.publisher_type FROM tbl_frnds INNER JOIN user_login_table ON tbl_frnds.user_id = user_login_table.id WHERE tbl_frnds.frnd_id='".$userId."' AND tbl_frnds.status=0";
+        //echo $mysql;exit();
+           $result = mysql_query($mysql);
+            $num_rows = mysql_num_rows($result);
+            if ($num_rows > 0) {
+                while($res = mysql_fetch_object($result)){
+                    $rows[] = $res;
+                }
+                return $rows;
+            } else {
+                return NULL;
+            }
+    }
+
+
+/*
+*
+*Get All Requested user ...........
+*
+*/
+
+ public function getAcceptedList($userId) {
+        $mysql = "SELECT tbl_frnds.id,tbl_frnds.user_id,tbl_frnds.status,tbl_frnds.request_date,user_login_table.url, user_login_table.user_name, user_login_table.chat_id,user_login_table.publisher_type FROM tbl_frnds INNER JOIN user_login_table ON tbl_frnds.user_id = user_login_table.id WHERE tbl_frnds.frnd_id='".$userId."' AND tbl_frnds.status=1";
+        //echo $mysql;exit();
+           $result = mysql_query($mysql);
+            $num_rows = mysql_num_rows($result);
+            if ($num_rows > 0) {
+                while($res = mysql_fetch_object($result)){
+                    $rows[] = $res;
+                }
+                return $rows;
+            } else {
+                return NULL;
+            }
+    }
+
+
+/*
+*
+*Get All Popular books ...........
+*
+*/
+
+ public function acceptedUserreuest($friendId, $status){
+
+            if(!empty($friendId) && $status == 1){
+                $updated_at = date("Y-m-d H:i:s");
+                $mysql = "update tbl_frnds set status ='".$status."',accepted_date ='".$updated_at."' WHERE id='".$friendId."'";
+                $result = mysql_query($mysql);
+                return TRUE;
+            } else{
+                $updated_at = date("Y-m-d H:i:s");
+                $mysql = "update tbl_frnds set status ='".$status."',accepted_date ='".$updated_at."' WHERE id='".$friendId."'";
+                $result = mysql_query($mysql);
+                return FALSE;
+            }
+        }
+
+
+/*
+*
 *Get All search books ...........
 *
 */
@@ -698,6 +850,65 @@ public function deleteNoteBook($note_id) {
             }
 
          }
+
+
+/*
+*function to send the email of contact us users to admin
+*/
+
+    public function sendContact($user_id, $name, $email, $phone, $contadata){
+           if(!empty($user_id)){
+                $mysql = "INSERT INTO tbl_contact set user_id ='".$user_id."', name ='".$name."', email ='".$email."', phone ='".$phone."', message ='".$_POST['contatMessage']."', status ='1'";
+                $result = mysql_query($mysql);
+                    if($result == true){
+                    $tos = "shyamsoft38@gmail.com";
+                    $subject = 'eBooks App - Contact Us';
+                    $from = 'info@dnddemo.com';
+                    $message = '<b>Hello Admin <br/><br/></b>
+                            New User contacted you having below details:<br/><br/>
+                            E-mail:' . $email . '<br/>
+                            Phone : ' . $phone . '</b><br/><br/>
+                            Message : ' . $_POST['contatMessage'] . '</b><br/><br/>
+                            .<br/><br/>
+                            Thanks<br/>
+                            Team eBooks';
+                    $to['email'] = $tos;
+                    $to['name'] = " User ";
+                    $subject = $subject;
+                    $str = $message;
+                    $mail = new PHPMailer;
+                    $mail->IsSMTP();
+                    $mail->SMTPAuth = true;
+                    $mail->Host = 'mail.dnddemo.com';
+                    $mail->Port = 465;
+                    $mail->Username = 'info@dnddemo.com';
+                    $mail->Password = '#KC1A]Rgfa0C';
+                    $mail->SMTPSecure = 'ssl';
+                    $mail->From = 'info@dnddemo.com';
+                    $mail->FromName = "ScamSom";
+                    $mail->AddReplyTo('info@dnddemo.com', 'eBooks');
+                    $mail->AddAddress($to['email'], $to['name']);
+                    $mail->Priority = 1;
+                    $mail->AddCustomHeader("X-MSMail-Priority: High");
+                    $mail->WordWrap = 50;
+                    $mail->IsHTML(true);
+                    $mail->Subject = $subject;
+                    $mail->Body = $str;
+                    if (!$mail->Send()) {
+                        $err = 'Message could not be sent.';
+                        $err .= 'Mailer Error: ' . $mail->ErrorInfo;
+                        return 0;
+                    } else {
+                        return 1;
+                    }
+                    $mail->ClearAddresses();
+                }
+                return TRUE;
+                }else{
+                return FALSE;
+             }
+
+    }
 
  
  
