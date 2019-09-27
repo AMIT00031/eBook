@@ -126,6 +126,58 @@ $app->post('/getUserInfo', function() use ($app) {
     echoResponse(200, $response);
 });
 
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/sendFrndReq
+ * Parameters: user_id
+ * Method: POST
+ * */
+
+
+$app->post('/sendFrndReq', function() use ($app) {
+    verifyRequiredParams(array('user_id', 'frnd_id'));    
+    $user_id = $app->request->post('user_id');
+    $frnd_id = $app->request->post('frnd_id');
+    $_['en_sendFrndReq'] = "Friend Requset already sent. Pls wait..";
+    $lang = 'en';
+    $db = new DbOperation();
+    $response = array();
+    $res = $db->sendFrndReq($user_id, $frnd_id);
+    if($res== 1){
+        $response['error'] = false;
+        $response['response'] = 'Friend Request Sent Successfully...';        
+    }else{
+        $response['error'] = true;
+        $response['message'] = $_[$lang . '_sendFrndReq'];
+    }
+    echoResponse(200, $response);
+});
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/createChatId
+ * Parameters: user_id, chat_id
+ * Method: POST
+ * */
+
+
+$app->post('/createChatId', function() use ($app) {
+    verifyRequiredParams(array('user_id', 'chat_id'));    
+    $user_id = $app->request->post('user_id');
+    $chat_id = $app->request->post('chat_id');
+    $_['en_createChatId'] = "Some error occurred..";
+    $lang = 'en';
+    $db = new DbOperation();
+    $response = array();
+    $res = $db->createChatId($user_id, $chat_id);
+    if($res== 1){
+        $response['error'] = false;
+        $response['response'] = 'Chat Room Created...';        
+    }else{
+        $response['error'] = true;
+        $response['message'] = $_[$lang . '_createChatId'];
+    }
+    echoResponse(200, $response);
+});
+
 
 /**
  * URL: http://dnddemo.com/ebooks/api/v1/userEdit
@@ -452,6 +504,33 @@ $app->post('/getBookDetail', function () use ($app) {
 
 
 /**
+ * URL: http://dnddemo.com/ebooks/api/v1/getBookDetail
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/getUserDetails', function () use ($app){
+    $userid = $app->request->post('user_id');
+    $response = array();
+    $db = new DbOperation();
+    $arr = array();
+    $arr = $db->getAuthorDetails($userid); 
+    if(!empty($arr)){
+        $bookList = $db->getAuthorBooklist($arr->id);  
+        $response["error"] = false;
+        $response["data"] = $arr;
+        $response["booklist"] = $bookList;
+        $response["message"] = "success";
+        echoResponse(200, $response);
+    }else{
+        $response["error"] = true;
+        $response["message"] = "Failed";
+        echoResponse(201, $response);
+   }
+});
+
+
+/**
  * URL: http://dnddemo.com/ebooks/api/v1/bookMark
  * Parameters: 
  * Method: POST
@@ -663,6 +742,88 @@ $app->post('/getAllpopularBook', function () use ($app){
 });
 
 /**
+ * URL: http://dnddemo.com/ebooks/api/v1/getAllRequestbyUser
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/getAllRequestbyUser', function () use ($app){
+       $response = array();
+       $userId = $app->request->post('user_id');
+
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->getRequestedUsers($userId);
+
+        if (!empty($arr)){
+            $response["error"] = false;
+            $response["message"] = "Listed requested users.";
+            $response["data"] = $arr;
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = true;
+            $response["message"] = NULL;
+            echoResponse(201, $response);
+        }
+});
+
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/acceptedRequest
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/acceptedRequest', function () use ($app){
+    //echo "<pre>";print_r($_POST);exit();
+       $response = array();
+       $friendId = $app->request->post('friend_id');
+       $status = $app->request->post('status');
+
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->acceptedUserreuest($friendId,$status);
+
+        if ($arr == true){
+            $response["error"] = false;
+            $response["message"] = "Accepted request.";
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = false;
+            $response["message"] = "Request not accepted";
+            echoResponse(200, $response);
+        }
+});
+
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/getAllAcceptedFriend
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/getAllAcceptedFriend', function () use ($app){
+       $response = array();
+       $userId = $app->request->post('user_id');
+
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->getAcceptedList($userId);
+
+        if (!empty($arr)){
+            $response["error"] = false;
+            $response["message"] = "Accepted friend list.";
+            $response["data"] = $arr;
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = true;
+            $response["message"] = NULL;
+            echoResponse(201, $response);
+        }
+});
+
+
+/**
  * URL: http://dnddemo.com/ebooks/api/v1/saerchAllbooks
  * Parameters: 
  * Method: POST
@@ -716,6 +877,35 @@ $app->post('/addReview', function () use ($app){
             echoResponse(201, $response);
         }
 });
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/contact_us
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/contact_us', function () use ($app) {
+    $user_id = $app->request->post('user_id');
+    $name = $app->request->post('name');
+    $email = $app->request->post('email');
+    $phone = $app->request->post('phone');
+    $contadata = strip_tags($app->request->post('contatMessage')); 
+    
+    $db = new DbOperation();
+    $response = array();
+
+    $res = $db->sendContact($user_id, $name, $email, $phone, $address ,$contadata);
+    if ($res) {
+        $response["error"] = false;
+        $response["message"] = "success";
+        echoResponse(200, $response);
+    } else if ($res == 0) {
+        $response["error"] = true;
+        $response["message"] = "failed";
+        echoResponse(200, $response);
+    }
+});
+
 
 
 
