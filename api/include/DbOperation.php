@@ -380,6 +380,7 @@ public function publishNewBook($data){
         $audio_url        = $data['audio_url'];
         $book_image       = $data['book_image'];
         $video_url        = $data['video_url'];
+        $questiondata        = $data['questiondata'];
         $date             = date('Y-m-d');
         $status           = $data['status'];
         $book_slug = strtolower($data['book_title']);
@@ -393,6 +394,7 @@ public function publishNewBook($data){
                                        audio_url        = '".$audio_url."',
                                        book_image       = '".$book_image."',
                                        video_url        = '".$video_url."',
+                                       question_data    = '".$questiondata."',
                                        book_description = '".$book_description."',
                                        author_name      = '".$author_name."',
                                        status           = '".$status."',
@@ -402,6 +404,31 @@ public function publishNewBook($data){
         $books_id = mysql_insert_id();
         if ($result){
             return $books_id;
+        } else {
+            return false;
+        }
+    }
+
+
+
+    /*
+*
+*Publish new book ...........
+*
+*/
+
+public function addAssignment($bookId,$user_id,$question){
+
+   $bookData = json_decode($question);
+   foreach ($bookData as $key => $value) {
+        $mysql = "INSERT INTO tbl_faq set book_id = '".$bookId."',
+                                        question  = '".$value."',
+                                        questioned_by ='".$user_id."'"; 
+         $result = mysql_query($mysql);
+        }
+
+        if ($result == true){
+            return true;
         } else {
             return false;
         }
@@ -536,7 +563,28 @@ public function getBookbyCategoryId($cat_id){
     }else{
         return NULL;
     }
+}
+
+
+/*
+*
+*Get All quetion ...........
+*
+*/
+
+ public function getallQustionbyBook($bookId) {        
+        $mysql = "SELECT id,book_id,question,answer FROM tbl_faq WHERE book_id ='".$bookId."'";
+        $run = mysql_query($mysql);
+        $num_rows = mysql_num_rows($run);
+        if ($num_rows > 0) {
+        while($qdata = mysql_fetch_object($run)){
+         $questionData[] = $qdata;
+       }
+        return $questionData;
+    }else{
+        return NULL;
     }
+}
 
 
 
@@ -659,6 +707,89 @@ public function getBookbyCategoryId($cat_id){
         return false;
       }
   }
+
+/*
+*
+*Update assignment  ...........
+*
+*/
+
+ public function UpdateAssignment($assignment_id,$answer,$answered_by){
+        if(!empty($assignment_id)){
+            $updated_at = date("Y-m-d H:i:s");
+            $mysql = "update tbl_faq set answer ='".$answer."', answered_by='".$answered_by."', updated_at ='".$updated_at."' WHERE id='".$assignment_id."'";
+            $result = mysql_query($mysql);
+            if($result == true){
+              $mysql = "SELECT id, book_id, question, answer FROM tbl_faq WHERE id='".$assignment_id."' AND answered_by='".$answered_by."'";
+                $assignmentData = mysql_query($mysql);
+                $num_rows = mysql_num_rows($assignmentData);
+                if ($num_rows > 0){
+                    $rows =mysql_fetch_object($assignmentData);
+                }}
+             return $rows;
+      }else{
+        return false;
+      }
+  }
+
+/*
+*
+*Update assignment  ...........
+*
+*/
+
+ public function addAnswer($assignment_id,$answer,$answered_by,$books_id){
+        $mysql = "SELECT * FROM tbl_answer WHERE question_id='".$assignment_id."' AND answered_by='".$answered_by."'";
+                $assignmentData = mysql_query($mysql);
+                $ansdata = mysql_fetch_object($assignmentData);
+                $ansid = $ansdata->id;
+        if(empty($ansid)){
+             $mysql = "INSERT INTO tbl_answer set answer ='".$answer."', answered_by='".$answered_by."', question_id='".$assignment_id."', books_id='".$books_id."'";
+                 $result = mysql_query($mysql);
+                 $last_insert_id = mysql_insert_id();
+                 if($result == true){
+                  $mysql = "SELECT id, question_id, books_id,answered_by, answer FROM tbl_answer WHERE id='".$last_insert_id."'";
+                    $assignmentData = mysql_query($mysql);
+                    $num_rows = mysql_num_rows($assignmentData);
+                    if ($num_rows > 0){
+                        $rows =mysql_fetch_object($assignmentData);
+                    }}
+                 return $rows;
+                
+      }else{
+         $mysql = "update tbl_answer set answer ='".$answer."' WHERE id='".$ansid."'";
+         $result = mysql_query($mysql);
+          if($result == true){
+              $mysql = "SELECT id, question_id, books_id,answered_by, answer FROM tbl_answer WHERE id='".$ansid."'";
+                $assignmentData = mysql_query($mysql);
+                $num_rows = mysql_num_rows($assignmentData);
+                if ($num_rows > 0){
+                    $rows =mysql_fetch_object($assignmentData);
+                }}
+             return $rows;
+      }
+  }
+
+
+  /*
+*
+*Create note book  ...........
+*
+*/
+
+ public function gteAnsweredbyuser($user_id){
+        $mysql = "SELECT tbl_answer.id, tbl_answer.question_id, tbl_answer.books_id ,tbl_answer.answered_by, tbl_answer.answer,tbl_faq.question FROM tbl_answer LEFT JOIN tbl_faq ON tbl_answer.question_id = tbl_faq.id WHERE tbl_answer.answered_by='".$user_id."'";
+        $result = mysql_query($mysql);
+        $num_rows = mysql_num_rows($result);
+        if ($num_rows > 0) {
+            while($res = mysql_fetch_object($result)){
+                $rows[] = $res;
+            }
+            return $rows;
+        } else {
+            return NULL;
+        }     
+}
 
 /*
 *
