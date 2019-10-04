@@ -357,7 +357,8 @@ $app->post('/getAllCategory', function() use ($app) {
 
 
 $app->post('/addNewBook', function () use ($app){
-    /*echo "<pre>";print_r($_FILES);
+    /*echo "<pre>";print_r($_FILES);*/
+    	/*$_POST = json_decode($_POST['questiondata']);
     echo "<pre>";print_r($_POST);exit;*/
     verifyRequiredParams(array('user_id','category_id','book_title'));
     $response = array();  
@@ -366,6 +367,7 @@ $app->post('/addNewBook', function () use ($app){
     $book_title = $app->request->post('book_title');
     $book_description = $app->request->post('book_description');
     $author_name = $app->request->post('author_name');
+    $questiondata = $app->request->post('questiondata');
     $status = $app->request->post('status');
             /****Cover image*/
             if(!empty($_FILES['thubm_image'])){
@@ -377,7 +379,6 @@ $app->post('/addNewBook', function () use ($app){
                 move_uploaded_file($_FILES['thubm_image']['tmp_name'], $file_path);
             }
             
-
             /****Document file*/
             if(!empty($_FILES['pdf_url'])){
                 $upload_path = 'upload/books/document/';
@@ -428,6 +429,7 @@ $app->post('/addNewBook', function () use ($app){
         'audio_url' => $audio_url,
         'book_image' => $book_image,
         'video_url' => $video_url,
+        'questiondata' => $questiondata,
         'status' => $status
     );
 
@@ -436,6 +438,13 @@ $app->post('/addNewBook', function () use ($app){
     if($res){
         $arr = array();
         $arr = $db->getbookByid($res);
+        //echo "<pre>";print_r($arr);exit();
+        $bookId = $arr->id;
+        $user_id = $arr->user_id;
+        $question = $arr->question_data;
+        $questionData = $db->addAssignment($bookId,$user_id,$question);
+
+
         $response["error"] = false;
         $response["data"] = $arr;
         $response["message"] = "Book published successfully.";
@@ -480,6 +489,8 @@ $app->post('/getBookDetail', function () use ($app) {
     $arr = $db->getbooksDetailByid($bookId);
     $reviewData = $db->getReviewbyBookid($arr->id);
     $Boomark = $db->getbookMarkByBookid($bookId,$userid);
+    $allQuestion = $db->getallQustionbyBook($bookId);
+    $ansbyUser = $db->gteAnsweredbyuser($userid);
     
     if (isset($reviewData)) {
         $rating = 0;
@@ -489,22 +500,81 @@ $app->post('/getBookDetail', function () use ($app) {
         }
         $averrageRating = round($rating/count($totalRating), 1);
     }
- 
-
+    unset($arr->question_data);
     
     $response["error"] = false;
     $response["data"] = $arr;
     $response["bookMark"] = $Boomark;
     $response["review"] = $reviewData;
     $response["averaVal"] = isset($averrageRating) ? $averrageRating :0;
-
+    $response["assignment"] = $allQuestion;
+    $response["user_answer"] = $ansbyUser;
     $response["message"] = "success";
     echoResponse(200, $response);
 });
 
 
 /**
- * URL: http://dnddemo.com/ebooks/api/v1/getBookDetail
+ * URL: http://dnddemo.com/ebooks/api/v1/updateAssignment
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/updateAssignment', function () use ($app){
+    $response = array();
+    $assignment_id = $app->request->post('assignment_id');
+    $answer = $app->request->post('answer');
+    $answered_by = $app->request->post('answered_by');
+
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->UpdateAssignment($assignment_id,$answer,$answered_by);
+
+        if (!empty($arr)){
+            $response["error"] = false;
+            $response["message"] = "Assignment Updated successfully.";
+            $response["data"] = $arr;
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = true;
+            $response["message"] = NULL;
+            echoResponse(201, $response);
+        }
+});
+
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/answerQuestion
+ * Parameters: 
+ * Method: POST
+ * */
+
+$app->post('/answerQuestion', function () use ($app){
+    $response = array();
+    $assignment_id = $app->request->post('assignment_id');
+    $answer = $app->request->post('answer');
+    $answered_by = $app->request->post('answered_by');
+    $books_id = $app->request->post('books_id');
+
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->addAnswer($assignment_id,$answer,$answered_by,$books_id);
+
+        if (!empty($arr)){
+            $response["error"] = false;
+            $response["message"] = "Answered successfully.";
+            $response["data"] = $arr;
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = true;
+            $response["message"] = NULL;
+            echoResponse(201, $response);
+        }
+});
+
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/getUserDetails
  * Parameters: 
  * Method: POST
  * */
@@ -763,6 +833,7 @@ $app->post('/getAllRequestbyUser', function () use ($app){
           }else{
             $response["error"] = true;
             $response["message"] = NULL;
+            $response["data"] = NULL;
             echoResponse(201, $response);
         }
 });
@@ -818,6 +889,7 @@ $app->post('/getAllAcceptedFriend', function () use ($app){
           }else{
             $response["error"] = true;
             $response["message"] = NULL;
+            $response["data"] = NULL;
             echoResponse(201, $response);
         }
 });
