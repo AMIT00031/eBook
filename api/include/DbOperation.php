@@ -12,7 +12,6 @@ class DbOperation {
     *User registration............
     *
     */
-
     public function createUser($full_name, $pass, $email, $phone_no, $file_url, $device_token, $device_type, $random_number, $country="",$gender,$publisher_type,$user_name,$about_me){
         if (!$this->isUserExists($email,$user_name)){
             $password = base64_encode($pass);
@@ -78,7 +77,7 @@ class DbOperation {
 */
     function userEdit($address, $user_id, $file_url, $country="",$password,$publisher_type,$email,$about_me) {
         $password = base64_encode($password);
-        $mysql = "update user_login_table set  address ='".$address."',
+        $mysql = "update user_login_table set address ='".$address."',
                                                country ='".$country."',
                                                password ='".$password."',
                                                publisher_type ='".$publisher_type."',
@@ -92,7 +91,6 @@ class DbOperation {
             return 1;
         }
     }
-
 
 /*
 *
@@ -420,8 +418,8 @@ public function publishNewBook($data){
 public function addAssignment($bookId,$user_id,$question){
 
    $bookData = json_decode($question);
-   foreach ($bookData as $key => $value) {
-        $mysql = "INSERT INTO tbl_faq set book_id = '".$bookId."',
+       foreach ($bookData as $key => $value){
+         $mysql = "INSERT INTO tbl_faq set book_id = '".$bookId."',
                                         question  = '".$value."',
                                         questioned_by ='".$user_id."'"; 
          $result = mysql_query($mysql);
@@ -572,8 +570,9 @@ public function getBookbyCategoryId($cat_id){
 *
 */
 
- public function getallQustionbyBook($bookId) {        
-        $mysql = "SELECT id,book_id,question,answer FROM tbl_faq WHERE book_id ='".$bookId."'";
+ public function getallQustionbyBook($bookId) {       
+        $mysql = "SELECT id,book_id,question FROM tbl_faq WHERE book_id ='".$bookId."'";
+        //echo $mysql;exit();
         $run = mysql_query($mysql);
         $num_rows = mysql_num_rows($run);
         if ($num_rows > 0) {
@@ -738,36 +737,35 @@ public function getBookbyCategoryId($cat_id){
 *
 */
 
- public function addAnswer($assignment_id,$answer,$answered_by,$books_id){
-        $mysql = "SELECT * FROM tbl_answer WHERE question_id='".$assignment_id."' AND answered_by='".$answered_by."'";
-                $assignmentData = mysql_query($mysql);
-                $ansdata = mysql_fetch_object($assignmentData);
-                $ansid = $ansdata->id;
-        if(empty($ansid)){
-             $mysql = "INSERT INTO tbl_answer set answer ='".$answer."', answered_by='".$answered_by."', question_id='".$assignment_id."', books_id='".$books_id."'";
+ public function addAnswer($answer){
+        $answerData = json_decode($answer);
+        foreach($answerData as $key => $value){
+            $qid[] = $value->assignment_id;
+            $ansby[] = $value->answered_by;
+        }
+        $qid = implode(",", $qid);
+        $ansby = implode(",", $ansby);
+
+        $mysql = "SELECT * FROM tbl_answer WHERE question_id IN ($qid) AND answered_by IN ($ansby)";
+            $assignmentData = mysql_query($mysql);
+             while($ansdata = mysql_fetch_object($assignmentData)){
+                $rows[] = $ansdata->id;
+             }
+        if(empty($rows)){
+          foreach($answerData as $key => $value){
+            $mysql = "INSERT INTO tbl_answer set answer ='".$value->answer."', answered_by='".$value->answered_by."', question_id='".$value->assignment_id."', books_id='".$value->books_id."'";
                  $result = mysql_query($mysql);
-                 $last_insert_id = mysql_insert_id();
-                 if($result == true){
-                  $mysql = "SELECT id, question_id, books_id,answered_by, answer FROM tbl_answer WHERE id='".$last_insert_id."'";
-                    $assignmentData = mysql_query($mysql);
-                    $num_rows = mysql_num_rows($assignmentData);
-                    if ($num_rows > 0){
-                        $rows =mysql_fetch_object($assignmentData);
-                    }}
-                 return $rows;
-                
-      }else{
-         $mysql = "update tbl_answer set answer ='".$answer."' WHERE id='".$ansid."'";
-         $result = mysql_query($mysql);
-          if($result == true){
-              $mysql = "SELECT id, question_id, books_id,answered_by, answer FROM tbl_answer WHERE id='".$ansid."'";
-                $assignmentData = mysql_query($mysql);
-                $num_rows = mysql_num_rows($assignmentData);
-                if ($num_rows > 0){
-                    $rows =mysql_fetch_object($assignmentData);
-                }}
-             return $rows;
-      }
+             }
+             return true;
+         }else{
+            $updateData = array_combine($rows, $answerData);
+            foreach($updateData as $key => $value){
+                    $mysql = "update tbl_answer set answer ='".$value->answer."' WHERE id=".$key;
+                    $result = mysql_query($mysql);
+           }
+           return true;
+         }
+            
   }
 
 
@@ -777,8 +775,9 @@ public function getBookbyCategoryId($cat_id){
 *
 */
 
- public function gteAnsweredbyuser($user_id){
-        $mysql = "SELECT tbl_answer.id, tbl_answer.question_id, tbl_answer.books_id ,tbl_answer.answered_by, tbl_answer.answer,tbl_faq.question FROM tbl_answer LEFT JOIN tbl_faq ON tbl_answer.question_id = tbl_faq.id WHERE tbl_answer.answered_by='".$user_id."'";
+ public function gteAnsweredbyuser($user_id,$bookId){
+        $mysql = "SELECT tbl_answer.question_id, tbl_answer.books_id , tbl_answer.answer,tbl_faq.question FROM tbl_answer RIGHT JOIN tbl_faq ON tbl_answer.question_id = tbl_faq.id WHERE tbl_answer.answered_by='".$user_id."' AND tbl_answer.books_id='".$bookId."' ORDER BY tbl_answer.question_id ASC";
+        //echo $mysql;exit();
         $result = mysql_query($mysql);
         $num_rows = mysql_num_rows($result);
         if ($num_rows > 0) {
@@ -810,7 +809,7 @@ public function deleteNoteBook($note_id) {
 */
 
  public function GetPopularBook() {
-        $mysql = "SELECT tbl_books.id ,tbl_books.book_title, tbl_books.thubm_image, tbl_books.author_name,tbl_books.book_description,tbl_books.mostView,tbl_review.rating FROM tbl_books LEFT JOIN tbl_review on tbl_books.id = tbl_review.books_id ORDER BY tbl_books.mostView DESC LIMIT 5";
+        $mysql = "SELECT tbl_books.id ,tbl_books.book_title, tbl_books.thubm_image, tbl_books.author_name,tbl_books.book_description,tbl_books.mostView,tbl_review.rating FROM tbl_books LEFT JOIN tbl_review on tbl_books.id = tbl_review.books_id ORDER BY tbl_books.mostView DESC";
         //echo $mysql;exit();
            $result = mysql_query($mysql);
             $num_rows = mysql_num_rows($result);
