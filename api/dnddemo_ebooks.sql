@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 04, 2019 at 01:51 PM
+-- Generation Time: Oct 07, 2019 at 06:04 AM
 -- Server version: 5.6.45-log
 -- PHP Version: 7.2.7
 
@@ -112,11 +112,18 @@ CREATE TABLE `tbl_answer` (
 --
 
 INSERT INTO `tbl_answer` (`id`, `question_id`, `books_id`, `answered_by`, `answer`, `created_at`, `status`) VALUES
-(1, 5, 58, 2, 'jhakas', '2019-10-04 12:41:50', NULL),
-(2, 5, 58, 3, 'jhakas fd dsdsd', '2019-10-04 12:55:19', 1),
-(3, 5, 58, 19, 'jhakas fd dsdsd', '2019-10-04 13:11:01', 1),
-(4, 5, 58, 18, 'jhakas fd hjgsdf sdfdsfh', '2019-10-04 13:11:21', 1),
-(5, 1, 58, 2, 'dfdfffggg', '2019-10-04 13:35:30', 1);
+(1, 1, 62, 2, 'dfsdsdsdsdsdsd', '2019-10-05 12:18:00', 1),
+(2, 2, 62, 2, 'gooo', '2019-10-05 12:18:00', 1),
+(3, 3, 62, 2, 'dd', '2019-10-05 12:18:00', 1),
+(8, 5, 63, 2, 'bbb', '2019-10-05 13:11:41', 1),
+(7, 4, 63, 2, 'vvv', '2019-10-05 13:11:41', 1),
+(9, 6, 63, 2, 'cfdfdfdfdfc', '2019-10-05 13:11:41', 1),
+(10, 7, 63, 2, 'mm', '2019-10-05 13:11:41', 1),
+(11, 8, 63, 2, 'dd', '2019-10-05 13:11:41', 1),
+(12, 9, 64, 19, 'answer1', '2019-10-07 04:56:29', 1),
+(13, 10, 64, 19, 'answer2', '2019-10-07 04:56:29', 1),
+(14, 11, 64, 19, 'answer3', '2019-10-07 04:56:29', 1),
+(15, 12, 64, 19, 'answer4', '2019-10-07 04:56:29', 1);
 
 -- --------------------------------------------------------
 
@@ -159,7 +166,8 @@ INSERT INTO `tbl_bookmark` (`id`, `user_id`, `books_id`, `status`, `created_at`,
 (19, '2', '5', '0', '2019-10-01 07:57:11', '2019-10-01 07:57:41'),
 (20, '2', '1', '1', '2019-10-01 10:50:44', '2019-10-01 10:50:44'),
 (21, '19', '5', '1', '2019-10-04 05:10:55', '2019-10-04 05:10:55'),
-(22, '2', '59', '1', '2019-10-04 12:19:18', '2019-10-04 12:19:18');
+(22, '2', '59', '1', '2019-10-04 12:19:18', '2019-10-04 12:19:18'),
+(23, '3', '62', '1', '2019-10-05 07:28:36', '2019-10-05 07:28:36');
 
 -- --------------------------------------------------------
 
@@ -192,15 +200,15 @@ CREATE TABLE `tbl_books` (
 --
 
 INSERT INTO `tbl_books` (`id`, `user_id`, `category_id`, `book_title`, `book_slug`, `thubm_image`, `book_description`, `author_name`, `book_image`, `video_url`, `audio_url`, `pdf_url`, `question_data`, `mostView`, `status`, `created_at`, `updated_at`) VALUES
-(1, '1', '1', 'DemoBook\n', 'demobook\n', '', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', 'video_1568786977.mp4', 'audio_1568786977.mp3', '', '0', '245', 0, '2019-09-17 00:00:00', '2019-09-18 06:09:37'),
-(2, '1', '2', 'DemoBook\n', 'demobook\n', 'book_1568787068.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', 'video_1568787068.mp4', 'audio_1568787068.mp3', '', '0', '34', 0, '2019-09-17 00:00:00', '2019-09-18 06:11:08'),
-(3, '1', '1', 'Demofull\n', 'demofull\n', 'book_1568787142.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Amit', '', 'video_1568787142.mp4', 'audio_1568787142.mp3', '', '0', '174', 0, '2019-09-17 00:00:00', '2019-09-18 06:12:22'),
-(4, '1', '1', 'DemoVideo\n', 'demovideo\n', 'book_1568787405.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', 'video_1568787405.mp4', '', '', '0', '72', 0, '2019-09-17 00:00:00', '2019-09-18 06:16:45'),
-(5, '1', '2', 'DemoAudio', 'demoaudio', 'book_1568787874.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', '', 'audio_1568787874.mp3', '', '0', '72', 0, '2019-09-17 00:00:00', '2019-09-18 06:24:34'),
+(1, '1', '1', 'DemoBook\n', 'demobook\n', '', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', 'video_1568786977.mp4', 'audio_1568786977.mp3', '', '0', '279', 0, '2019-09-17 00:00:00', '2019-09-18 06:09:37'),
+(2, '1', '2', 'DemoBook\n', 'demobook\n', 'book_1568787068.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', 'video_1568787068.mp4', 'audio_1568787068.mp3', '', '0', '35', 0, '2019-09-17 00:00:00', '2019-09-18 06:11:08'),
+(3, '1', '1', 'Demofull\n', 'demofull\n', 'book_1568787142.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Amit', '', 'video_1568787142.mp4', 'audio_1568787142.mp3', '', '0', '199', 0, '2019-09-17 00:00:00', '2019-09-18 06:12:22'),
+(4, '1', '1', 'DemoVideo\n', 'demovideo\n', 'book_1568787405.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', 'video_1568787405.mp4', '', '', '0', '74', 0, '2019-09-17 00:00:00', '2019-09-18 06:16:45'),
+(5, '1', '2', 'DemoAudio', 'demoaudio', 'book_1568787874.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', '', 'audio_1568787874.mp3', '', '0', '79', 0, '2019-09-17 00:00:00', '2019-09-18 06:24:34'),
 (6, '1', '1', 'pdf', 'pdf', 'book_1568801587.jpg', 'fswdsdsdsd sdhs did sydsi dsidys dsiuyd iusydis dsyds sdysud sd', 'vansh', '', '', '', 'document_1568801587.pdf', '0', '11', 0, '2019-09-18 00:00:00', '2019-09-18 10:13:07'),
 (7, '1', '1', 'dfdfdf', 'dfdfdf', 'book_1568806389.jpg', 'fdfd', 'dfdfdf', '', '', '', 'document_1568806389.pdf', '0', '1', 0, '2019-09-18 00:00:00', '2019-09-18 11:33:09'),
 (8, '1', '1', 'ffggfg', 'ffggfg', 'book_1568807811.jpg', 'fgfgfgffg', 'fgfgfgf', '', '', '', 'document_1568807811.docx', '0', '17', 0, '2019-09-18 00:00:00', '2019-09-18 11:56:51'),
-(9, '1', '2', 'DemoVVV', 'demovvv', 'book_1568808176.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', '', '', 'document_1568808176.mp4', '0', '20', 0, '2019-09-18 00:00:00', '2019-09-18 12:02:56'),
+(9, '1', '2', 'DemoVVV', 'demovvv', 'book_1568808176.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', '', '', 'document_1568808176.mp4', '0', '23', 0, '2019-09-18 00:00:00', '2019-09-18 12:02:56'),
 (10, '1', '1', 'dddd', 'dddd', 'book_1568810042.jpg', 'dddd', 'dddd', '', 'video_1568810042.mp4', '', 'document_1568810042.pdf', '0', '10', 0, '2019-09-18 00:00:00', '2019-09-18 12:34:02'),
 (11, '1', '1', 'pppp', 'pppp', 'book_1568811555.jpg', 'dhfgdfgd', 'dfdfdf', '', 'video_1568811555.mp4', '', 'document_1568811555.pdf', '0', '0', 0, '2019-09-18 00:00:00', '2019-09-18 12:59:15'),
 (12, '1', '1', 'vbvb', 'vbvb', 'book_1568812725.jpg', 'vbvb', 'vbvb', '', 'video_1568812725.mp4', '', 'document_1568812725.pdf', '0', '1', 0, '2019-09-18 00:00:00', '2019-09-18 13:18:45'),
@@ -223,9 +231,13 @@ INSERT INTO `tbl_books` (`id`, `user_id`, `category_id`, `book_title`, `book_slu
 (29, '1', '1', 'ss', 'ss', 'book_1569046430.jpg', 'ss', 'ss', '', 'video_1569046430.mp4', '', '', '0', '0', 0, '2019-09-20 00:00:00', '2019-09-21 06:13:50'),
 (30, '1', '1', 'xff', 'xff', 'book_1569047259.jpg', 'xxxffffffffff', 'xxxxxxxxxxxxxxxx', '', 'video_1569047259.mp4', '', '', '0', '14', 0, '2019-09-20 00:00:00', '2019-09-21 06:27:39'),
 (31, '1', '1', 'rrggg', 'rrggg', 'book_1569047760.jpg', 'grgrggg', 'grgrg', '', '', '', '', '0', '15', 0, '2019-09-20 00:00:00', '2019-09-21 06:36:00'),
-(32, '2', '2', 'The GOOD SON', 'the good son', 'book_1569320133.jpg', 'dfgdgfry. ey yr wyr ER r FG dhgf dfgdgfry dfgdgfry dfgdgfry dfyfy u fdysf dgf dfdf auws do usdfhjfjfjgdfj dfre eryueyry eyreyrey euyeur uyruery euyreir eyi ruy euyruefufi euyrf eufyff.     rfeeer', 'VAnsh', '', 'video_1569320133.mp4', 'audio_1569320133.mp3', '', '0', '39', 0, '2019-09-24 00:00:00', '2019-09-24 10:15:33'),
+(32, '2', '2', 'The GOOD SON', 'the good son', 'book_1569320133.jpg', 'dfgdgfry. ey yr wyr ER r FG dhgf dfgdgfry dfgdgfry dfgdgfry dfyfy u fdysf dgf dfdf auws do usdfhjfjfjgdfj dfre eryueyry eyreyrey euyeur uyruery euyreir eyi ruy euyruefufi euyrf eufyff.     rfeeer', 'VAnsh', '', 'video_1569320133.mp4', 'audio_1569320133.mp3', '', '0', '40', 0, '2019-09-24 00:00:00', '2019-09-24 10:15:33'),
+(64, '3', '2', 'New Story books', 'new story books', 'book_1570423584.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', 'Amit kumar', '', '', '', '', '[\"question1\",\"question2\",\"question3\",\"question4\"]', '7', 1, '2019-10-06 00:00:00', '2019-10-07 04:46:24'),
+(62, '3', '2', 'is simply dummy book1', 'is simply dummy book1', 'book_1570258263.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', 'Amit kumar', '', '', '', '', '[\"zaaa\",\"ssss\",\"dfryytyty\"]', '57', 1, '2019-10-04 00:00:00', '2019-10-05 06:51:03'),
 (59, '2', '1', 'dsdasdsdsd', 'dsdasdsdsd', 'book_1570183871.jpg', 'dsdasdsdsd', 'sdsdsd', '', '', '', '', '[\"SF rwrr ertr to ytuyuy \",\"ssdsds\"]', '14', 0, '2019-10-04 00:00:00', '2019-10-04 10:11:11'),
-(58, '3', '2', 'is simply dummy book1', 'is simply dummy book1', 'book_1570180325.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', 'Amit kumar', '', '', '', '', '[\"zaaa\",\"ssss\",\"dfryytyty\"]', '56', 1, '2019-10-04 00:00:00', '2019-10-04 09:12:05');
+(60, '2', '1', 'jsjsh', 'jsjsh', 'book_1570206578.jpg', 'hshshs', 'hahhss', '', 'video_1570206578.mp4', '', '', '[\"bdhhdhd\",\"bbd\",\"hdhdh\"]', '3', 0, '2019-10-04 00:00:00', '2019-10-04 16:29:38'),
+(63, '2', '2', 'asigh', 'asigh', 'book_1570271642.jpg', 'hshshs ueueueu', 'vansh', '', '', '', '', '[\"bbshs agahaa hhshs hahall gehshl bhshs hhs hh\",\"bhsjssh hjsjjs bjksksjshs hsjsjsj hjjsjsagahaja\",\"bsbs k sbshhs hauauaus hhshss hjaiaau jjsjs jjsjs?\",\"bhzhs hahhss ggaha jjaja yyaha\",\"hahaiaoa hhsjs\"]', '59', 0, '2019-10-05 00:00:00', '2019-10-05 10:34:02'),
+(58, '3', '2', 'is simply dummy book1', 'is simply dummy book1', 'book_1570180325.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', 'Amit kumar', '', '', '', '', '[\"zaaa\",\"ssss\",\"dfryytyty\"]', '89', 1, '2019-10-04 00:00:00', '2019-10-04 09:12:05');
 
 -- --------------------------------------------------------
 
@@ -305,9 +317,7 @@ CREATE TABLE `tbl_faq` (
   `id` int(11) NOT NULL,
   `book_id` int(50) DEFAULT NULL,
   `question` text,
-  `answer` text,
   `questioned_by` int(50) DEFAULT NULL,
-  `answered_by` int(50) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -316,12 +326,19 @@ CREATE TABLE `tbl_faq` (
 -- Dumping data for table `tbl_faq`
 --
 
-INSERT INTO `tbl_faq` (`id`, `book_id`, `question`, `answer`, `questioned_by`, `answered_by`, `created_at`, `updated_at`) VALUES
-(1, 58, 'zaaa', 'fdfdfdfdff.   hdh', 3, 3, '2019-10-04 09:12:05', '2019-10-04 12:00:15'),
-(2, 58, 'ssss', 'sdsssfdffffff. fdddd', 3, 2, '2019-10-04 09:12:05', '2019-10-04 11:33:45'),
-(3, 58, 'dfryytyty', 'ddddddhgghhhhhhhhhjjj', 3, 2, '2019-10-04 09:12:05', '2019-10-04 12:13:31'),
-(4, 59, 'SF rwrr ertr to ytuyuy ', 'sasdfredrf ', 2, 2, '2019-10-04 10:11:11', '2019-10-04 13:00:47'),
-(5, 59, 'ssdsds', 'dfdfdffd to ', 2, 2, '2019-10-04 10:11:11', '2019-10-04 12:17:41');
+INSERT INTO `tbl_faq` (`id`, `book_id`, `question`, `questioned_by`, `created_at`, `updated_at`) VALUES
+(1, 62, 'zaaa', 3, '2019-10-05 06:51:03', '2019-10-05 06:51:03'),
+(2, 62, 'ssss', 3, '2019-10-05 06:51:03', '2019-10-05 06:51:03'),
+(3, 62, 'dfryytyty', 3, '2019-10-05 06:51:03', '2019-10-05 06:51:03'),
+(4, 63, 'bbshs agahaa hhshs hahall gehshl bhshs hhs hh', 2, '2019-10-05 10:34:02', '2019-10-05 10:34:02'),
+(5, 63, 'bhsjssh hjsjjs bjksksjshs hsjsjsj hjjsjsagahaja', 2, '2019-10-05 10:34:02', '2019-10-05 10:34:02'),
+(6, 63, 'bsbs k sbshhs hauauaus hhshss hjaiaau jjsjs jjsjs?', 2, '2019-10-05 10:34:02', '2019-10-05 10:34:02'),
+(7, 63, 'bhzhs hahhss ggaha jjaja yyaha', 2, '2019-10-05 10:34:02', '2019-10-05 10:34:02'),
+(8, 63, 'hahaiaoa hhsjs', 2, '2019-10-05 10:34:02', '2019-10-05 10:34:02'),
+(9, 64, 'question1', 3, '2019-10-07 04:46:24', '2019-10-07 04:46:24'),
+(10, 64, 'question2', 3, '2019-10-07 04:46:24', '2019-10-07 04:46:24'),
+(11, 64, 'question3', 3, '2019-10-07 04:46:24', '2019-10-07 04:46:24'),
+(12, 64, 'question4', 3, '2019-10-07 04:46:24', '2019-10-07 04:46:24');
 
 -- --------------------------------------------------------
 
@@ -377,6 +394,7 @@ CREATE TABLE `tbl_note` (
 INSERT INTO `tbl_note` (`id`, `user_id`, `title`, `description`, `status`, `created_at`, `updated_at`) VALUES
 (23, '1', NULL, 'dfdgfg DF FG FG aaaaaadf GF for fagaf gfg agfdg after FG FG agf after ASAF FG FG FG FG FDAGFF FG FG r hfg gfg', '1', '2019-09-23 10:20:40', '2019-09-23 10:20:40'),
 (5, '1', NULL, 'dsddd', '1', '2019-09-20 13:12:47', '2019-09-20 13:12:47'),
+(32, '2', NULL, 'sjsjshs bhshs', '1', '2019-10-04 16:27:58', '2019-10-04 16:27:58'),
 (29, '2', NULL, 'sdfdsds err ', '1', '2019-10-01 07:53:48', '2019-10-01 07:53:48');
 
 -- --------------------------------------------------------
@@ -424,7 +442,10 @@ INSERT INTO `tbl_review` (`id`, `user_id`, `books_id`, `comment`, `rating`, `sta
 (21, '2', '4', 'd', '3.5', '1', '2019-10-01 06:55:28', '2019-10-01 07:54:57'),
 (22, '19', '1', 'bshhs', '3.0', '1', '2019-10-03 06:09:02', '2019-10-03 06:09:02'),
 (23, '19', '5', 'nice', '3.0', '1', '2019-10-04 05:10:34', '2019-10-04 05:10:34'),
-(24, '19', '35', 'good', '4.5', '1', '2019-10-04 07:25:16', '2019-10-04 07:25:16');
+(24, '19', '35', 'good', '4.5', '1', '2019-10-04 07:25:16', '2019-10-04 07:25:16'),
+(25, '2', '58', 'fgg', '3.5', '1', '2019-10-04 16:27:14', '2019-10-04 16:27:14'),
+(26, '3', '62', 'nice', '3.0', '1', '2019-10-05 07:28:02', '2019-10-05 07:28:02'),
+(27, '2', '63', 'ffdsae vvg b', '3.0', '1', '2019-10-05 12:43:05', '2019-10-05 12:43:05');
 
 -- --------------------------------------------------------
 
@@ -595,19 +616,19 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `tbl_answer`
 --
 ALTER TABLE `tbl_answer`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `tbl_bookmark`
 --
 ALTER TABLE `tbl_bookmark`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `tbl_books`
 --
 ALTER TABLE `tbl_books`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `tbl_category`
@@ -631,7 +652,7 @@ ALTER TABLE `tbl_contact`
 -- AUTO_INCREMENT for table `tbl_faq`
 --
 ALTER TABLE `tbl_faq`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `tbl_frnds`
@@ -643,13 +664,13 @@ ALTER TABLE `tbl_frnds`
 -- AUTO_INCREMENT for table `tbl_note`
 --
 ALTER TABLE `tbl_note`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `tbl_review`
 --
 ALTER TABLE `tbl_review`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `user_login_table`
