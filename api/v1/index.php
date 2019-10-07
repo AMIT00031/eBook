@@ -490,7 +490,7 @@ $app->post('/getBookDetail', function () use ($app) {
     $reviewData = $db->getReviewbyBookid($arr->id);
     $Boomark = $db->getbookMarkByBookid($bookId,$userid);
     $allQuestion = $db->getallQustionbyBook($bookId);
-    $ansbyUser = $db->gteAnsweredbyuser($userid);
+    $ansbyUser = $db->gteAnsweredbyuser($userid,$bookId);
     
     if (isset($reviewData)) {
         $rating = 0;
@@ -551,19 +551,14 @@ $app->post('/updateAssignment', function () use ($app){
 
 $app->post('/answerQuestion', function () use ($app){
     $response = array();
-    $assignment_id = $app->request->post('assignment_id');
     $answer = $app->request->post('answer');
-    $answered_by = $app->request->post('answered_by');
-    $books_id = $app->request->post('books_id');
-
         $db = new DbOperation();
         $arr = array();
-        $arr = $db->addAnswer($assignment_id,$answer,$answered_by,$books_id);
+        $arr = $db->addAnswer($answer);
 
         if (!empty($arr)){
             $response["error"] = false;
-            $response["message"] = "Answered successfully.";
-            $response["data"] = $arr;
+            $response["message"] = "Answered saved successfully.";
             echoResponse(200, $response);
           }else{
             $response["error"] = true;
