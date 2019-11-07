@@ -198,6 +198,8 @@ class DbOperation {
         $num_rows = mysql_num_rows($result);
         return $num_rows > 0;
     }
+	
+	
 
 /*
 *
@@ -285,13 +287,83 @@ class DbOperation {
     }
 
 
+
+/*select Definition from DEFINITIONS where wordID = (select wordID from WORDS where lower(word) = lower("simple"))
+SELECT * FROM `DEFINITIONS` as df left join WORDS as w on df.WordID=w.WordID where df.Definition like '%simple%'*/
+
+public function DictionaryData($wordData) {
+        if(!empty($wordData)){
+           $mysql = 'select Definition from DEFINITIONS where wordID = (select wordID from WORDS where Word = "'.$wordData.'")';
+           //echo $mysql;exit();
+            $result = mysql_query($mysql);
+            $num_rows = mysql_num_rows($result);
+            $rows = array();
+            if ($num_rows > 0) {
+                while ($res = mysql_fetch_object($result)) {
+                    $rows[] = $res;
+                }
+                return $rows;
+            } else {
+                return 1;
+            }
+         }
+     }
+
+
+/*
+*
+*Get book by id ...........
+*
+*/
+
+    public function getBookdatabyid($BookId) {
+        $mysql = "SELECT * FROM tbl_books WHERE id ='".$BookId."'";
+        $result = mysql_query($mysql);
+        $num_rows = mysql_num_rows($result);
+
+        if($num_rows > 0) {
+            while ($res = mysql_fetch_object($result)) {
+                $rows[] = $res;
+            }
+            $rows = array(
+                'id' => $rows[0]->id,
+                'user_id' => $rows[0]->user_id,
+                'category_id' => $rows[0]->category_id,
+                'book_title' => $rows[0]->book_title,
+                'thubm_image' => $rows[0]->thubm_image,
+                'book_description' => $rows[0]->book_description,
+                'author_name' => $rows[0]->author_name,
+                'book_image' => $rows[0]->book_image,
+                'video_url' => $rows[0]->video_url,
+                'audio_url' => $rows[0]->audio_url,
+                'pdf_url' => $rows[0]->pdf_url,
+                );
+            return $rows;
+        }else{
+            return 1;
+        }
+    }
+
+/*
+*
+*Delete book  ...........
+*
+*/
+
+public function deleteBookbyId($books_id) {
+    $mysql = "Update tbl_books set status ='0' WHERE id= '".$books_id."'";
+    $result = mysql_query($mysql);
+    return $t = mysql_affected_rows();
+}
+
+
 /*
 *
 *Get user info by user email id ...........
 *
 */
 
-    public function getUserInfoByEmail($email) {
+    public function getUserInfoByEmail($email){
         $mysql = "SELECT * FROM user_login_table WHERE email ='".$email."'";
         $result = mysql_query($mysql);
         $num_rows = mysql_num_rows($result);
@@ -378,7 +450,8 @@ public function publishNewBook($data){
         $audio_url        = $data['audio_url'];
         $book_image       = $data['book_image'];
         $video_url        = $data['video_url'];
-        $questiondata        = $data['questiondata'];
+        $questiondata     = $data['questiondata'];
+        $isbn_number      = $data['isbn_number'];
         $date             = date('Y-m-d');
         $status           = $data['status'];
         $book_slug = strtolower($data['book_title']);
@@ -393,6 +466,7 @@ public function publishNewBook($data){
                                        book_image       = '".$book_image."',
                                        video_url        = '".$video_url."',
                                        question_data    = '".$questiondata."',
+                                       isbn_number      = '".$isbn_number."',
                                        book_description = '".$book_description."',
                                        author_name      = '".$author_name."',
                                        status           = '".$status."',
@@ -406,19 +480,106 @@ public function publishNewBook($data){
             return false;
         }
     }
-
-
-
-    /*
+	
+	
+/*
 *
-*Publish new book ...........
+*Update book ...........
+*
+*/
+
+public function updateBook($data){
+        date_default_timezone_set('America/Los_Angeles');
+        $book_id          = $data['book_id'];
+        $category_id      = $data['category_id'];
+        $book_title       = $data['book_title'];
+        $book_description = $data['book_description'];
+        $author_name      = $data['author_name'];
+        $thubm_image      = $data['thubm_image'];
+        $pdf_url          = $data['pdf_url'];
+        $audio_url        = $data['audio_url'];
+        $book_image       = $data['book_image'];
+        $video_url        = $data['video_url'];
+        $questiondata     = $data['questiondata'];
+        $isbn_number      = $data['isbn_number'];
+        $date             = date('Y-m-d');
+        $status           = $data['status'];
+        $book_slug = strtolower($data['book_title']);
+		$mysql = "update tbl_books set category_id      = '".$category_id."',
+                                       book_title       ='".$book_title."',
+                                       book_slug        =  '".$book_slug."',
+                                       thubm_image      = '".$thubm_image."',
+                                       pdf_url          = '".$pdf_url."',
+                                       audio_url        = '".$audio_url."',
+                                       book_image       = '".$book_image."',
+                                       video_url        = '".$video_url."',
+                                       question_data    = '".$questiondata."',
+                                       isbn_number      = '".$isbn_number."',
+                                       book_description = '".$book_description."',
+                                       author_name      = '".$author_name."',
+                                       status           = '".$status."',
+                                       updated_at       = '".$date."' where id='".$book_id."'";
+
+									   
+
+        $result = mysql_query($mysql);
+        if ($result){
+            return $book_id ;
+        } else {
+            return false;
+        }
+    }
+
+/*
+*
+*Isbn nummer vailidation ...........
+*
+*/
+
+public function ValidIsbn($isbn_number){
+    $regex = '/\b(?:ISBN(?:: ?| ))?((?:97[89])?\d{9}[\dx])\b/i';
+    if (preg_match($regex, str_replace('-', '', $isbn_number), $matches)) {
+        return (10 === strlen($matches[1]))
+            ? 1   // ISBN-10
+            : 2;  // ISBN-13
+    }
+    return false; // No valid ISBN found
+}
+
+
+/*
+*
+*book isbn nummer vailidation ...........
+*
+*/
+
+public function isIsbnExists($isbn_number) {
+	if($this->ValidIsbn($isbn_number)){
+		$mysql = "SELECT id from tbl_books WHERE isbn_number='".$isbn_number."'";
+		$result = mysql_query($mysql);
+		$num_rows = mysql_num_rows($result);
+		if($num_rows > 0){
+			return false;
+		}else{
+			return true;
+		}
+	}else{
+		return false;
+	}
+}
+	
+
+
+/*
+*
+*add assignment new book ...........
 *
 */
 
 public function addAssignment($bookId,$user_id,$question){
-
+	if(!empty($question)){
    $bookData = json_decode($question);
-       foreach ($bookData as $key => $value){
+       foreach($bookData as $key => $value){
          $mysql = "INSERT INTO tbl_faq set book_id = '".$bookId."',
                                         question  = '".$value."',
                                         questioned_by ='".$user_id."'"; 
@@ -429,7 +590,9 @@ public function addAssignment($bookId,$user_id,$question){
             return true;
         } else {
             return false;
-        }
+	}}else{
+		return false;
+	}
     }
 
 /*
@@ -454,7 +617,7 @@ public function addAssignment($bookId,$user_id,$question){
 public function getBookbyCategoryId($cat_id){
         date_default_timezone_set('America/Los_Angeles');
         $rows = array();
-        $mysql = "SELECT id ,book_title, thubm_image, author_name,book_description,mostView FROM tbl_books WHERE category_id='".$cat_id."'";
+        $mysql = "SELECT id ,book_title, thubm_image, author_name,mostView FROM tbl_books WHERE category_id='".$cat_id."' AND status='1'";
         //echo $mysql;die;
         $result = mysql_query($mysql);
         $num_rows = mysql_num_rows($result);
@@ -462,7 +625,6 @@ public function getBookbyCategoryId($cat_id){
             while($res = mysql_fetch_object($result)){
                 $res->book_title = strip_tags($res->book_title);
                 $res->thubm_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.strip_tags($res->thubm_image);
-                $res->book_description = strip_tags($res->book_description);
                 $rows[] = $res;
             }
             return $rows;
@@ -507,9 +669,9 @@ public function getBookbyCategoryId($cat_id){
 *
 */
 
- public function getAuthorDetails($userid) {
+	public function getAuthorDetails($userid) {
         if($userid !==''){
-            $mysql = "SELECT id,user_name,chat_id,url,email,about_me FROM user_login_table WHERE id ='".$userid."'";
+            $mysql = "SELECT id,user_name,chat_id,url,email,about_me, publisher_type,device_token, device_type FROM user_login_table WHERE id ='".$userid."'";
             $run = mysql_query($mysql);
             $row = mysql_fetch_object($run);
             return $row;
@@ -517,6 +679,11 @@ public function getBookbyCategoryId($cat_id){
             return NULL;
         }
     }
+	
+
+	
+	
+	
 
 
 /*
@@ -526,7 +693,7 @@ public function getBookbyCategoryId($cat_id){
 */
 
  public function getAuthorBooklist($userid) {
-        $mysql = "SELECT tbl_books.id ,tbl_books.book_title, tbl_books.thubm_image, tbl_books.author_name,tbl_books.book_description,tbl_review.rating FROM tbl_books LEFT JOIN tbl_review on tbl_books.id = tbl_review.books_id WHERE tbl_books.user_id= '".$userid."'ORDER BY tbl_books.id DESC";
+        $mysql = "SELECT tbl_books.id ,tbl_books.book_title, tbl_books.thubm_image, tbl_books.author_name,tbl_books.book_description,tbl_review.rating FROM tbl_books LEFT JOIN tbl_review on tbl_books.id = tbl_review.books_id WHERE tbl_books.user_id= '".$userid."' AND tbl_books.status ='1' ORDER BY tbl_books.id DESC";
            //echo $mysql;exit();
            $result = mysql_query($mysql);
             $num_rows = mysql_num_rows($result);
@@ -542,6 +709,31 @@ public function getBookbyCategoryId($cat_id){
                 return NULL;
             }
     }
+	
+/*
+*
+*Get all pending books list ...........
+*
+*/
+
+ public function getPendingBooklist($userid){
+        $mysql = "SELECT id ,book_title, thubm_image, author_name,book_description FROM tbl_books WHERE user_id= '".$userid."' AND status ='0' ORDER BY id DESC";
+           //echo $mysql;exit();
+           $result = mysql_query($mysql);
+            $num_rows = mysql_num_rows($result);
+            if ($num_rows > 0) {
+                while($res = mysql_fetch_object($result)){
+                    $res->book_title = strip_tags($res->book_title);
+                    $res->thubm_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.strip_tags($res->thubm_image);
+                    $res->book_description = strip_tags($res->book_description);
+                    $rows[] = $res;
+                }
+                return $rows;
+            } else {
+                return NULL;
+            }
+    }
+	
 
 /*
 *
@@ -809,7 +1001,7 @@ public function deleteNoteBook($note_id) {
 */
 
  public function GetPopularBook() {
-        $mysql = "SELECT tbl_books.id ,tbl_books.book_title, tbl_books.thubm_image, tbl_books.author_name,tbl_books.book_description,tbl_books.mostView,tbl_review.rating FROM tbl_books LEFT JOIN tbl_review on tbl_books.id = tbl_review.books_id ORDER BY tbl_books.mostView DESC";
+        $mysql = "SELECT tbl_books.id ,tbl_books.book_title, tbl_books.thubm_image, tbl_books.author_name,tbl_books.book_description,tbl_books.mostView,tbl_review.rating FROM tbl_books LEFT JOIN tbl_review on tbl_books.id = tbl_review.books_id WHERE tbl_books.status='1' ORDER BY tbl_books.mostView DESC";
         //echo $mysql;exit();
            $result = mysql_query($mysql);
             $num_rows = mysql_num_rows($result);
@@ -1015,7 +1207,7 @@ public function deleteNoteBook($note_id) {
                     $mail->Password = '#KC1A]Rgfa0C';
                     $mail->SMTPSecure = 'ssl';
                     $mail->From = 'info@dnddemo.com';
-                    $mail->FromName = "ScamSom";
+                    $mail->FromName = "ueBook";
                     $mail->AddReplyTo('info@dnddemo.com', 'eBooks');
                     $mail->AddAddress($to['email'], $to['name']);
                     $mail->Priority = 1;
@@ -1040,6 +1232,237 @@ public function deleteNoteBook($note_id) {
 
     }
 
+
+/*
+*function to send the mail
+*/
+
+    public function sendEmail($emailFrom, $emailto, $subject, $message){
+                   
+                    $from = $emailFrom;
+                    $message = '<b>Hello Admin <br/><br/></b>
+                            New User contacted you having below details:<br/><br/>
+                            E-mail:' . $emailFrom . '<br/>
+                            Message : ' . $message . '</b><br/><br/>
+                            .<br/><br/>
+                            Thanks<br/>
+                            Team eBooks';
+                    $to['email'] = $emailto;
+                    $to['name'] = " User ";
+                    $subject = $subject;
+                    $str = $message;
+                    $mail = new PHPMailer;
+                    $mail->IsSMTP();
+                    $mail->SMTPAuth = true;
+                    $mail->Host = 'mail.dnddemo.com';
+                    $mail->Port = 465;
+                    $mail->Username = 'info@dnddemo.com';
+                    $mail->Password = '#KC1A]Rgfa0C';
+                    $mail->SMTPSecure = 'ssl';
+                    $mail->From = $emailFrom;
+                    $mail->FromName = "ueBook";
+                    $mail->AddReplyTo($emailFrom, 'eBooks');
+                    $mail->AddAddress($to['email'], $to['name']);
+                    $mail->Priority = 1;
+                    $mail->AddCustomHeader("X-MSMail-Priority: High");
+                    $mail->WordWrap = 50;
+                    $mail->IsHTML(true);
+                    $mail->Subject = $subject;
+                    $mail->Body = $str;
+                    if (!$mail->Send()) {
+                        $err = 'Message could not be sent.';
+                        $err .= 'Mailer Error: ' . $mail->ErrorInfo;
+                        return 0;
+                    } else {
+                        return 1;
+                    }
+                    $mail->ClearAddresses();
+                
+                return TRUE;
+
+    }
+
+
+
+ //stated new function by developer/d
+ 	
+	public function addEditRecord($tbl, $inseditquery, $whrecond=''){
+		
+		if($tbl!='' && $whrecond!='' && $inseditquery!=''){
+			
+			$query_state = "UPDATE ".$tbl." " .$inseditquery." WHERE ".$whrecond ;
+			$result = mysql_query($query_state);
+			return true;
+			
+		}else if($tbl && $inseditquery){
+			
+			$query_state = "INSERT INTO ".$tbl." " .$inseditquery;
+			$result = mysql_query($query_state);
+                        
+			return mysql_insert_id();
+			
+		}else{
+			return false;
+		}
+        
+    } 
+							
+	 public function getDetails($tbl,$fields='', $whrcond='',$order_by='', $order='', $orWhere='', $limit='', $start='') {
+        
+		$fields  = ($fields)?$fields:"*"; 
+		
+		if($tbl!=''){
+			
+			$query = "select $fields from $tbl where 1";
+			if($whrcond) $query .= " and ".$whrcond;
+			//echo $query; die;
+			$result = mysql_query($query);
+			
+			$num_rows = mysql_num_rows($result);
+            if ($num_rows > 0) {
+                while($res = mysql_fetch_array($result)){
+                   
+                    //$res->thubm_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.strip_tags($res->thubm_image);
+                    //$res->book_description = strip_tags($res->book_description);
+                    $rows[] = $res;
+                }
+                return $rows;
+				
+			}else{
+				return NULL;
+			}
+		}else{
+			return NULL;
+		}
+    }
+	
+	public function has_channel($user_id="", $user_id2="")
+    {
+        if($user_id){
+			 $sql   = "SELECT  distinct(user_chats.channel_id) as chid
+					FROM user_chats  				
+					WHERE ( user_chats.sender  = '" . $user_id . "' AND  user_chats.receiver  = '" . $user_id2 . "')
+					OR ( user_chats.sender  = '" . $user_id2 . "' AND  user_chats.receiver  = '" . $user_id . "')
+					limit 0,1
+					";
+					
+			$run = mysql_query($sql);
+			$row = mysql_fetch_object($run);
+			if(!empty($row)){
+				return $row[0]->chid;
+			}else{
+				return NULL;
+			}
+		}else{
+			return NULL;
+       }
+       
+        
+    }
+	
+	public function user_chat_history($user_id="")
+    {  
+		$sql   = "SELECT  distinct(user_chats.channel_id) as chid, user.id, user.email, user.full_name, user.user_name, user.url as user_pic, user.publisher_type, user_chats.created, user_chats.type, user_chats.message, user_chats.message channel_id FROM user_login_table as user LEFT JOIN user_chats ON ( user_chats.sender  = user.id OR user_chats.receiver  = user.id) WHERE user_chats.sender  = '" . $user_id . "' OR user_chats.receiver  = '" . $user_id . "' ORDER BY user_chats.id DESC ";
+		$result = mysql_query($sql);
+		$num_rows = mysql_num_rows($result);
+		if ($num_rows > 0) {
+			while($res = mysql_fetch_array($result)){
+			 
+				$rows[] = $res;
+			}
+			return $rows;
+			
+		}else{
+			return NULL;
+		}
+		
+    }
+	
+	public function select_value($table, $data, $where)
+    {
+		
+		if($table && $where){ 
+		     $query = "select $data from $table where 1"; 
+			 if($where) $query .= " and ".$where; 
+			
+			 
+			$run = mysql_query($query);
+			$row = mysql_fetch_object($run);
+			
+			if(!empty($row)){
+				return $row->$data;
+			}else{
+				return NULL;
+			}
+		}else{
+            return NULL;
+        }
+       
+        
+    }
+ 
+	public function user_chats($channel_id=""){
+		$chats = array();
+		$sql   = "SELECT * from user_chats WHERE user_chats.channel_id  = '" . $channel_id . "' and user_chats.is_active='1' ORDER BY user_chats.id ASC "; 
+		$result = mysql_query($sql);
+		$num_rows = mysql_num_rows($result);
+		if ($num_rows > 0) {
+			while($res = mysql_fetch_array($result)){
+			 
+				$chats[] = $res;
+			}
+			return $chats;
+			
+		}else{
+			return NULL;
+		}
+	}
+	
+	public function delete_data($table,$where)
+    {	
+		if($table && $where){ 
+		    $query = "delete from $table where $where";  
+			$run = mysql_query($query);
+			return  true;
+		}else{
+            return NULL;
+        }
+       
+    }
+	
+	public function has_unread($user_id="", $user_id2="", $chid="")
+    {
+        if($user_id="" && $user_id2="" && $chid=""){
+		
+		$query   = "SELECT  count(user_chats.id) as unread
+				FROM user_chats  				
+				WHERE ( user_chats.sender  = '" . $user_id . "' AND  user_chats.receiver  = '" . $user_id2 . "')
+				AND ( user_chats.channel_id  = '" . $chid . "') AND user_chats.read_msg ='0'
+				";
+				
+				$run = mysql_query($query);
+			$row = mysql_fetch_object($run);
+			
+			if(!empty($row)){
+				return $row->unread;
+			}else{
+				return NULL;
+			}
+		}else{
+            return NULL;
+        }
+		
+       /*  $query = $this->db->query($sql)->result();
+        $this->db->last_query();
+        if (($query)) {
+            return $query[0]->unread;
+        } else {
+            return "";
+        }
+        return ""; */
+    }
+   
+ 
  
  
 
