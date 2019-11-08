@@ -1349,7 +1349,7 @@ public function deleteNoteBook($note_id) {
 			$run = mysql_query($sql);
 			$row = mysql_fetch_object($run);
 			if(!empty($row)){
-				return $row[0]->chid;
+				return $row->chid;
 			}else{
 				return NULL;
 			}
@@ -1360,9 +1360,10 @@ public function deleteNoteBook($note_id) {
         
     }
 	
+	
 	public function user_chat_history($user_id="")
     {  
-		$sql   = "SELECT  distinct(user_chats.channel_id) as chid, user.id, user.email, user.full_name, user.user_name, user.url as user_pic, user.publisher_type, user_chats.created, user_chats.type, user_chats.message, user_chats.message channel_id FROM user_login_table as user LEFT JOIN user_chats ON ( user_chats.sender  = user.id OR user_chats.receiver  = user.id) WHERE user_chats.sender  = '" . $user_id . "' OR user_chats.receiver  = '" . $user_id . "' ORDER BY user_chats.id DESC ";
+		$sql   = "SELECT  distinct(user_chats.channel_id) as chid, user.id, user.email, user.full_name, user.user_name, user.url as user_pic, user.publisher_type, user_chats.created, user_chats.type, user_chats.message, user_chats.channel_id  FROM user_login_table as user LEFT JOIN user_chats ON ( user_chats.sender  = user.id OR user_chats.receiver  = user.id) WHERE user_chats.sender  = '" . $user_id . "' OR user_chats.receiver  = '" . $user_id . "' ORDER BY user_chats.id DESC ";
 		$result = mysql_query($sql);
 		$num_rows = mysql_num_rows($result);
 		if ($num_rows > 0) {
@@ -1375,8 +1376,54 @@ public function deleteNoteBook($note_id) {
 		}else{
 			return NULL;
 		}
-		
     }
+	
+	
+	public function user_chat_list_history($user_id="")
+    {  
+		$sql   = "SELECT  distinct(user_chats.channel_id) as chid, user.id, user.email, user.full_name, user.user_name, user.url as user_pic, user.publisher_type, user_chats.created, user_chats.type, user_chats.message, user_chats.channel_id  FROM user_login_table as user LEFT JOIN user_chats ON (user_chats.sender = user.id OR user_chats.receiver = user.id) WHERE user_chats.sender  = '".$user_id."' GROUP BY user_chats.receiver ORDER BY user_chats.receiver DESC ";
+		
+		//echo $sql;exit;
+		$result = mysql_query($sql);
+		$num_rows = mysql_num_rows($result);
+		if ($num_rows > 0) {
+			while($res = mysql_fetch_array($result)){
+				$rows[] = $res;
+			}
+			return $rows;
+			
+		}else{
+			return NULL;
+		}
+    }
+	
+	
+	/* public function user_chat_list_history($user_id="")
+    {  
+		$sql   = "SELECT  distinct(user_chats.channel_id) as chid, user.id, user.email, user.full_name, user.user_name, user.url as user_pic, user.publisher_type, user_chats.created, user_chats.type, user_chats.message, user_chats.channel_id  FROM user_login_table as user LEFT JOIN user_chats ON user_chats.sender  = user.id WHERE user_chats.sender  = '".$user_id."' GROUP BY user_chats.receiver ORDER BY user_chats.created DESC";
+		echo "<pre>";print_r($sql);exit;
+		$result = mysql_query($sql);
+		$num_rows = mysql_num_rows($result);
+		if ($num_rows > 0) {
+			while($res = mysql_fetch_array($result)){
+				
+				$rows['userId'] = $res['id'];
+				$rows['name'] = $res['user_name'];
+				$rows['email'] = $res['email'];
+				$rows['channelId'] = $res['chid'];
+				$rows['created'] = $res['created'];
+				$rows['avatar'] = $res['user_pic'];
+				$rows['message'] = $res['message'];
+			}
+			
+			return $rows;
+			
+		}else{
+			return NULL;
+		}
+		
+    } */
+	
 	
 	public function select_value($table, $data, $where)
     {
@@ -1403,7 +1450,7 @@ public function deleteNoteBook($note_id) {
  
 	public function user_chats($channel_id=""){
 		$chats = array();
-		$sql   = "SELECT * from user_chats WHERE user_chats.channel_id  = '" . $channel_id . "' and user_chats.is_active='1' ORDER BY user_chats.id ASC "; 
+		$sql   = "SELECT * from user_chats WHERE user_chats.channel_id  = '" . $channel_id . "' and user_chats.is_active='1' ORDER BY user_chats.id ASC ";  
 		$result = mysql_query($sql);
 		$num_rows = mysql_num_rows($result);
 		if ($num_rows > 0) {
@@ -1421,7 +1468,7 @@ public function deleteNoteBook($note_id) {
 	public function delete_data($table,$where)
     {	
 		if($table && $where){ 
-		    $query = "delete from $table where $where";  
+		  $query = "delete from $table where $where";
 			$run = mysql_query($query);
 			return  true;
 		}else{
@@ -1442,7 +1489,7 @@ public function deleteNoteBook($note_id) {
 				
 				$run = mysql_query($query);
 			$row = mysql_fetch_object($run);
-			
+			 
 			if(!empty($row)){
 				return $row->unread;
 			}else{
