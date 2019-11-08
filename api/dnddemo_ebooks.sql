@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 07, 2019 at 06:04 AM
+-- Generation Time: Nov 08, 2019 at 12:45 PM
 -- Server version: 5.6.45-log
 -- PHP Version: 7.2.7
 
@@ -62,6 +62,19 @@ INSERT INTO `admin_login_table` (`id`, `username`, `password`, `role_id`, `email
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `DEFINITIONS`
+--
+
+CREATE TABLE `DEFINITIONS` (
+  `DefinitionID` int(11) NOT NULL,
+  `WordID` int(11) NOT NULL DEFAULT '0',
+  `Type` varchar(255) COLLATE utf8_bin NOT NULL,
+  `Definition` mediumtext COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `role`
 --
 
@@ -112,18 +125,9 @@ CREATE TABLE `tbl_answer` (
 --
 
 INSERT INTO `tbl_answer` (`id`, `question_id`, `books_id`, `answered_by`, `answer`, `created_at`, `status`) VALUES
-(1, 1, 62, 2, 'dfsdsdsdsdsdsd', '2019-10-05 12:18:00', 1),
-(2, 2, 62, 2, 'gooo', '2019-10-05 12:18:00', 1),
-(3, 3, 62, 2, 'dd', '2019-10-05 12:18:00', 1),
-(8, 5, 63, 2, 'bbb', '2019-10-05 13:11:41', 1),
-(7, 4, 63, 2, 'vvv', '2019-10-05 13:11:41', 1),
-(9, 6, 63, 2, 'cfdfdfdfdfc', '2019-10-05 13:11:41', 1),
-(10, 7, 63, 2, 'mm', '2019-10-05 13:11:41', 1),
-(11, 8, 63, 2, 'dd', '2019-10-05 13:11:41', 1),
-(12, 9, 64, 19, 'answer1', '2019-10-07 04:56:29', 1),
-(13, 10, 64, 19, 'answer2', '2019-10-07 04:56:29', 1),
-(14, 11, 64, 19, 'answer3', '2019-10-07 04:56:29', 1),
-(15, 12, 64, 19, 'answer4', '2019-10-07 04:56:29', 1);
+(1, 3, 2, 1, 'dyghf fun udf ugh uuy suydf day for for my fifth find if fya aiyr ruty fya for iay r7t rfug fun. a7r rytaryry TTY t', '2019-10-14 11:25:01', 1),
+(2, 4, 5, 1, 'ggggggggggggggggggggggggggggg', '2019-10-14 11:25:39', 1),
+(3, 5, 5, 1, '', '2019-10-14 11:25:39', 1);
 
 -- --------------------------------------------------------
 
@@ -145,29 +149,11 @@ CREATE TABLE `tbl_bookmark` (
 --
 
 INSERT INTO `tbl_bookmark` (`id`, `user_id`, `books_id`, `status`, `created_at`, `updated_at`) VALUES
-(1, '3', '1', '0', '2019-09-19 13:00:57', '2019-09-30 07:02:07'),
-(2, '1', '1', '1', '2019-09-19 13:01:44', '2019-09-19 13:01:44'),
-(3, '1', '5', '1', '2019-09-19 13:12:26', '2019-09-19 13:12:26'),
-(4, '3', '3', '0', '2019-09-19 13:13:34', '2019-09-30 07:01:52'),
-(5, '3', '24', '0', '2019-09-19 13:13:56', '2019-09-19 13:49:23'),
-(6, '3', '5', '0', '2019-09-19 13:49:34', '2019-09-19 13:50:12'),
-(7, '5', '1', '0', '2019-09-19 13:54:14', '2019-09-19 14:05:19'),
-(8, '5', '4', '1', '2019-09-19 13:56:39', '2019-09-19 13:56:39'),
-(9, '5', '9', '1', '2019-09-19 13:56:53', '2019-09-19 13:56:53'),
-(10, '5', '20', '1', '2019-09-19 13:57:14', '2019-09-19 13:57:14'),
-(11, '5', '6', '1', '2019-09-19 13:58:30', '2019-09-19 13:58:30'),
-(12, '1', '3', '1', '2019-09-20 13:22:37', '2019-09-20 13:22:37'),
-(13, '2', '2', '0', '2019-09-21 07:28:08', '2019-09-21 12:44:31'),
-(14, '2', '3', '0', '2019-09-23 07:08:06', '2019-10-01 07:57:21'),
-(15, '1', '9', '1', '2019-09-23 09:22:17', '2019-09-23 09:22:17'),
-(16, '2', '8', '0', '2019-09-23 12:41:36', '2019-10-01 07:57:26'),
-(17, '2', '32', '0', '2019-09-24 10:16:35', '2019-10-01 07:57:30'),
-(18, '3', '34', '1', '2019-09-30 07:01:40', '2019-09-30 07:01:40'),
-(19, '2', '5', '0', '2019-10-01 07:57:11', '2019-10-01 07:57:41'),
-(20, '2', '1', '1', '2019-10-01 10:50:44', '2019-10-01 10:50:44'),
-(21, '19', '5', '1', '2019-10-04 05:10:55', '2019-10-04 05:10:55'),
-(22, '2', '59', '1', '2019-10-04 12:19:18', '2019-10-04 12:19:18'),
-(23, '3', '62', '1', '2019-10-05 07:28:36', '2019-10-05 07:28:36');
+(1, '1', '1', '1', '2019-10-10 11:22:01', '2019-10-19 11:01:14'),
+(2, '2', '20', '1', '2019-10-24 05:06:21', '2019-10-24 05:06:21'),
+(3, '1', '8', '1', '2019-10-25 07:06:14', '2019-10-25 07:06:14'),
+(4, '1', '16', '0', '2019-10-25 07:28:51', '2019-10-25 07:28:57'),
+(5, '1', '20', '1', '2019-10-25 07:29:21', '2019-10-25 07:29:21');
 
 -- --------------------------------------------------------
 
@@ -189,6 +175,7 @@ CREATE TABLE `tbl_books` (
   `audio_url` varchar(255) DEFAULT NULL,
   `pdf_url` varchar(255) DEFAULT NULL,
   `question_data` text,
+  `isbn_number` varchar(255) DEFAULT NULL,
   `mostView` varchar(255) DEFAULT '0',
   `status` int(11) DEFAULT '0',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -199,45 +186,43 @@ CREATE TABLE `tbl_books` (
 -- Dumping data for table `tbl_books`
 --
 
-INSERT INTO `tbl_books` (`id`, `user_id`, `category_id`, `book_title`, `book_slug`, `thubm_image`, `book_description`, `author_name`, `book_image`, `video_url`, `audio_url`, `pdf_url`, `question_data`, `mostView`, `status`, `created_at`, `updated_at`) VALUES
-(1, '1', '1', 'DemoBook\n', 'demobook\n', '', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', 'video_1568786977.mp4', 'audio_1568786977.mp3', '', '0', '279', 0, '2019-09-17 00:00:00', '2019-09-18 06:09:37'),
-(2, '1', '2', 'DemoBook\n', 'demobook\n', 'book_1568787068.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', 'video_1568787068.mp4', 'audio_1568787068.mp3', '', '0', '35', 0, '2019-09-17 00:00:00', '2019-09-18 06:11:08'),
-(3, '1', '1', 'Demofull\n', 'demofull\n', 'book_1568787142.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Amit', '', 'video_1568787142.mp4', 'audio_1568787142.mp3', '', '0', '199', 0, '2019-09-17 00:00:00', '2019-09-18 06:12:22'),
-(4, '1', '1', 'DemoVideo\n', 'demovideo\n', 'book_1568787405.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', 'video_1568787405.mp4', '', '', '0', '74', 0, '2019-09-17 00:00:00', '2019-09-18 06:16:45'),
-(5, '1', '2', 'DemoAudio', 'demoaudio', 'book_1568787874.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', '', 'audio_1568787874.mp3', '', '0', '79', 0, '2019-09-17 00:00:00', '2019-09-18 06:24:34'),
-(6, '1', '1', 'pdf', 'pdf', 'book_1568801587.jpg', 'fswdsdsdsd sdhs did sydsi dsidys dsiuyd iusydis dsyds sdysud sd', 'vansh', '', '', '', 'document_1568801587.pdf', '0', '11', 0, '2019-09-18 00:00:00', '2019-09-18 10:13:07'),
-(7, '1', '1', 'dfdfdf', 'dfdfdf', 'book_1568806389.jpg', 'fdfd', 'dfdfdf', '', '', '', 'document_1568806389.pdf', '0', '1', 0, '2019-09-18 00:00:00', '2019-09-18 11:33:09'),
-(8, '1', '1', 'ffggfg', 'ffggfg', 'book_1568807811.jpg', 'fgfgfgffg', 'fgfgfgf', '', '', '', 'document_1568807811.docx', '0', '17', 0, '2019-09-18 00:00:00', '2019-09-18 11:56:51'),
-(9, '1', '2', 'DemoVVV', 'demovvv', 'book_1568808176.png', 'ontrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.', 'Vansh', '', '', '', 'document_1568808176.mp4', '0', '23', 0, '2019-09-18 00:00:00', '2019-09-18 12:02:56'),
-(10, '1', '1', 'dddd', 'dddd', 'book_1568810042.jpg', 'dddd', 'dddd', '', 'video_1568810042.mp4', '', 'document_1568810042.pdf', '0', '10', 0, '2019-09-18 00:00:00', '2019-09-18 12:34:02'),
-(11, '1', '1', 'pppp', 'pppp', 'book_1568811555.jpg', 'dhfgdfgd', 'dfdfdf', '', 'video_1568811555.mp4', '', 'document_1568811555.pdf', '0', '0', 0, '2019-09-18 00:00:00', '2019-09-18 12:59:15'),
-(12, '1', '1', 'vbvb', 'vbvb', 'book_1568812725.jpg', 'vbvb', 'vbvb', '', 'video_1568812725.mp4', '', 'document_1568812725.pdf', '0', '1', 0, '2019-09-18 00:00:00', '2019-09-18 13:18:45'),
-(13, '1', '1', 'rerttr', 'rerttr', 'book_1568813666.jpg', 'rtrtrt', 'rtrtrtr', '', 'video_1568813666.mp4', '', 'document_1568813666.pdf', '0', '2', 0, '2019-09-18 00:00:00', '2019-09-18 13:34:26'),
-(14, '1', '2', 'dffdfdf', 'dffdfdf', 'book_1568813929.jpg', 'fdfdfd', 'fdfdfd', '', 'video_1568813929.mp4', '', 'document_1568813929.pdf', '0', '10', 0, '2019-09-18 00:00:00', '2019-09-18 13:38:49'),
-(15, '1', '0', 'fadads', 'fadads', 'book_1568874873.jpg', 'sdfsdfdsf', 'dfdfdssre', '', 'video_1568874873.mp4', '', 'document_1568874873.pdf', '0', '1', 0, '2019-09-18 00:00:00', '2019-09-19 06:34:33'),
-(16, '1', '1', 'gyytyty', 'gyytyty', 'book_1568875071.jpg', 'retrtertr rer', 'rtr RT r', '', 'video_1568875071.mp4', '', 'document_1568875071.pdf', '0', '2', 0, '2019-09-18 00:00:00', '2019-09-19 06:37:51'),
-(17, '1', '1', 'dfdfeeeeee', 'dfdfeeeeee', 'book_1568876297.jpg', 'dfdfdfse', 'eeeee', '', 'video_1568876297.mp4', 'audio_1568876297.mp3', 'document_1568876297.pdf', '0', '2', 0, '2019-09-18 00:00:00', '2019-09-19 06:58:17'),
-(18, '1', '1', 'fdf', 'fdf', 'book_1568880110.jpg', 'ffdfd', 'dfdf', '', 'video_1568880110.mp4', 'audio_1568880110.mp3', '', '0', '3', 0, '2019-09-19 00:00:00', '2019-09-19 08:01:50'),
-(19, '1', '1', 'sdsd', 'sdsd', 'book_1568880443.jpg', 'sdsd', 'sdsdsd', '', 'video_1568880443.mp4', 'audio_1568880443.mp3', '', '0', '3', 0, '2019-09-19 00:00:00', '2019-09-19 08:07:23'),
-(20, '1', '1', 'book', 'book', 'book_1568885928.jpg', 'book', 'book', '', 'video_1568885928.mp4', 'audio_1568885928.mp3', '', '0', '31', 0, '2019-09-19 00:00:00', '2019-09-19 09:38:48'),
-(21, '1', '1', 'ww', 'ww', 'book_1568889890.jpg', 'ww', 'ww', '', 'video_1568889890.mp4', '', '', '0', '1', 0, '2019-09-19 00:00:00', '2019-09-19 10:44:50'),
-(22, '1', '1', 'ERR', 'err', 'book_1568890041.jpg', 'RRR', 'RRR', '', '', 'audio_1568890041.mp3', '', '0', '1', 0, '2019-09-19 00:00:00', '2019-09-19 10:47:21'),
-(23, '1', '1', 'TYTY', 'tyty', 'book_1568890166.jpg', 'TYTYT', 'TYT', '', 'video_1568890166.mp4', 'audio_1568890166.mp3', '', '0', '2', 0, '2019-09-19 00:00:00', '2019-09-19 10:49:26'),
-(24, '1', '2', 'GUU', 'guu', 'book_1568890593.jpg', 'UUU', 'UUU', '', '', '', '', '0', '12', 0, '2019-09-19 00:00:00', '2019-09-19 10:56:33'),
-(25, '1', '1', 'fgfg', 'fgfg', 'book_1568896239.jpg', 'fgfgf', 'fgfgfg', '', 'video_1568896239.mp4', '', '', '0', '3', 0, '2019-09-19 00:00:00', '2019-09-19 12:30:39'),
-(26, '1', '2', 'Ali BAba', 'ali baba', 'book_1569042194.jpg', 'rte 343', 'Ali baba', '', 'video_1569042194.mp4', '', '', '0', '3', 0, '2019-09-20 00:00:00', '2019-09-21 05:03:14'),
-(27, '1', '1', 'ww', 'ww', 'book_1569043112.jpg', 'ww', 'ww', '', 'video_1569043112.mp4', '', '', '0', '0', 0, '2019-09-20 00:00:00', '2019-09-21 05:18:32'),
-(28, '1', '1', 'ww', 'ww', 'book_1569046143.jpg', 'ww', 'ww', '', 'video_1569046143.mp4', '', '', '0', '2', 0, '2019-09-20 00:00:00', '2019-09-21 06:09:03'),
-(29, '1', '1', 'ss', 'ss', 'book_1569046430.jpg', 'ss', 'ss', '', 'video_1569046430.mp4', '', '', '0', '0', 0, '2019-09-20 00:00:00', '2019-09-21 06:13:50'),
-(30, '1', '1', 'xff', 'xff', 'book_1569047259.jpg', 'xxxffffffffff', 'xxxxxxxxxxxxxxxx', '', 'video_1569047259.mp4', '', '', '0', '14', 0, '2019-09-20 00:00:00', '2019-09-21 06:27:39'),
-(31, '1', '1', 'rrggg', 'rrggg', 'book_1569047760.jpg', 'grgrggg', 'grgrg', '', '', '', '', '0', '15', 0, '2019-09-20 00:00:00', '2019-09-21 06:36:00'),
-(32, '2', '2', 'The GOOD SON', 'the good son', 'book_1569320133.jpg', 'dfgdgfry. ey yr wyr ER r FG dhgf dfgdgfry dfgdgfry dfgdgfry dfyfy u fdysf dgf dfdf auws do usdfhjfjfjgdfj dfre eryueyry eyreyrey euyeur uyruery euyreir eyi ruy euyruefufi euyrf eufyff.     rfeeer', 'VAnsh', '', 'video_1569320133.mp4', 'audio_1569320133.mp3', '', '0', '40', 0, '2019-09-24 00:00:00', '2019-09-24 10:15:33'),
-(64, '3', '2', 'New Story books', 'new story books', 'book_1570423584.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', 'Amit kumar', '', '', '', '', '[\"question1\",\"question2\",\"question3\",\"question4\"]', '7', 1, '2019-10-06 00:00:00', '2019-10-07 04:46:24'),
-(62, '3', '2', 'is simply dummy book1', 'is simply dummy book1', 'book_1570258263.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', 'Amit kumar', '', '', '', '', '[\"zaaa\",\"ssss\",\"dfryytyty\"]', '57', 1, '2019-10-04 00:00:00', '2019-10-05 06:51:03'),
-(59, '2', '1', 'dsdasdsdsd', 'dsdasdsdsd', 'book_1570183871.jpg', 'dsdasdsdsd', 'sdsdsd', '', '', '', '', '[\"SF rwrr ertr to ytuyuy \",\"ssdsds\"]', '14', 0, '2019-10-04 00:00:00', '2019-10-04 10:11:11'),
-(60, '2', '1', 'jsjsh', 'jsjsh', 'book_1570206578.jpg', 'hshshs', 'hahhss', '', 'video_1570206578.mp4', '', '', '[\"bdhhdhd\",\"bbd\",\"hdhdh\"]', '3', 0, '2019-10-04 00:00:00', '2019-10-04 16:29:38'),
-(63, '2', '2', 'asigh', 'asigh', 'book_1570271642.jpg', 'hshshs ueueueu', 'vansh', '', '', '', '', '[\"bbshs agahaa hhshs hahall gehshl bhshs hhs hh\",\"bhsjssh hjsjjs bjksksjshs hsjsjsj hjjsjsagahaja\",\"bsbs k sbshhs hauauaus hhshss hjaiaau jjsjs jjsjs?\",\"bhzhs hahhss ggaha jjaja yyaha\",\"hahaiaoa hhsjs\"]', '59', 0, '2019-10-05 00:00:00', '2019-10-05 10:34:02'),
-(58, '3', '2', 'is simply dummy book1', 'is simply dummy book1', 'book_1570180325.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry', 'Amit kumar', '', '', '', '', '[\"zaaa\",\"ssss\",\"dfryytyty\"]', '89', 1, '2019-10-04 00:00:00', '2019-10-04 09:12:05');
+INSERT INTO `tbl_books` (`id`, `user_id`, `category_id`, `book_title`, `book_slug`, `thubm_image`, `book_description`, `author_name`, `book_image`, `video_url`, `audio_url`, `pdf_url`, `question_data`, `isbn_number`, `mostView`, `status`, `created_at`, `updated_at`) VALUES
+(1, '1', '1', 'The Good Son', 'the good son', 'book_1570701749.jpg', 'dsg yeey wedyswd sdysd isydis isydiusd sidius dsyd sduyd sydsdy sidysd sydsdy sydsdysd sdysydsdy sidysdy sdysudy sydusyd sdysudy syds dsydsyd sure Susan \nosdusds dsdsud sdusdsudsud sudid oisdoi osiud sodusoduosd soudsd sudisdsi siidsdosd oisiudosd sdsudosdosduosudosduosdu sodou soiudos osdudiud osidusoidus', 'Vansh', '', '', '', '', '[\"thst so sdyd sddx ckck khkd ?\",\"sdshd sdsyd sydsuyd dsdu sdsdj do?\"]', NULL, '161', 0, '2019-10-10 00:00:00', '2019-10-10 10:02:29'),
+(2, '1', '1', 'ddd', 'ddd', 'book_1571040310.jpg', 'dddd', 'ddd', '', '', '', '', '[\"ddddd\"]', NULL, '92', 1, '2019-10-14 00:00:00', '2019-10-14 08:05:10'),
+(3, '1', '1', 'ggfdgd', 'ggfdgd', 'book_1571040448.jpg', 'gdgdg', 'dgdg', '', '', '', 'document_1571040448.pdf', '[]', NULL, '61', 1, '2019-10-14 00:00:00', '2019-10-14 08:07:28'),
+(4, '1', '1', 'de', 'de', 'book_1571042971.jpg', 'ddd', 'dddd', '', '', '', 'document_1571042971.pdf', '[]', NULL, '33', 1, '2019-10-14 00:00:00', '2019-10-14 08:49:31'),
+(5, '1', '1', 'sd', 'sd', 'book_1571043066.jpg', 'sdss', 's', '', '', '', '', '[\"ssss\",\"ddddd\"]', NULL, '19', 0, '2019-10-14 00:00:00', '2019-10-14 08:51:06'),
+(6, '1', '2', 'ff', 'ff', 'book_1571045911.jpg', 'cc', 'cc', '', '', 'audio_1571045911.mp3', 'document_1571045911.PDF', '[]', NULL, '6', 0, '2019-10-14 00:00:00', '2019-10-14 09:38:31'),
+(7, '1', '2', 'fff', 'fff', 'book_1571380592.jpg', 'ffff', 'fw', '', '', '', 'document_1571380592.pdf', '[]', NULL, '19', 0, '2019-10-17 00:00:00', '2019-10-18 06:36:32'),
+(8, '1', '2', 'demo', 'demo', 'book_1571390365.jpg', 'yuiyi', 'dgyuyj ', '', '', '', 'document_1571390365.pdf', '[\"dsdsdsdsds\",\"ddddd\"]', NULL, '46', 0, '2019-10-18 00:00:00', '2019-10-18 09:19:25'),
+(9, '1', '2', 'sdsdsdsdsd', 'sdsdsdsdsd', 'book_1571643273.jpg', 'sdsdsd', 'sdsdsd', '', '', '', '', '[\"trtrt\",\"rtrtrt\",\"rtrtr\",\"arererer\",\"wwwwww\",\"erer\",\"ererer\",\"ererer\",\"gtrtt\",\"wwewwe \"]', NULL, '10', 0, '2019-10-21 00:00:00', '2019-10-21 07:34:33'),
+(10, '1', '2', 'sdsdsdsad fff', 'sdsdsdsad fff', 'book_1571655779.jpg', 'aaaa', 'ddddd', '', '', '', '', '[]', NULL, '1', 0, '2019-10-21 00:00:00', '2019-10-21 11:02:59'),
+(11, '1', '2', 'sddsffdf', 'sddsffdf', 'book_1571658764.jpg', 'fdfdf', 'dfdfdf', '', '', '', '', '[]', NULL, '0', 0, '2019-10-21 00:00:00', '2019-10-21 11:52:44'),
+(12, '1', '2', 'sdfsfffdf aaaaa', 'sdfsfffdf aaaaa', 'book_1571663320.jpg', 'sfsfsfsf', 'sfsfsf', '', '', '', '', '[]', NULL, '2', 0, '2019-10-21 00:00:00', '2019-10-21 13:08:40'),
+(18, '1', '2', 'dfdffffffffffffff', 'dfdffffffffffffff', 'book_1571739486.jpg', 'fffffffffffff', 'ffffffffffffffffffffffff', '', '', '', '', '[]', NULL, '0', 0, '2019-10-22 00:00:00', '2019-10-22 10:18:06'),
+(17, '1', '0', 'dffdsfdf', 'dffdsfdf', 'book_1571739454.jpg', 'dfdfdfdf', 'dfdfdfdf', '', '', '', '', '[]', NULL, '1', 0, '2019-10-22 00:00:00', '2019-10-22 10:17:34'),
+(16, '2', '2', 'dummy book2', 'dummy book2', 'book_1571738214.jpg', 'simply dummy text df', 'Amit kumar', '', '', '', '', '', NULL, '67', 1, '2019-10-22 00:00:00', '2019-10-22 09:56:54'),
+(19, '1', '2', 'thanks d', 'thanks d', 'book_1571739816.jpg', 'ðŸ±ðŸ±', 'www', '', '', '', '', '[]', NULL, '1', 0, '2019-10-22 00:00:00', '2019-10-22 10:23:36'),
+(20, '2', '2', 'dummy book2', 'dummy book2', 'book_1571741181.jpg', 'simply dummy text df', 'Amit kumar', '', '', '', '', '', 'ISBN-135445678', '45', 1, '2019-10-22 00:00:00', '2019-10-22 10:46:21'),
+(21, '1', '2', 'ssdsdsddemo', 'ssdsdsddemo', 'book_1571807772.jpg', 'sdsdsdsdsdsd', 'sdsd', '', '', '', '', '[]', '1234567890', '1', 0, '2019-10-22 00:00:00', '2019-10-23 05:16:12'),
+(22, '1', '2', 'ssddsdfdfdf', 'ssddsdfdfdf', 'book_1571807924.jpg', 'sdsdsds', 'dsdsd', '', '', '', '', '[]', '1234545685', '2', 0, '2019-10-22 00:00:00', '2019-10-23 05:18:44'),
+(23, '1', '2', 'rerer', 'rerer', '', 'ererer', 'ererer', '', '', '', '', '', '', '0', 0, '2019-10-23 00:00:00', '2019-10-24 00:00:00'),
+(24, '1', '2', 'abc', 'abc', '', 'fgfgf', 'ggg', '', '', '', '', '', '', '0', 0, '2019-10-23 00:00:00', '2019-10-24 00:00:00'),
+(25, '1', '1', 'yyyyyyyyyyyyyyyyyyyyyyyyy', 'yyyyyyyyyyyyyyyyyyyyyyyyy', '', '', '', '', '', '', '', '[]', '', '0', 0, '2019-10-23 00:00:00', '2019-10-24 05:40:21'),
+(26, '1', '2', 'nice', 'nice', 'book_1571900756.jpg', 'dfgdfdgg', 'Amit', '', '', '', '', '', '1234567890', '0', 0, '2019-10-23 00:00:00', '2019-10-24 00:00:00'),
+(27, '1', '1', 'fffffrr', 'fffffrr', 'book_1571915275.jpg', 'rrrrrrr', 'rrr', '', '', '', '', '[]', '1425369685', '9', 0, '2019-10-24 00:00:00', '2019-10-24 11:07:55'),
+(28, '1', '1', 'sdfdsdfgg', 'sdfdsdfgg', '', '', '', '', '', '', '', '[]', '', '0', 0, '2019-10-24 00:00:00', '2019-10-24 11:08:17'),
+(29, '1', '2', 'sdfdsdfgg', 'sdfdsdfgg', '', '', '', '', '', '', '', '[]', '', '0', 0, '2019-10-24 00:00:00', '2019-10-24 11:08:32'),
+(30, '1', '2', 'nice', 'nice', '', 'dfgdfdgg', 'Amit', '', '', '', '', '[]', '', '2', 0, '2019-10-24 00:00:00', '2019-10-24 11:13:16'),
+(31, '1', '2', 'yyyyyyyyyyyyyyyyyyyyyyyyy', 'yyyyyyyyyyyyyyyyyyyyyyyyy', '', '', '', '', '', '', '', '[]', '', '0', 0, '2019-10-24 00:00:00', '2019-10-24 11:15:52'),
+(32, '1', '2', 'ff', 'ff', '', 'cc', 'cc', '', '', '', '', '[]', '', '0', 0, '2019-10-24 00:00:00', '2019-10-24 11:18:10'),
+(33, '1', '1', 'vas', 'vas', 'book_1571918016.jpg', 'sdsd', 'ssss', '', '', '', '', '', '', '0', 0, '2019-10-24 00:00:00', '2019-10-24 00:00:00'),
+(34, '1', '2', 'vas', 'vas', 'book_1571918102.jpg', 'sdsd', 'ssss', '', '', '', '', '[]', '1478523692', '0', 0, '2019-10-24 00:00:00', '2019-10-24 11:55:02'),
+(35, '1', '2', 'vas', 'vas', 'book_1571918237.jpg', 'sdsd', 'ssss', '', '', '', '', '[]', '1478523690', '1', 0, '2019-10-24 00:00:00', '2019-10-24 11:57:17'),
+(36, '1', '2', 'ghgh', 'ghgh', 'book_1571918996.jpg', 'gg', 'hghgh', '', '', '', '', '[]', '1593578521', '0', 0, '2019-10-24 00:00:00', '2019-10-24 12:09:56'),
+(37, '1', '2', 'rerer', 'rerer', 'book_1571919848.jpg', 'ererer', 'ererer', '', '', '', '', '[]', '', '0', 0, '2019-10-24 00:00:00', '2019-10-24 12:24:08'),
+(38, '1', '2', 'abc', 'abc', 'book_1571920109.jpg', 'fgfgf', 'ggg', '', '', '', '', '[]', '', '1', 0, '2019-10-24 00:00:00', '2019-10-24 12:28:29'),
+(39, '1', '2', 'yyyyyyyyyyyyyyyyyyyyyyyyy', 'yyyyyyyyyyyyyyyyyyyyyyyyy', 'book_1571920185.jpg', 'fdfdfdfdf', 'dfdfdf', '', '', '', '', '[]', '', '6', 0, '2019-10-24 00:00:00', '2019-10-24 12:29:45');
 
 -- --------------------------------------------------------
 
@@ -296,17 +281,6 @@ CREATE TABLE `tbl_contact` (
   `status` varchar(2) NOT NULL DEFAULT '1'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
---
--- Dumping data for table `tbl_contact`
---
-
-INSERT INTO `tbl_contact` (`id`, `name`, `user_id`, `email`, `phone`, `message`, `created_at`, `status`) VALUES
-(1, 'Amit Kumar', '3', 'shyamsoft38@gmial.com', '9015135215', 'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its ', '2019-09-24 05:41:17', '1'),
-(2, 'Vansh raj', '2', 'vansh1996raj@gmail.com', '8439993033', 'hello testing mail', '2019-09-24 07:04:33', '1'),
-(3, 'Vansh raj', '2', 'ss', '22', 'tt', '2019-09-24 07:06:34', '1'),
-(4, 'Vansh raj', '2', 'gg', '22', 'gg', '2019-09-24 07:31:02', '1'),
-(5, 'Vansh raj', '2', 'gg', '222', 'e', '2019-09-24 07:32:08', '1');
-
 -- --------------------------------------------------------
 
 --
@@ -327,18 +301,25 @@ CREATE TABLE `tbl_faq` (
 --
 
 INSERT INTO `tbl_faq` (`id`, `book_id`, `question`, `questioned_by`, `created_at`, `updated_at`) VALUES
-(1, 62, 'zaaa', 3, '2019-10-05 06:51:03', '2019-10-05 06:51:03'),
-(2, 62, 'ssss', 3, '2019-10-05 06:51:03', '2019-10-05 06:51:03'),
-(3, 62, 'dfryytyty', 3, '2019-10-05 06:51:03', '2019-10-05 06:51:03'),
-(4, 63, 'bbshs agahaa hhshs hahall gehshl bhshs hhs hh', 2, '2019-10-05 10:34:02', '2019-10-05 10:34:02'),
-(5, 63, 'bhsjssh hjsjjs bjksksjshs hsjsjsj hjjsjsagahaja', 2, '2019-10-05 10:34:02', '2019-10-05 10:34:02'),
-(6, 63, 'bsbs k sbshhs hauauaus hhshss hjaiaau jjsjs jjsjs?', 2, '2019-10-05 10:34:02', '2019-10-05 10:34:02'),
-(7, 63, 'bhzhs hahhss ggaha jjaja yyaha', 2, '2019-10-05 10:34:02', '2019-10-05 10:34:02'),
-(8, 63, 'hahaiaoa hhsjs', 2, '2019-10-05 10:34:02', '2019-10-05 10:34:02'),
-(9, 64, 'question1', 3, '2019-10-07 04:46:24', '2019-10-07 04:46:24'),
-(10, 64, 'question2', 3, '2019-10-07 04:46:24', '2019-10-07 04:46:24'),
-(11, 64, 'question3', 3, '2019-10-07 04:46:24', '2019-10-07 04:46:24'),
-(12, 64, 'question4', 3, '2019-10-07 04:46:24', '2019-10-07 04:46:24');
+(1, 1, 'thst so sdyd sddx ckck khkd ?', 1, '2019-10-10 10:02:29', '2019-10-10 10:02:29'),
+(2, 1, 'sdshd sdsyd sydsuyd dsdu sdsdj do?', 1, '2019-10-10 10:02:29', '2019-10-10 10:02:29'),
+(3, 2, 'ddddd', 1, '2019-10-14 08:05:10', '2019-10-14 08:05:10'),
+(4, 5, 'ssss', 1, '2019-10-14 08:51:06', '2019-10-14 08:51:06'),
+(5, 5, 'ddddd', 1, '2019-10-14 08:51:06', '2019-10-14 08:51:06'),
+(6, 8, 'dsdsdsdsds', 1, '2019-10-18 09:19:25', '2019-10-18 09:19:25'),
+(7, 8, 'ddddd', 1, '2019-10-18 09:19:25', '2019-10-18 09:19:25'),
+(8, 9, 'trtrt', 1, '2019-10-21 07:34:33', '2019-10-21 07:34:33'),
+(9, 9, 'rtrtrt', 1, '2019-10-21 07:34:33', '2019-10-21 07:34:33'),
+(10, 9, 'rtrtr', 1, '2019-10-21 07:34:33', '2019-10-21 07:34:33'),
+(11, 9, 'arererer', 1, '2019-10-21 07:34:33', '2019-10-21 07:34:33'),
+(12, 9, 'wwwwww', 1, '2019-10-21 07:34:33', '2019-10-21 07:34:33'),
+(13, 9, 'erer', 1, '2019-10-21 07:34:33', '2019-10-21 07:34:33'),
+(14, 9, 'ererer', 1, '2019-10-21 07:34:33', '2019-10-21 07:34:33'),
+(15, 9, 'ererer', 1, '2019-10-21 07:34:33', '2019-10-21 07:34:33'),
+(16, 9, 'gtrtt', 1, '2019-10-21 07:34:33', '2019-10-21 07:34:33'),
+(17, 9, 'wwewwe ', 1, '2019-10-21 07:34:33', '2019-10-21 07:34:33'),
+(18, 2, 'ddddd', 1, '2019-10-22 11:07:09', '2019-10-22 11:07:09'),
+(19, 2, 'ddddd', 1, '2019-10-22 11:07:35', '2019-10-22 11:07:35');
 
 -- --------------------------------------------------------
 
@@ -360,16 +341,7 @@ CREATE TABLE `tbl_frnds` (
 --
 
 INSERT INTO `tbl_frnds` (`id`, `user_id`, `frnd_id`, `status`, `request_date`, `accepted_date`) VALUES
-(22, 2, 10, 1, '2019-09-27 06:01:27', '2019-09-27 13:00:04'),
-(20, 3, 1, 1, '2019-09-26 07:34:06', '2019-09-27 12:47:13'),
-(21, 2, 1, 1, '2019-09-26 07:35:36', '2019-09-30 07:06:51'),
-(23, 1, 10, 1, '2019-09-27 12:29:07', '2019-09-27 12:47:13'),
-(24, 4, 10, 0, '2019-09-27 12:29:38', '2019-09-27 12:47:13'),
-(25, 11, 1, 1, '2019-09-27 13:06:47', '2019-09-27 13:06:47'),
-(26, 14, 1, 1, '2019-09-30 05:15:25', '2019-09-30 05:46:08'),
-(27, 1, 11, 0, '2019-09-30 05:33:35', '2019-09-30 05:33:35'),
-(28, 1, 15, 0, '2019-09-30 05:39:19', '2019-09-30 05:39:19'),
-(29, 2, 3, 0, '2019-10-04 12:46:32', '2019-10-04 12:46:32');
+(1, 1, 11, 0, '2019-11-04 09:50:44', '2019-11-04 09:50:44');
 
 -- --------------------------------------------------------
 
@@ -392,10 +364,9 @@ CREATE TABLE `tbl_note` (
 --
 
 INSERT INTO `tbl_note` (`id`, `user_id`, `title`, `description`, `status`, `created_at`, `updated_at`) VALUES
-(23, '1', NULL, 'dfdgfg DF FG FG aaaaaadf GF for fagaf gfg agfdg after FG FG agf after ASAF FG FG FG FG FDAGFF FG FG r hfg gfg', '1', '2019-09-23 10:20:40', '2019-09-23 10:20:40'),
-(5, '1', NULL, 'dsddd', '1', '2019-09-20 13:12:47', '2019-09-20 13:12:47'),
-(32, '2', NULL, 'sjsjshs bhshs', '1', '2019-10-04 16:27:58', '2019-10-04 16:27:58'),
-(29, '2', NULL, 'sdfdsds err ', '1', '2019-10-01 07:53:48', '2019-10-01 07:53:48');
+(7, '1', NULL, 'rtt\nn', '1', '2019-10-19 10:34:24', '2019-10-19 10:34:24'),
+(2, '6', NULL, 'ghh', '1', '2019-10-10 14:47:35', '2019-10-10 14:47:35'),
+(10, '1', NULL, 'raqhhh ddd do do do do do ', '1', '2019-10-25 07:37:35', '2019-10-25 07:37:18');
 
 -- --------------------------------------------------------
 
@@ -419,33 +390,118 @@ CREATE TABLE `tbl_review` (
 --
 
 INSERT INTO `tbl_review` (`id`, `user_id`, `books_id`, `comment`, `rating`, `status`, `created_at`, `updated_at`) VALUES
-(1, '1', '1', 'nic', '5.0', '1', '2019-09-19 13:00:15', '2019-09-20 04:50:51'),
-(2, '3', '1', 'new data', '4.0', '1', '2019-09-19 13:00:41', '2019-09-19 13:02:40'),
-(12, '2', '14', 'ddfd', '3.5', '1', '2019-09-23 07:09:53', '2019-09-23 07:09:53'),
-(3, '1', '5', 'tt', '3.5', '1', '2019-09-19 13:12:38', '2019-09-19 13:12:48'),
-(4, '1', '3', 'gg', '2.5', '1', '2019-09-19 13:13:12', '2019-09-19 13:13:12'),
-(5, '3', '24', 'nice', '2.5', '1', '2019-09-19 13:44:29', '2019-09-19 13:44:29'),
-(6, '3', '5', 'Something is good ðŸ˜ŠðŸ‘', '4.0', '1', '2019-09-19 13:50:03', '2019-09-19 13:50:03'),
-(7, '3', '3', 'wao what a book', '4.0', '1', '2019-09-19 13:51:30', '2019-09-19 13:51:30'),
-(8, '5', '1', 'something look nice..', '3.5', '1', '2019-09-19 13:55:03', '2019-09-19 13:55:03'),
-(9, '5', '4', 'good book for reading..', '4.0', '1', '2019-09-19 13:56:12', '2019-09-19 13:56:12'),
-(10, '5', '20', 'so nice ðŸ˜ðŸ‘Œ', '3.0', '1', '2019-09-19 13:57:34', '2019-09-19 13:57:34'),
-(11, '3', '20', 'very very well ðŸ‘ðŸ˜€ðŸ˜€', '3.0', '1', '2019-09-19 14:02:04', '2019-09-19 14:02:04'),
-(13, '2', '2', 'dfdfdf', '2.0', '1', '2019-09-23 07:11:38', '2019-09-23 07:11:44'),
-(14, '2', '3', 'ffgfgfg', '4.5', '1', '2019-09-23 07:11:54', '2019-09-23 07:12:07'),
-(15, '1', '9', 'vvv', '3.5', '1', '2019-09-23 09:22:09', '2019-09-23 09:22:09'),
-(16, '2', '8', 'dfgdgfry', '4.0', '1', '2019-09-23 12:41:31', '2019-09-24 07:37:37'),
-(17, '2', '24', 'cc', '4.0', '1', '2019-09-23 12:42:43', '2019-09-23 12:42:43'),
-(18, '2', '32', 'sss', '2.0', '1', '2019-09-24 10:16:30', '2019-09-24 10:16:30'),
-(19, '2', '30', 'hho', '3.5', '1', '2019-09-27 17:16:22', '2019-09-27 17:16:22'),
-(20, '3', '34', 'nice story ðŸ‘ðŸ‘', '3.0', '1', '2019-09-30 07:01:38', '2019-09-30 07:01:38'),
-(21, '2', '4', 'd', '3.5', '1', '2019-10-01 06:55:28', '2019-10-01 07:54:57'),
-(22, '19', '1', 'bshhs', '3.0', '1', '2019-10-03 06:09:02', '2019-10-03 06:09:02'),
-(23, '19', '5', 'nice', '3.0', '1', '2019-10-04 05:10:34', '2019-10-04 05:10:34'),
-(24, '19', '35', 'good', '4.5', '1', '2019-10-04 07:25:16', '2019-10-04 07:25:16'),
-(25, '2', '58', 'fgg', '3.5', '1', '2019-10-04 16:27:14', '2019-10-04 16:27:14'),
-(26, '3', '62', 'nice', '3.0', '1', '2019-10-05 07:28:02', '2019-10-05 07:28:02'),
-(27, '2', '63', 'ffdsae vvg b', '3.0', '1', '2019-10-05 12:43:05', '2019-10-05 12:43:05');
+(1, '1', '1', 'gdf GF E8 R', '4.0', '1', '2019-10-10 11:22:24', '2019-10-25 07:28:32'),
+(2, '1', '2', 'fffff', '3.0', '1', '2019-10-14 10:36:45', '2019-10-14 10:36:45'),
+(3, '1', '3', 'dddd', '3.0', '1', '2019-10-15 06:32:32', '2019-10-15 06:32:32'),
+(4, '1', '7', 'dfdggf', '3.0', '1', '2019-10-19 10:04:55', '2019-10-19 10:04:55'),
+(5, '1', '8', 'ee', '3.5', '1', '2019-10-19 10:06:06', '2019-10-21 07:40:06'),
+(6, '2', '20', 'test', '3.5', '1', '2019-10-24 05:06:13', '2019-10-24 05:06:13'),
+(7, '1', '16', 'ssss fffff fwff wdw wsw', '3.0', '1', '2019-10-30 11:51:06', '2019-11-02 07:26:01'),
+(8, '1', '4', 'yj', '3.5', '1', '2019-10-31 12:40:10', '2019-10-31 12:40:10'),
+(9, '1', '20', 'dddwee', '5.0', '1', '2019-11-02 07:27:57', '2019-11-02 07:27:57');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_chats`
+--
+
+CREATE TABLE `user_chats` (
+  `id` bigint(100) NOT NULL,
+  `channel_id` int(11) DEFAULT NULL,
+  `sender` int(11) DEFAULT NULL,
+  `receiver` int(11) DEFAULT NULL,
+  `type` enum('text','file','image','audio','video','docfile') DEFAULT 'text',
+  `message` varchar(255) DEFAULT NULL,
+  `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `modified` timestamp NULL DEFAULT NULL,
+  `read_msg` enum('0','1') DEFAULT '0',
+  `is_active` enum('0','1') DEFAULT '1'
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `user_chats`
+--
+
+INSERT INTO `user_chats` (`id`, `channel_id`, `sender`, `receiver`, `type`, `message`, `created`, `modified`, `read_msg`, `is_active`) VALUES
+(1, 131282, 1, 2, 'text', 'hi', '2019-11-08 12:40:23', NULL, '0', '1'),
+(2, 131282, 1, 2, 'text', 'hi', '2019-11-08 12:43:57', NULL, '0', '1'),
+(3, 131282, 1, 2, 'text', 'ff', '2019-11-08 12:44:08', NULL, '0', '1'),
+(4, 658418, 1, 3, 'text', 'did ', '2019-11-08 12:44:18', NULL, '0', '1');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_chats_removed`
+--
+
+CREATE TABLE `user_chats_removed` (
+  `channel_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `user_chats_removed`
+--
+
+INSERT INTO `user_chats_removed` (`channel_id`, `user_id`) VALUES
+(155169, 72),
+(519990, 72),
+(493742, 72),
+(359591, 79),
+(359591, 72),
+(216060, 72),
+(327991, 72),
+(153334, 72),
+(769945, 72),
+(578884, 72),
+(767477, 72),
+(174314, 72),
+(921402, 79),
+(190469, 79),
+(817274, 79),
+(227700, 80),
+(328485, 79),
+(576983, 94),
+(343955, 96),
+(343955, 72),
+(742848, 72),
+(592893, 72),
+(210076, 72),
+(742848, 96),
+(210076, 96);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_device_token`
+--
+
+CREATE TABLE `user_device_token` (
+  `id` int(11) NOT NULL,
+  `user_id` bigint(40) DEFAULT '0',
+  `deviceid` varchar(255) DEFAULT NULL,
+  `pushtoken` varchar(255) DEFAULT NULL,
+  `phone_model` varchar(255) DEFAULT NULL,
+  `phone_version` varchar(255) DEFAULT NULL,
+  `created` timestamp NULL DEFAULT NULL,
+  `modified` timestamp NULL DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `user_device_token`
+--
+
+INSERT INTO `user_device_token` (`id`, `user_id`, `deviceid`, `pushtoken`, `phone_model`, `phone_version`, `created`, `modified`) VALUES
+(7, 2, 'FBA2BD37-FA9C-47E0-8922-E018816C74EE', 'c83a9750cffe29d7b5341ce7fd781bb1d668976e3e05694a07af0cb0a6a7a916', 'iPhone', NULL, NULL, NULL),
+(9, 96, '49148FC3-DF22-4A22-96A5-95C58109DA76', '304c82108410458c61a3b517c146810cb6e41e6c1e3ab1d0d32a283abd05f188', 'iPhone', NULL, NULL, NULL),
+(10, 94, NULL, '6ca08dee39bdb1d17cff30417caab04ab7fab25739409f4d15f6f975020ab2a6', NULL, NULL, NULL, NULL),
+(16, 72, 'FBA2BD37-FA9C-47E0-8922-E018816C74EE', 'ebd9e618f0df50a0abfe5c39e629132c74f12df9aaaac8e2b418fd7bccd2f3ff', 'iPhone', NULL, NULL, NULL),
+(13, 94, 'E22F2330-9065-4CFE-B145-E8B668300274', '2844ef4c51750d14b44fb88e000ab032f3e6ac0a5831d99ce730211ed093b0c9', 'iPhone', NULL, NULL, NULL),
+(14, 94, '7AFEE8BD-A515-4CB6-9F6B-B3335016629B', '5bcaa0dcdc10ef96c4d3f5a944260b079dcc93b04b3dba1b9ced68940431e18a', 'iPad', NULL, NULL, NULL),
+(15, 72, '9DB82E41-7411-4492-808F-FA5AEE5401A3', '11000000000000000', 'iPad', NULL, NULL, NULL),
+(17, 94, '5FC93D3D-5D77-4341-9ABA-51515BD21605', 'f93c540e10012418d10570115ae6fe6105bd4c69e37e736e8a9d845e3be12416', 'iPad', NULL, NULL, NULL),
+(21, 97, '32F032A5-94F1-4907-875A-0DD3D36EFB35', '76c086d278a9c65037ef0ebb6ad28460a3b474715eacbb3f50bf9a3d18af2d13', 'iPhone', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -485,19 +541,20 @@ CREATE TABLE `user_login_table` (
 --
 
 INSERT INTO `user_login_table` (`id`, `register_id`, `chat_id`, `full_name`, `user_name`, `url`, `email`, `gender`, `phone_no`, `about_me`, `country`, `password`, `confirmation_key`, `date_added`, `date_edited`, `status`, `message_status`, `publisher_type`, `device_token`, `device_type`, `address`, `thumb_image`, `createdAt`, `global_posting`) VALUES
-(1, '635454', 98096647, '', 'VAnsh', 'pic_1569231542.jpg', 'chaudhary.vanshraj@gmail.com', '', '', '', '', 'IA==', '', NULL, 1568785680, 1, '1', 'Writer', '', '', '', '', '2019-09-18 05:48:00', '1'),
-(2, '711012', 98096647, '', 'Vansh raj', 'pic_1569842654.jpg', 'vansh1996raj@gmail.com', '', '', '', '', 'NTk4MjE3', '', NULL, 1568788260, 1, '1', 'Writer', '', '', '', '', '2019-09-18 06:31:00', '1'),
-(3, '691577', 98128957, '', 'Shyam Soft', 'pic_1569827153.jpg', 'shyamsoft38@gmail.com', '', '', '', 'simple and interesting guy', 'ODUxNzI0', '', NULL, 1568891923, 1, '1', 'Publish House', '', '', '', '', '2019-09-19 11:18:43', '1'),
-(10, '816967', 0, '', 'raj', 'pic_1569564028.', 'raj@gmail.com', 'male', '', 'Raj ', 'india', 'MTIzNA==', '', NULL, 1569564028, 1, '1', 'Reader', '', '', '', '', '2019-09-27 06:00:28', '1'),
-(11, '362547', 97863204, '', 'demo', 'pic_1569576604.', 'demo@gmail.com', 'male', '', 'demo test', 'india', 'MTIz', NULL, NULL, 1569576604, 1, '1', 'Writer', '', '', NULL, NULL, '2019-09-27 09:30:04', '1'),
-(12, '345058', 97863070, '', 'abcd', 'pic_1569583655.', 'ddd@gmail.com', 'male', '', 'abcd', 'fgfgf', 'MTIzNA==', NULL, NULL, 1569583655, 1, '1', 'Writer', '', '', NULL, NULL, '2019-09-27 11:27:35', '1'),
-(13, '737643', 97863134, '', 'dfdfdf', 'pic_1569583791.', 'dfdfd', 'male', '', 'dfdfd', 'eew', 'MTIz', NULL, NULL, 1569583791, 1, '1', 'Reader', '', '', NULL, NULL, '2019-09-27 11:29:51', '1'),
-(14, '916676', 98128959, '', 'demoA', 'pic_1569819966.', 'dshgass@gmail.com', 'male', '', 'demo', 'sdsdsd', 'MTIz', NULL, NULL, 1569819966, 1, '1', 'Writer', '', '', NULL, NULL, '2019-09-30 05:06:06', '1'),
-(15, '953499', 97948044, '', 'jony', 'pic_1569821753.', 'heje@gmail.com', 'male', '', 'hsbsysh heje', 'jsjs', 'MTIz', NULL, NULL, 1569821753, 1, '1', 'Writer', '', '', NULL, NULL, '2019-09-30 05:35:53', '1'),
-(16, '861412', NULL, '', 'ssdsd', 'pic_1569834729.', 'ssd', 'male', '', 'sdsd', 'sdsd', 'c2RzZHM=', NULL, NULL, 1569834729, 1, '1', 'Reader', '', '', NULL, NULL, '2019-09-30 09:12:09', '1'),
-(17, '318065', 97953038, '', 'sdsdsdsd', 'pic_1569834921.', 'sdsd', 'male', '', 'dsdsd', 'sdsd', 'c2RzZHNk', NULL, NULL, 1569834921, 1, '1', 'Writer', '', '', NULL, NULL, '2019-09-30 09:15:21', '1'),
-(18, '263200', 97953696, '', 'demo', 'pic_1569836446.', 'hshsj', 'male', '', 'bshsj', 'hjd', 'MTIz', NULL, NULL, 1569836446, 1, '1', 'Writer', '', '', NULL, NULL, '2019-09-30 09:40:46', '1'),
-(19, '161400', 98120073, '', 'Amit Raj', 'pic_1570082821.jpg', 'raj.amit650@gmail.com', '', '', '', '', 'IA==', NULL, NULL, 1570082634, 1, '1', 'Reader', '', '', NULL, NULL, '2019-10-03 06:03:54', '1');
+(1, '637426', 98300993, '', 'Vansh raj', 'pic_1571640636.jpg', 'vansh1996raj@gmail.com', '', '', 'fdhf dfdfff sdf dfhk kdhkfh dhf fkdfhkdfh khfkfhk kffh fdfyuduf dfudjfk FJ dfdufdf dufiu fodufo dfudufuid', '', 'IA==', NULL, NULL, 1570701195, 1, '1', 'Publish House', '', '', '', NULL, '2019-10-10 09:53:15', '1'),
+(2, '304950', 98482280, '', 'Shyam Soft', 'pic_1571640636.jpg', 'shyamsoft38@gmail.com', '', '', '', '', 'IA==', NULL, NULL, 1571035221, 1, '1', 'Writer', '', '', '', NULL, '2019-10-14 06:40:21', '1'),
+(3, '276218', 99591519, '', 'IUITR', 'pic_1573126444.', 'RYUYRURYRYUYU', 'male', '', 'YURURYUY', 'YUYU', 'VVVSVVJVUg==', NULL, NULL, 1573126444, 1, '1', 'Writer', 'SDHDHDD', 'android', '', NULL, '2019-11-07 11:34:04', '1');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `WORDS`
+--
+
+CREATE TABLE `WORDS` (
+  `WordID` int(11) NOT NULL,
+  `Word` varchar(255) COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Indexes for dumped tables
@@ -514,6 +571,13 @@ ALTER TABLE `admin_ip_tracking`
 --
 ALTER TABLE `admin_login_table`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `DEFINITIONS`
+--
+ALTER TABLE `DEFINITIONS`
+  ADD PRIMARY KEY (`DefinitionID`),
+  ADD KEY `WordID_WORDS_WordID` (`WordID`);
 
 --
 -- Indexes for table `role`
@@ -583,12 +647,30 @@ ALTER TABLE `tbl_review`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `user_chats`
+--
+ALTER TABLE `user_chats`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `user_device_token`
+--
+ALTER TABLE `user_device_token`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `user_login_table`
 --
 ALTER TABLE `user_login_table`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`),
   ADD UNIQUE KEY `email_2` (`email`);
+
+--
+-- Indexes for table `WORDS`
+--
+ALTER TABLE `WORDS`
+  ADD PRIMARY KEY (`WordID`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -607,6 +689,12 @@ ALTER TABLE `admin_login_table`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `DEFINITIONS`
+--
+ALTER TABLE `DEFINITIONS`
+  MODIFY `DefinitionID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `role`
 --
 ALTER TABLE `role`
@@ -616,19 +704,19 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `tbl_answer`
 --
 ALTER TABLE `tbl_answer`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tbl_bookmark`
 --
 ALTER TABLE `tbl_bookmark`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `tbl_books`
 --
 ALTER TABLE `tbl_books`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `tbl_category`
@@ -646,37 +734,55 @@ ALTER TABLE `tbl_comment`
 -- AUTO_INCREMENT for table `tbl_contact`
 --
 ALTER TABLE `tbl_contact`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tbl_faq`
 --
 ALTER TABLE `tbl_faq`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `tbl_frnds`
 --
 ALTER TABLE `tbl_frnds`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tbl_note`
 --
 ALTER TABLE `tbl_note`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `tbl_review`
 --
 ALTER TABLE `tbl_review`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `user_chats`
+--
+ALTER TABLE `user_chats`
+  MODIFY `id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `user_device_token`
+--
+ALTER TABLE `user_device_token`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `user_login_table`
 --
 ALTER TABLE `user_login_table`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `WORDS`
+--
+ALTER TABLE `WORDS`
+  MODIFY `WordID` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
