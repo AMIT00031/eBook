@@ -5,12 +5,12 @@ error_reporting(E_ALL);*/
 require_once '../include/DbOperation.php';
 require_once '../include/Braintree_lib.php';
 require '.././libs/Slim/Slim.php';
-\Slim\Slim::registerAutoloader();
+\Slim\Slim::registerAutoloader(); 
 
 /*define("ROOT_FOLDER","/ebooks/development/");
 define("DOCUMENTROOT",$_SERVER['DOCUMENT_ROOT'].ROOT_FOLDER);*/
 
-$app = new \Slim\Slim();
+$app = new \Slim\Slim(); 
 $app->post('/createUser', function () use ($app) {
 
  ///echo "<pre>";print_r($_POST);exit('signup');
@@ -1234,12 +1234,13 @@ $app->post('/user_list', function () use ($app){
 
     $arr = $db->getAuthorDetails($userid); 
 	$userList = array();
+	
     if(!empty($arr)){
 		
 		$fields = "id,user_name,chat_id,url,email,about_me, publisher_type,device_token, device_type,phone_no,status";
 		$whrcond = " id != $arr->id "; 
         $userList = $db->getDetails("user_login_table",$fields,$whrcond);
-        //echo "<pre>";print_r($userList);exit; 
+       // echo "<pre>";print_r($userList);exit; 
 
 		 if(!empty($userList))
 		 { 
@@ -1247,13 +1248,13 @@ $app->post('/user_list', function () use ($app){
 			{
 				$img = "";
 
-				//if($row['avatar']) $img = base_url().'assets/upload/user/'.$row['avatar'];
+				if($row['avatar']) $img = 'upload/chats/'.$row['avatar'];
 				$channelId = "";
-				$channelId = $db->has_channel($row['id'], $app->request->post('user_id'));
+				$channelId = $db->has_channel($row['id'], $userid);
 				
 				$is_delete = "";
 				if($channelId){
-					$wherecond_rem =" user_id = ".$row['id']." and channel_id = $channelId "; 
+					$wherecond_rem =" user_id = ".$row['id']." and channel_id = $channelId ";  
 					$is_delete = $db->select_value("user_chats_removed", "user_id", $wherecond_rem);
 				}/* else{
 					$wherecond_rem =" user_id = ".$row['id'];
@@ -1275,9 +1276,10 @@ $app->post('/user_list', function () use ($app){
 					'avatar' => $img
 				);
 			}
+			//print_r($user_list_arr); die;
 		} 	
         $response["error"] = false;
-        $response["data"] = $arr;
+        //$response["data"] = $arr;
         $response["userList"] = $user_list_arr;
         $response["message"] = "success";
         echoResponse(200, $response);
@@ -1294,6 +1296,7 @@ $app->post('/user_list', function () use ($app){
 //require to work on this
 $app->post('/user_chat', function () use ($app){
 	
+	verifyRequiredParams(array('user_id', 'sendTO')); 
     $userid = $app->request->post('user_id');
     $response = array();
     $db = new DbOperation();
@@ -1308,18 +1311,103 @@ $app->post('/user_chat', function () use ($app){
 	
     if(!empty($arr)){ 
 		
-		if($userid && $_POST['sendTO'] && $_POST['type']){
+		if($userid && $app->request->post('sendTO') && $app->request->post('type')){
 			
-			if($_POST['channelId']) {
+			if($app->request->post('channelId')) {
 					
-				$channelId = $_POST['channelId'];										
+				$channelId = $app->request->post('channelId');										
 			}else {
 				$channelId = rand(100000, 999999); 
 			}
 			
 			
-			if($_POST['type'] == "file"){
-				if(isset($_FILES['message'])){
+			if($app->request->post('type') != "text"){
+
+				 /****Document file*/
+				if(!empty($_FILES['pdf_file'])){
+					$errors= array();
+					if(empty($errors)==true){
+						
+						$upload_path = 'upload/chats/document/';
+						$fileinfo = pathinfo($_FILES['pdf_file']['name']);
+						$extension = $fileinfo['extension'];
+						$message = $upload_path.'document_'.time().'.'.$extension;
+						$file_path = $upload_path .'document_'.time().'.'.$extension;
+						move_uploaded_file($_FILES['pdf_file']['tmp_name'], $file_path);
+					
+					}else{
+						
+						$response["error"] = true;
+						$response["message"] = "file size must not be more than 2 MB";
+						echoResponse(201, $response);
+						exit();
+					}
+				}
+				
+				/****image file*/
+				 if(!empty($_FILES['image_file'])){ 
+					 $errors= array();
+					 
+					if(empty($errors)==true){
+						$upload_path = 'upload/chats/gallery/'; 
+						$fileinfo = pathinfo($_FILES['image_file']['name']);
+						$extension = $fileinfo['extension']; 
+						$message = $upload_path.'gallery_'.time().'.'.$extension; 
+						$file_path = $upload_path .'gallery_'.time().'.'.$extension;
+						move_uploaded_file($_FILES['image_file']['tmp_name'], $file_path);
+					}else{
+						$response["error"] = true;
+						$response["message"] = "file size must not be more than 2 MB";
+						echoResponse(201, $response);
+						exit();
+					}
+				}
+                
+				/****audio file*/
+				if(!empty($_FILES['audio_file'])){
+					
+					$errors= array();
+					
+					if(empty($errors)==true){
+						
+						$upload_path = 'upload/chats/audio/';
+						$fileinfo  = pathinfo($_FILES['audio_file']['name']);
+						$extension = $fileinfo['extension'];
+						$message   =  $upload_path.'audio_'.time().'.'.$extension;
+						$file_path = $upload_path .'audio_'.time().'.'.$extension;
+						move_uploaded_file($_FILES['audio_file']['tmp_name'], $file_path);
+					}else{
+						
+						$response["error"] = true;
+						$response["message"] = "file size must not be more than 2 MB";
+						echoResponse(201, $response);
+						exit();
+					}
+				}
+				
+				/****video file*/
+				 if(!empty($_FILES['video_file'])){
+					 $errors= array();
+					
+					if(empty($errors)==true){
+						
+						$upload_path = 'upload/chats/video/';
+						$fileinfo   = pathinfo($_FILES['video_file']['name']);
+						$extension = $fileinfo['extension'];
+						$message   = 	 $upload_path.'video_'.time().'.'.$extension;
+						$file_path = $upload_path .'video_'.time().'.'.$extension;
+						move_uploaded_file($_FILES['video_file']['tmp_name'], $file_path);
+					
+					}else{
+						$response["error"] = true;
+						$response["message"] = "file size must not be more than 2 MB";
+						echoResponse(201, $response);
+						exit();
+					}
+				}
+			
+			
+				/* if(isset($_FILES['message'])){
 				  $errors= array();
 				  $newFileName ="";
 				  $file_name ="";
@@ -1348,30 +1436,32 @@ $app->post('/user_chat', function () use ($app){
 					exit();
 					
 				  }
-				}
+				} */
+				
+			
 			}else{
-				$message = $_POST['message'];
+				$message = $app->request->post('message');
 			}
 			
-			$query_state = "set channel_id='".$channelId."',sender='".$userid."',receiver='".$_POST['sendTO']."',type='".$_POST['type']."',message='".$message."' "; 
-			$insId = $db->addEditRecord("user_chats", $query_state);	
-			
+			$query_state = "set channel_id='".$channelId."',sender='".$userid."',receiver='".$app->request->post('sendTO')."',type='".$app->request->post('type')."',message='".$message."' "; 
+			if($message!=''){
+				$insId = $db->addEditRecord("user_chats", $query_state);	
+			}
 			
 			$user_details = array();
 			$user_details = $arr;
-			
 			
 			//$fields = "id,user_name,chat_id,url,email,about_me, publisher_type,device_token, device_type,phone_no";
 			//$whrcond = " id != $arr->id "; 
 			//$userList = $db->getDetails("user_login_table",$fields,$whrcond);
 			
 			$fields_token = "id,deviceid,pushtoken";
-			$whrcond_token = " user_id = '".$_POST['sendTO']."' "; 
+			$whrcond_token = " user_id = '".$app->request->post('sendTO')."' "; 
 			$user_tokens = $db->getDetails("user_device_token",$fields_token,$whrcond_token);
 			
 			if(!empty($user_tokens)){
 				 
-					$sendTO = $_POST['sendTO'];
+					$sendTO = $app->request->post('sendTO');
 					$chats_hist = array();
 					$chats_hist = $db->user_chat_history($sendTO);
 					$chat_filter = array();
@@ -1423,14 +1513,15 @@ $app->post('/user_chat', function () use ($app){
 					//var_dump($user_list_arr);
 					
 					/* foreach ($user_tokens as $key => $value) {
-						$this->send_push(@$value["pushtoken"], $_POST['type'], @$user_details->name, $message,$badge);
+						$this->send_push(@$value["pushtoken"], $app->request->post('type'), @$user_details->name, $message,$badge);
 					} */
 				}
 				
 				//delete user chat
-				$where_del_cond = "user_id='".$_POST['sendTO']."' and channel_id='".$channelId."' ";
+				$where_del_cond = "user_id='".$app->request->post('sendTO')."' and channel_id='".$channelId."' "; 
 				$db->delete_data("user_chats_removed", $where_del_cond);				
 				$chats = array();
+				
 				$chats = $db->user_chats($channelId);
 				
 				if($chats)
@@ -1440,7 +1531,7 @@ $app->post('/user_chat', function () use ($app){
 					{
 						$msg = "";
 						if($row["type"] == "file") 
-							$msg ="upload/chats/".$row['message'];
+							$msg =$row['message'];
 						else  $msg = $row["message"];
 							
 						$chat_list[] = array(
@@ -1465,27 +1556,37 @@ $app->post('/user_chat', function () use ($app){
 			
 		}
 		
-		elseif($userid && $_POST['channelId']){
+		elseif($userid && $app->request->post('channelId')){
 			
-			 $chats = array();
-			$chats = $this->user_chats($_POST['channelId']);               
+			
+			$chats = array(); 
+		
+			$chats = $db->user_chats($app->request->post('channelId'));               
+			
+			
 			if($chats)
 			{    
-                $where_del_cond = "user_id='".$_POST['sendTO']."' and channel_id='".$_POST['channelId']."' ";
+		 
+                //delete case
+				$where_del_cond = "user_id='".$app->request->post('sendTO')."' and channel_id='".$app->request->post('channelId')."' ";
 				$db->delete_data("user_chats_removed", $where_del_cond);
-				
+
 				//$this->Api_model->delete_data("user_chats_removed", array("user_id"=>$this->input->post('userId'), "channel_id"=>$this->input->post('channelId')));
 				//$this->Api_model->update_data('user_chats',array("read_msg"=>"1"), array("receiver"=>$this->input->post('userId'), "channel_id"=>$this->input->post('channelId')));
-	
-				$update_stmt = "set read_msg=1";
-				$update_whrcond = "set receiver = '".$userid."',channel_id ='".$_POST['channelId']."' ";
-				$db->addEditRecord('user_chats',$update_stmt,$update_whrcond);
-			
+	 
+				$update_stmt = "set read_msg=1"; 
+				$update_whrcond = "set receiver = '".$userid."',channel_id ='".$app->request->post('channelId')."' ";
+				
+				if($message!=''){
+					$db->addEditRecord('user_chats',$update_stmt,$update_whrcond);
+				}
 				$chat_list = array();
+				
 				foreach($chats as $row)
 				{
 					$msg = "";
-					if($row["type"] == "file")  $msg = "upload/chats/".$row['message'];
+					if($row["type"] == "file")  
+						$msg = $row['message'];
 					else  $msg = $row["message"];					
 					
 					$chat_list[] = array(
@@ -1498,20 +1599,24 @@ $app->post('/user_chat', function () use ($app){
 						"message" => $msg
 					);
 				}
-				$response['status_code'] = '200';
+				
+				$response["error"] = false;
+				//$response["data"] = $arr;
+				$response["chat_list"] = array();
 				$response['status'] = 'success';
-				$response['message'] = 'Successfully fetch.';
-				$response['chat_list'] = $chat_list;
-				echo json_encode($response);
-				exit();
+				$response["message"] = "Successfully fetch";
+				echoResponse(200, $response); 	
 			} 
 		}
 		
 		else{
 			
-			$response["error"] = true;
-			$response["message"] = "Failed";
-			echoResponse(201, $response);
+			   $response["error"] = false;
+				//$response["data"] = $arr;
+				$response["chat_list"] = $chat_list;
+				$response['status'] = 'success';
+				$response["message"] = "Successfully fetch";
+				echoResponse(200, $response); 	
 			
 		}
 	
@@ -1523,7 +1628,6 @@ $app->post('/user_chat', function () use ($app){
    
 });
 
-
 $app->post('/user_chat_history', function () use ($app){
 	
     $userId = $app->request->post('user_id');
@@ -1534,7 +1638,7 @@ $app->post('/user_chat_history', function () use ($app){
 	$channelId = "";
 	$message = "";          
 
-    $arr = $db->getAuthorDetails($userid); 
+    $arr = $db->getAuthorDetails($userId); 
 	$userList = array();
 	
     if(!empty($arr)){
@@ -1542,16 +1646,19 @@ $app->post('/user_chat_history', function () use ($app){
 		$chats_hist = array();
 		$chats_hist = $db->user_chat_history($userId);
 		$chat_filter = array();
-		$chat_filter2 = array();//print_r($chats_hist);
+		$chat_filter2 = array();
+		
+		
 		if($chats_hist){
 			foreach($chats_hist as $row){
-				if(!in_array($row['chid'],$chat_filter) && ($this->input->post('userId') !=$row['user_id']) )
+			if( !in_array($row['chid'],$chat_filter) && ($userId !=$row['user_id']) )
 				{
 					$chat_filter[] = $row['chid'];
 					$chat_filter2[] = $row;
 				}
 			}
-		}//print_r($chat_filter2);
+		}
+		
 		if($chat_filter2){
 			$user_list_arr = array();
 			foreach($chat_filter2 as $row){
@@ -1581,7 +1688,7 @@ $app->post('/user_chat_history', function () use ($app){
 			$response["error"] = false;
 			$response["data"] = $arr;
 			$response["userList"] = $user_list_arr;
-			$response["message"] = "success";
+			$response["message"] = "success"; 
 			echoResponse(200, $response);
 		}
 
@@ -1592,7 +1699,82 @@ $app->post('/user_chat_history', function () use ($app){
    }
    
 });
+
+
+$app->post('/user_chat_list', function () use ($app){
+	
+    $userId = $app->request->post('user_id');
+    $response = array();
+    $db = new DbOperation();
+    $arr = array();
+	$insertData = array();
+	$channelId = "";
+	$message = "";          
+
+    $arr = $db->getAuthorDetails($userId); 
+	$userList = array();
+	
+    if(!empty($arr)){
 		
+		$chats_hist = array();
+		$chats_hist = $db->user_chat_list_history($userId);
+		$chat_filter = array();
+		$chat_filter2 = array();
+		
+		
+		if($chats_hist){
+			foreach($chats_hist as $row){
+			if( !in_array($row['chid'],$chat_filter) && ($userId !=$row['user_id']) )
+				{
+					$chat_filter[] = $row['chid'];
+					$chat_filter2[] = $row;
+				}
+			}
+		}
+		
+		if($chat_filter2){
+			$user_list_arr = array();
+			foreach($chat_filter2 as $row){
+				$is_delete = "";
+				
+				$wherecond_rem =" user_id = ". $userId." and channel_id = '".$row['chid']."' "; 
+				$is_delete = $db->select_value("user_chats_removed", "user_id", $wherecond_rem);
+							
+				//$is_delete = $db->select_value("user_chats_removed", "user_id", array("user_id" => $this->input->post('userId'),"channel_id" => $row['chid']));
+				
+				if( (!$is_delete) && ($userId != $row['id'])){
+					$img = "";
+					if($row['avatar']) $img = 'upload/chats/'.$row['avatar'];
+					
+					$user_list_arr[] = array(
+						'userId' => $row['user_id'],
+						'name' => $row['name'],
+						'email' => $row['email'],
+						'channelId' => $row['chid'],
+						'created' => $row['created'],
+						'unread' => $db->has_unread($row['id'], $userId, $row['chid']),
+						'avatar' => $img
+					);
+				}
+			}
+			
+			$response["error"] = false;
+			$response["data"] = $arr;
+			$response["userList"] = $user_list_arr;
+			$response["message"] = "success"; 
+			echoResponse(200, $response);
+		}
+
+	}else{
+		$response["error"] = true;
+		$response["message"] = "Failed";
+		echoResponse(201, $response);
+   }
+   
+});
+
+	
+	
 $app->post('/delete_chat', function () use ($app){
 	
 	//$channel_id
@@ -1609,11 +1791,11 @@ $app->post('/delete_chat', function () use ($app){
 	
     if(!empty($arr)){
 		
-		if($userid && $_POST('channelId'))
+		if($userid && $app->request->post('channelId'))
 		{
 				$userId = "";
 				$logsData = array();
-				$logsData['channel_id'] = $_POST('channelId');
+				$logsData['channel_id'] = $app->request->post('channelId');
 				$logsData['user_id'] = $userid;
 				//$this->Api_model->save_data("user_chats_removed", $logsData);
 				$last_id = $db->addEditRecord("user_chats_removed", $logsData);
@@ -1650,10 +1832,38 @@ $app->post('/delete_chat', function () use ($app){
 	}
 	
 });
-	
-	
-	
 
+/* public function send_push($device_id="", $messagetype="", $username="", $message="",$badge)
+	{
+		//$badge = (int)$userId;
+		if ( $device_id!="") {				
+			$apnsHost = 'gateway.sandbox.push.apple.com';	
+			
+			//$apnsCert = FCPATH.'application/third_party/pushcert.pem';					
+			$apnsCert = FCPATH.'application/third_party/pushcert.pem';					
+			$apnsPort = 2195;					
+			$apnsPass = '1234';					
+			$token = $device_id;	
+			if($messagetype=='text'){ 	$mst = $username." :\r\n ".$message; }
+			elseif($messagetype=='file'){ 	$mst = $username." has sent a file "; }
+			 
+			
+			$payload['aps'] = array('alert' => $mst, 'badge' => $badge, 'sound' => 'default');			
+			$payload['api_type'] = 'one2oneuser_chat';					
+			$output = json_encode($payload);						
+			$token = pack('H*', str_replace(' ', '', $token));			
+			$apnsMessage = chr(0).chr(0).chr(32).$token.chr(0).chr(strlen($output)).$output;	
+			$streamContext = stream_context_create();						
+			stream_context_set_option($streamContext, 'ssl', 'local_cert', $apnsCert);	
+			stream_context_set_option($streamContext, 'ssl', 'passphrase', $apnsPass);			
+			$apns = stream_socket_client('ssl://'.$apnsHost.':'.$apnsPort, $error, $errorString, 2, STREAM_CLIENT_CONNECT, $streamContext);
+			//echo json_encode($apns); die;	
+			fwrite($apns, $apnsMessage);						
+			fclose($apns);			
+		///////////////////////////////////////////////////////////					
+		}
+	} */
+	
 /**
  * URL: http://dnddemo.com/ebooks/api/v1/sendEmailData
  * Parameters: 
