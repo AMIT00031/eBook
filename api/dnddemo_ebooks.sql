@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 08, 2019 at 12:45 PM
+-- Generation Time: Nov 13, 2019 at 11:53 AM
 -- Server version: 5.6.45-log
 -- PHP Version: 7.2.7
 
@@ -187,10 +187,10 @@ CREATE TABLE `tbl_books` (
 --
 
 INSERT INTO `tbl_books` (`id`, `user_id`, `category_id`, `book_title`, `book_slug`, `thubm_image`, `book_description`, `author_name`, `book_image`, `video_url`, `audio_url`, `pdf_url`, `question_data`, `isbn_number`, `mostView`, `status`, `created_at`, `updated_at`) VALUES
-(1, '1', '1', 'The Good Son', 'the good son', 'book_1570701749.jpg', 'dsg yeey wedyswd sdysd isydis isydiusd sidius dsyd sduyd sydsdy sidysd sydsdy sydsdysd sdysydsdy sidysdy sdysudy sydusyd sdysudy syds dsydsyd sure Susan \nosdusds dsdsud sdusdsudsud sudid oisdoi osiud sodusoduosd soudsd sudisdsi siidsdosd oisiudosd sdsudosdosduosudosduosdu sodou soiudos osdudiud osidusoidus', 'Vansh', '', '', '', '', '[\"thst so sdyd sddx ckck khkd ?\",\"sdshd sdsyd sydsuyd dsdu sdsdj do?\"]', NULL, '161', 0, '2019-10-10 00:00:00', '2019-10-10 10:02:29'),
-(2, '1', '1', 'ddd', 'ddd', 'book_1571040310.jpg', 'dddd', 'ddd', '', '', '', '', '[\"ddddd\"]', NULL, '92', 1, '2019-10-14 00:00:00', '2019-10-14 08:05:10'),
-(3, '1', '1', 'ggfdgd', 'ggfdgd', 'book_1571040448.jpg', 'gdgdg', 'dgdg', '', '', '', 'document_1571040448.pdf', '[]', NULL, '61', 1, '2019-10-14 00:00:00', '2019-10-14 08:07:28'),
-(4, '1', '1', 'de', 'de', 'book_1571042971.jpg', 'ddd', 'dddd', '', '', '', 'document_1571042971.pdf', '[]', NULL, '33', 1, '2019-10-14 00:00:00', '2019-10-14 08:49:31'),
+(1, '1', '1', 'The Good Son', 'the good son', 'book_1570701749.jpg', 'dsg yeey wedyswd sdysd isydis isydiusd sidius dsyd sduyd sydsdy sidysd sydsdy sydsdysd sdysydsdy sidysdy sdysudy sydusyd sdysudy syds dsydsyd sure Susan \nosdusds dsdsud sdusdsudsud sudid oisdoi osiud sodusoduosd soudsd sudisdsi siidsdosd oisiudosd sdsudosdosduosudosduosdu sodou soiudos osdudiud osidusoidus', 'Vansh', '', '', '', '', '[\"thst so sdyd sddx ckck khkd ?\",\"sdshd sdsyd sydsuyd dsdu sdsdj do?\"]', NULL, '163', 0, '2019-10-10 00:00:00', '2019-10-10 10:02:29'),
+(2, '1', '1', 'ddd', 'ddd', 'book_1571040310.jpg', 'dddd', 'ddd', '', '', '', '', '[\"ddddd\"]', NULL, '95', 1, '2019-10-14 00:00:00', '2019-10-14 08:05:10'),
+(3, '1', '1', 'ggfdgd', 'ggfdgd', 'book_1571040448.jpg', 'gdgdg', 'dgdg', '', '', '', 'document_1571040448.pdf', '[]', NULL, '62', 1, '2019-10-14 00:00:00', '2019-10-14 08:07:28'),
+(4, '1', '1', 'de', 'de', 'book_1571042971.jpg', 'ddd', 'dddd', '', '', '', 'document_1571042971.pdf', '[]', NULL, '36', 1, '2019-10-14 00:00:00', '2019-10-14 08:49:31'),
 (5, '1', '1', 'sd', 'sd', 'book_1571043066.jpg', 'sdss', 's', '', '', '', '', '[\"ssss\",\"ddddd\"]', NULL, '19', 0, '2019-10-14 00:00:00', '2019-10-14 08:51:06'),
 (6, '1', '2', 'ff', 'ff', 'book_1571045911.jpg', 'cc', 'cc', '', '', 'audio_1571045911.mp3', 'document_1571045911.PDF', '[]', NULL, '6', 0, '2019-10-14 00:00:00', '2019-10-14 09:38:31'),
 (7, '1', '2', 'fff', 'fff', 'book_1571380592.jpg', 'ffff', 'fw', '', '', '', 'document_1571380592.pdf', '[]', NULL, '19', 0, '2019-10-17 00:00:00', '2019-10-18 06:36:32'),
@@ -201,9 +201,9 @@ INSERT INTO `tbl_books` (`id`, `user_id`, `category_id`, `book_title`, `book_slu
 (12, '1', '2', 'sdfsfffdf aaaaa', 'sdfsfffdf aaaaa', 'book_1571663320.jpg', 'sfsfsfsf', 'sfsfsf', '', '', '', '', '[]', NULL, '2', 0, '2019-10-21 00:00:00', '2019-10-21 13:08:40'),
 (18, '1', '2', 'dfdffffffffffffff', 'dfdffffffffffffff', 'book_1571739486.jpg', 'fffffffffffff', 'ffffffffffffffffffffffff', '', '', '', '', '[]', NULL, '0', 0, '2019-10-22 00:00:00', '2019-10-22 10:18:06'),
 (17, '1', '0', 'dffdsfdf', 'dffdsfdf', 'book_1571739454.jpg', 'dfdfdfdf', 'dfdfdfdf', '', '', '', '', '[]', NULL, '1', 0, '2019-10-22 00:00:00', '2019-10-22 10:17:34'),
-(16, '2', '2', 'dummy book2', 'dummy book2', 'book_1571738214.jpg', 'simply dummy text df', 'Amit kumar', '', '', '', '', '', NULL, '67', 1, '2019-10-22 00:00:00', '2019-10-22 09:56:54'),
+(16, '2', '2', 'dummy book2', 'dummy book2', 'book_1571738214.jpg', 'simply dummy text df', 'Amit kumar', '', '', '', '', '', NULL, '71', 1, '2019-10-22 00:00:00', '2019-10-22 09:56:54'),
 (19, '1', '2', 'thanks d', 'thanks d', 'book_1571739816.jpg', 'ðŸ±ðŸ±', 'www', '', '', '', '', '[]', NULL, '1', 0, '2019-10-22 00:00:00', '2019-10-22 10:23:36'),
-(20, '2', '2', 'dummy book2', 'dummy book2', 'book_1571741181.jpg', 'simply dummy text df', 'Amit kumar', '', '', '', '', '', 'ISBN-135445678', '45', 1, '2019-10-22 00:00:00', '2019-10-22 10:46:21'),
+(20, '2', '2', 'dummy book2', 'dummy book2', 'book_1571741181.jpg', 'simply dummy text df', 'Amit kumar', '', '', '', '', '', 'ISBN-135445678', '48', 1, '2019-10-22 00:00:00', '2019-10-22 10:46:21'),
 (21, '1', '2', 'ssdsdsddemo', 'ssdsdsddemo', 'book_1571807772.jpg', 'sdsdsdsdsdsd', 'sdsd', '', '', '', '', '[]', '1234567890', '1', 0, '2019-10-22 00:00:00', '2019-10-23 05:16:12'),
 (22, '1', '2', 'ssddsdfdfdf', 'ssddsdfdfdf', 'book_1571807924.jpg', 'sdsdsds', 'dsdsd', '', '', '', '', '[]', '1234545685', '2', 0, '2019-10-22 00:00:00', '2019-10-23 05:18:44'),
 (23, '1', '2', 'rerer', 'rerer', '', 'ererer', 'ererer', '', '', '', '', '', '', '0', 0, '2019-10-23 00:00:00', '2019-10-24 00:00:00'),
@@ -396,7 +396,7 @@ INSERT INTO `tbl_review` (`id`, `user_id`, `books_id`, `comment`, `rating`, `sta
 (4, '1', '7', 'dfdggf', '3.0', '1', '2019-10-19 10:04:55', '2019-10-19 10:04:55'),
 (5, '1', '8', 'ee', '3.5', '1', '2019-10-19 10:06:06', '2019-10-21 07:40:06'),
 (6, '2', '20', 'test', '3.5', '1', '2019-10-24 05:06:13', '2019-10-24 05:06:13'),
-(7, '1', '16', 'ssss fffff fwff wdw wsw', '3.0', '1', '2019-10-30 11:51:06', '2019-11-02 07:26:01'),
+(7, '1', '16', 'hjj', '3.5', '1', '2019-10-30 11:51:06', '2019-11-09 17:23:02'),
 (8, '1', '4', 'yj', '3.5', '1', '2019-10-31 12:40:10', '2019-10-31 12:40:10'),
 (9, '1', '20', 'dddwee', '5.0', '1', '2019-11-02 07:27:57', '2019-11-02 07:27:57');
 
@@ -424,10 +424,20 @@ CREATE TABLE `user_chats` (
 --
 
 INSERT INTO `user_chats` (`id`, `channel_id`, `sender`, `receiver`, `type`, `message`, `created`, `modified`, `read_msg`, `is_active`) VALUES
-(1, 131282, 1, 2, 'text', 'hi', '2019-11-08 12:40:23', NULL, '0', '1'),
-(2, 131282, 1, 2, 'text', 'hi', '2019-11-08 12:43:57', NULL, '0', '1'),
-(3, 131282, 1, 2, 'text', 'ff', '2019-11-08 12:44:08', NULL, '0', '1'),
-(4, 658418, 1, 3, 'text', 'did ', '2019-11-08 12:44:18', NULL, '0', '1');
+(1, 584811, 4, 1, 'text', 'gg', '2019-11-13 11:21:22', NULL, '0', '1'),
+(2, 584811, 1, 4, 'text', 'ttt', '2019-11-13 11:21:39', NULL, '0', '1'),
+(3, 362732, 4, 3, 'text', 'ggg', '2019-11-13 11:21:58', NULL, '0', '1'),
+(4, 478177, 1, 3, 'text', 'ffff', '2019-11-13 11:22:27', NULL, '0', '1'),
+(5, 584811, 4, 1, 'text', 'hhh', '2019-11-13 11:22:41', NULL, '0', '1'),
+(6, 584811, 4, 1, 'text', 'jj', '2019-11-13 11:23:14', NULL, '0', '1'),
+(7, 584811, 1, 4, 'image', 'upload/chats/gallery/gallery_1573644223.jpg', '2019-11-13 11:23:43', NULL, '0', '1'),
+(8, 297146, 4, 2, 'text', 'dgdgdg', '2019-11-13 11:26:29', NULL, '0', '1'),
+(9, 297146, 2, 4, 'text', 'hii', '2019-11-13 11:31:31', NULL, '0', '1'),
+(10, 297146, 4, 2, 'text', 'ccc', '2019-11-13 11:31:43', NULL, '0', '1'),
+(11, 297146, 2, 4, 'image', 'upload/chats/gallery/gallery_1573644725.jpg', '2019-11-13 11:32:05', NULL, '0', '1'),
+(12, 297146, 4, 2, 'image', 'upload/chats/gallery/gallery_1573644754.jpg', '2019-11-13 11:32:34', NULL, '0', '1'),
+(13, 297146, 2, 4, 'image', 'upload/chats/gallery/gallery_1573644823.jpg', '2019-11-13 11:33:43', NULL, '0', '1'),
+(14, 571017, 2, 3, 'text', 'hii', '2019-11-13 11:35:47', NULL, '0', '1');
 
 -- --------------------------------------------------------
 
@@ -543,7 +553,8 @@ CREATE TABLE `user_login_table` (
 INSERT INTO `user_login_table` (`id`, `register_id`, `chat_id`, `full_name`, `user_name`, `url`, `email`, `gender`, `phone_no`, `about_me`, `country`, `password`, `confirmation_key`, `date_added`, `date_edited`, `status`, `message_status`, `publisher_type`, `device_token`, `device_type`, `address`, `thumb_image`, `createdAt`, `global_posting`) VALUES
 (1, '637426', 98300993, '', 'Vansh raj', 'pic_1571640636.jpg', 'vansh1996raj@gmail.com', '', '', 'fdhf dfdfff sdf dfhk kdhkfh dhf fkdfhkdfh khfkfhk kffh fdfyuduf dfudjfk FJ dfdufdf dufiu fodufo dfudufuid', '', 'IA==', NULL, NULL, 1570701195, 1, '1', 'Publish House', '', '', '', NULL, '2019-10-10 09:53:15', '1'),
 (2, '304950', 98482280, '', 'Shyam Soft', 'pic_1571640636.jpg', 'shyamsoft38@gmail.com', '', '', '', '', 'IA==', NULL, NULL, 1571035221, 1, '1', 'Writer', '', '', '', NULL, '2019-10-14 06:40:21', '1'),
-(3, '276218', 99591519, '', 'IUITR', 'pic_1573126444.', 'RYUYRURYRYUYU', 'male', '', 'YURURYUY', 'YUYU', 'VVVSVVJVUg==', NULL, NULL, 1573126444, 1, '1', 'Writer', 'SDHDHDD', 'android', '', NULL, '2019-11-07 11:34:04', '1');
+(3, '276218', 99591519, '', 'IUITR', 'pic_1573126444.', 'RYUYRURYRYUYU', 'male', '', 'YURURYUY', 'YUYU', 'VVVSVVJVUg==', NULL, NULL, 1573126444, 1, '1', 'Writer', 'SDHDHDD', 'android', '', NULL, '2019-11-07 11:34:04', '1'),
+(4, '496726', 99875169, '', 'ss', 'pic_1573551059.', 'sss', 'male', '', 'sss', 'cc', 'YWFhYw==', NULL, NULL, 1573551059, 1, '1', 'Reader', 'cLl0NjjvgsM:APA91bGMXmfXhbUwHBHnyqR9TbxZAk5BKZbotsZcrin-GAEL8mNRlsD7ybXsZlxa6s04Lu70ajm9yo6j2xWGNYNJ9RTda4eY2ngfLdYfdJPCvw5pk6abT1Chvvaudq3RIO6ie3ak9VUN', 'android', NULL, NULL, '2019-11-12 09:30:59', '1');
 
 -- --------------------------------------------------------
 
@@ -752,7 +763,7 @@ ALTER TABLE `tbl_frnds`
 -- AUTO_INCREMENT for table `tbl_note`
 --
 ALTER TABLE `tbl_note`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `tbl_review`
@@ -764,7 +775,7 @@ ALTER TABLE `tbl_review`
 -- AUTO_INCREMENT for table `user_chats`
 --
 ALTER TABLE `user_chats`
-  MODIFY `id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `user_device_token`
@@ -776,7 +787,7 @@ ALTER TABLE `user_device_token`
 -- AUTO_INCREMENT for table `user_login_table`
 --
 ALTER TABLE `user_login_table`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `WORDS`
