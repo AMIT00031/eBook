@@ -680,6 +680,17 @@ public function getBookbyCategoryId($cat_id){
         }
     }
 	
+	public function getAuthorDetails2($userid) {
+        if($userid !==''){
+            $mysql = "SELECT id,user_name,url,email,about_me, publisher_type,device_token, device_type FROM user_login_table WHERE id ='".$userid."'";
+            $run = mysql_query($mysql);
+            $row = mysql_fetch_object($run);
+            return $row;
+        }else{
+            return NULL;
+        }
+    }
+	
 
 	
 	
@@ -1229,8 +1240,7 @@ public function deleteNoteBook($note_id) {
                 }else{
                 return FALSE;
              }
-
-    }
+          }
 
 
 /*
@@ -1345,7 +1355,6 @@ public function deleteNoteBook($note_id) {
 					OR ( user_chats.sender  = '" . $user_id2 . "' AND  user_chats.receiver  = '" . $user_id . "')
 					limit 0,1
 					";
-					
 			$run = mysql_query($sql);
 			$row = mysql_fetch_object($run);
 			if(!empty($row)){
@@ -1381,15 +1390,34 @@ public function deleteNoteBook($note_id) {
 	
 	public function user_chat_list_history($user_id="")
     {  
-		$sql   = "SELECT  distinct(user_chats.channel_id) as chid, user.id, user.email, user.full_name, user.user_name, user.url as user_pic, user.publisher_type, user_chats.created, user_chats.type, user_chats.message, user_chats.channel_id  FROM user_login_table as user LEFT JOIN user_chats ON (user_chats.sender = user.id OR user_chats.receiver = user.id) WHERE user_chats.sender  = '".$user_id."' GROUP BY user_chats.receiver ORDER BY user_chats.receiver DESC ";
+		//echo $sql   = "SELECT distinct(user_chats.channel_id) as chid, user.id, user.email, user.full_name, user.user_name, user.url as user_pic, user.publisher_type, user_chats.created, user_chats.type, user_chats.message, user_chats.channel_id FROM user_chats LEFT JOIN user_login_table  as user  ON (user_chats.sender = user.id or user_chats.receiver = user.id) WHERE is_active='1' group by id desc ORDER BY user_chats.created DESC";
 		
-		//echo $sql;exit;
+		//$sql   = "SELECT distinct(user_chats.channel_id) as chid,user_chats.* FROM  user_chats as user_chats  WHERE (user_chats.sender = '2' or user_chats.receiver = '2') and is_active='1' and id IN ( SELECT MAX(id) FROM user_chats GROUP BY user_chats.channel_id order by created desc )  GROUP BY user_chats.channel_id ORDER  BY user_chats.created desc";
+		
+		$sql  = "SELECT distinct(user_chats.channel_id) as chid,user_chats.* FROM  user_chats as user_chats  WHERE (user_chats.sender = '".$user_id."' or user_chats.receiver = '".$user_id."') and is_active='1' and id IN ( SELECT MAX(id) FROM user_chats GROUP BY channel_id order by created desc ) GROUP BY channel_id ORDER  BY user_chats.created desc";
+		 
+		// WHERE user_chats.id != '".$user_id."'
 		$result = mysql_query($sql);
+		$otherA = array();
 		$num_rows = mysql_num_rows($result);
 		if ($num_rows > 0) {
-			while($res = mysql_fetch_array($result)){
+			$key=0;
+			while($res = mysql_fetch_object($result)){
+				
+				$sender = $this->getAuthorDetails2($res->sender);
+				$receiver = $this->getAuthorDetails2($res->receiver);
+				//$otherA['sender'] = $sender ;
+				//$otherA['receiver'] = $receiver ;
+				//$otherA = $res;
+				
+				$res->send_detail = $sender;
+				$res->rec_detail = $receiver;
+				
 				$rows[] = $res;
+				
+				$key++; 
 			}
+			//print_r($rows); die;
 			return $rows;
 			
 		}else{
@@ -1398,43 +1426,14 @@ public function deleteNoteBook($note_id) {
     }
 	
 	
-	/* public function user_chat_list_history($user_id="")
-    {  
-		$sql   = "SELECT  distinct(user_chats.channel_id) as chid, user.id, user.email, user.full_name, user.user_name, user.url as user_pic, user.publisher_type, user_chats.created, user_chats.type, user_chats.message, user_chats.channel_id  FROM user_login_table as user LEFT JOIN user_chats ON user_chats.sender  = user.id WHERE user_chats.sender  = '".$user_id."' GROUP BY user_chats.receiver ORDER BY user_chats.created DESC";
-		echo "<pre>";print_r($sql);exit;
-		$result = mysql_query($sql);
-		$num_rows = mysql_num_rows($result);
-		if ($num_rows > 0) {
-			while($res = mysql_fetch_array($result)){
-				
-				$rows['userId'] = $res['id'];
-				$rows['name'] = $res['user_name'];
-				$rows['email'] = $res['email'];
-				$rows['channelId'] = $res['chid'];
-				$rows['created'] = $res['created'];
-				$rows['avatar'] = $res['user_pic'];
-				$rows['message'] = $res['message'];
-			}
-			
-			return $rows;
-			
-		}else{
-			return NULL;
-		}
-		
-    } */
-	
-	
 	public function select_value($table, $data, $where)
     {
 		
 		if($table && $where){ 
 		     $query = "select $data from $table where 1"; 
 			 if($where) $query .= " and ".$where; 
-			
-			 
-			$run = mysql_query($query);
-			$row = mysql_fetch_object($run);
+				$run = mysql_query($query);
+				$row = mysql_fetch_object($run);
 			
 			if(!empty($row)){
 				return $row->$data;
