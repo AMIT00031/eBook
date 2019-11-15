@@ -1306,9 +1306,10 @@ $app->post('/user_chat', function () use ($app){
 	$channelId = "";
 	$message = "";          
 
+    $UserDetails = $db->getAuthorDetails3($userid);
     $arr = $db->getAuthorDetails2($sendTO);
 
-		//echo "<pre>";print_r($arr);exit;
+	//echo "<pre>";print_r($UserDetails);exit;
 	
 	$userList = array();
 	
@@ -1506,9 +1507,61 @@ $app->post('/user_chat', function () use ($app){
 				$chats = array();
 				
 				$chats = $db->user_chats($channelId);
+				$typedata = $app->request->post('type');
 				
-				if($chats)
-				{
+				if(!empty($typedata)){
+					if($typedata == 'file'){
+						$message = 'File';
+					}elseif($typedata == 'image'){
+						$message = 'Image';
+					}elseif($typedata == 'audio'){
+						$message = 'Audio';
+					}elseif($typedata == 'video'){
+						$message = 'Video';
+					}elseif($typedata == 'docfile'){
+						$message = 'Docfile';
+					}
+					
+					$fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+					$token = $arr->device_token; 
+					$notification = [
+						'user_id' => $UserDetails->id, 
+						'UserName' => $UserDetails->user_name, 
+						'Avtar' => $UserDetails->url, 
+						'channel_id' => $UserDetails->channel_id, 
+						'noti_msg' => $message,
+					];
+					
+					//echo "<pre>";print_r($notification);exit;
+
+					$extraNotificationData = ["message" => $notification];        
+					$fcmNotification = [
+						//'registration_ids' => $tokenList, //multple token array
+						'to'        => $token, //single token
+						'notification' => $notification,
+						'data' => $extraNotificationData
+					];
+
+					//echo "<pre>";print_r($fcmNotification);exit;
+
+					$headers = [
+					'Authorization: key='.API_ACCESS_KEY,
+					'Content-Type: application/json'
+					];
+
+					$ch = curl_init();
+					curl_setopt($ch, CURLOPT_URL,$fcmUrl);
+					curl_setopt($ch, CURLOPT_POST, true);
+					curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+					curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmNotification));
+					$result = curl_exec($ch);
+					curl_close($ch);
+					$response['pushMessaage'] = json_decode($result);
+					}
+				
+				if($chats){
 					 $chat_list = array();
 					foreach($chats as $row)
 					{
@@ -1532,42 +1585,9 @@ $app->post('/user_chat', function () use ($app){
 					$response["error"] = false;
 					$response["data"] = $arr;
 					$response["chat_list"] = $chat_list;
-
-                   $fcmUrl = 'https://fcm.googleapis.com/fcm/send';
-				   $token = $arr->device_token; 
-				   $notification = [
-						'noti_msg' => $message,
-					];
-					
-					
-                $extraNotificationData = ["message" => $notification,"book_post" =>'Test data'];        
-                $fcmNotification = [
-                    //'registration_ids' => $tokenList, //multple token array
-                    'to'        => $token, //single token
-                    'notification' => $notification,
-                    'data' => $extraNotificationData
-                ];
-             
-                $headers = [
-                    'Authorization: key='.API_ACCESS_KEY,
-                    'Content-Type: application/json'
-                ];
-
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL,$fcmUrl);
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmNotification));
-                $result = curl_exec($ch);
-                curl_close($ch);
-                $response['pushMessaage'] = json_decode($result);
-
-	
-				$response['status'] = 'success';
-				$response["message"] = "Successfully fetch";
-				echoResponse(200, $response); 
+					$response['status'] = 'success';
+					$response["message"] = "Successfully fetch";
+					echoResponse(200, $response); 
 					
 				}
 			
@@ -1753,58 +1773,26 @@ $app->post('/user_chat_list', function () use ($app){
 	
 	
 $app->post('/delete_chat', function () use ($app){
-	
-	//$channel_id
     $userid = $app->request->post('user_id');
     $response = array();
     $db = new DbOperation();
     $arr = array();
-	$insertData = array();
-	$channelId = "";
-	$message = "";          
-
-    $arr = $db->getAuthorDetails($userid); 
-	$userList = array();
+    $arr = $db->getAuthorDetails3($userid);
+	$channelId = $arr->channel_id;
+    $UpdateUerchat = $db->UpdateUserChat($userid,$channelId);
+	
 	
     if(!empty($arr)){
-		
-		if($userid && $app->request->post('channelId'))
-		{
-				$userId = "";
-				$logsData = array();
-				$logsData['channel_id'] = $app->request->post('channelId');
-				$logsData['user_id'] = $userid;
-				//$this->Api_model->save_data("user_chats_removed", $logsData);
-				$last_id = $db->addEditRecord("user_chats_removed", $logsData);
-				
-				if($last_id){
-					$response["error"] = false;
-					$response["data"] = $arr;
-					$response["userList"] = $user_list_arr;
-					$response["message"] = "success";
-					echoResponse(200, $response);
-				
-				}else{
-					
-					 $response["error"] = true;
-					 $response["status"] = "Failed";
-					 $response["message"] = "Sorry record delted! please try again";
-					 echoResponse(201, $response);
-				}
-			
-		}else{
-			 $response["error"] = true;
-			 $response["status"] = "Failed";
-			  $response["message"] = "User missing! please try again";
-			 echoResponse(201, $response);
-		}
-		
-	}else{
-		
+		$response["error"] = false;
+		$response["status"] = "Success";
+		$response["userData"] = $arr;
+		$response["message"] = "Data listed successfully.";
+		echoResponse(201, $response);		
+	 }else{
 	   $response["error"] = true;
        $response["message"] = "Failed";
 	   $response["message"] = "Something went wrong! please try again";
-       echoResponse(201, $response);
+       echoResponse(200, $response);
 	
 	}
 	
@@ -1869,7 +1857,7 @@ $app->post('/sendEmailData', function () use ($app) {
 
 
 
-/******************************************************************************* */
+/********************************************************************************/
 
 function echoResponse($status_code, $response){
     $app = \Slim\Slim::getInstance();
