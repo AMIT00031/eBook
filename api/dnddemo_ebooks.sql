@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 13, 2019 at 11:53 AM
+-- Generation Time: Nov 15, 2019 at 12:18 PM
 -- Server version: 5.6.45-log
 -- PHP Version: 7.2.7
 
@@ -188,8 +188,8 @@ CREATE TABLE `tbl_books` (
 
 INSERT INTO `tbl_books` (`id`, `user_id`, `category_id`, `book_title`, `book_slug`, `thubm_image`, `book_description`, `author_name`, `book_image`, `video_url`, `audio_url`, `pdf_url`, `question_data`, `isbn_number`, `mostView`, `status`, `created_at`, `updated_at`) VALUES
 (1, '1', '1', 'The Good Son', 'the good son', 'book_1570701749.jpg', 'dsg yeey wedyswd sdysd isydis isydiusd sidius dsyd sduyd sydsdy sidysd sydsdy sydsdysd sdysydsdy sidysdy sdysudy sydusyd sdysudy syds dsydsyd sure Susan \nosdusds dsdsud sdusdsudsud sudid oisdoi osiud sodusoduosd soudsd sudisdsi siidsdosd oisiudosd sdsudosdosduosudosduosdu sodou soiudos osdudiud osidusoidus', 'Vansh', '', '', '', '', '[\"thst so sdyd sddx ckck khkd ?\",\"sdshd sdsyd sydsuyd dsdu sdsdj do?\"]', NULL, '163', 0, '2019-10-10 00:00:00', '2019-10-10 10:02:29'),
-(2, '1', '1', 'ddd', 'ddd', 'book_1571040310.jpg', 'dddd', 'ddd', '', '', '', '', '[\"ddddd\"]', NULL, '95', 1, '2019-10-14 00:00:00', '2019-10-14 08:05:10'),
-(3, '1', '1', 'ggfdgd', 'ggfdgd', 'book_1571040448.jpg', 'gdgdg', 'dgdg', '', '', '', 'document_1571040448.pdf', '[]', NULL, '62', 1, '2019-10-14 00:00:00', '2019-10-14 08:07:28'),
+(2, '1', '1', 'ddd', 'ddd', 'book_1571040310.jpg', 'dddd', 'ddd', '', '', '', '', '[\"ddddd\"]', NULL, '96', 1, '2019-10-14 00:00:00', '2019-10-14 08:05:10'),
+(3, '1', '1', 'ggfdgd', 'ggfdgd', 'book_1571040448.jpg', 'gdgdg', 'dgdg', '', '', '', 'document_1571040448.pdf', '[]', NULL, '71', 1, '2019-10-14 00:00:00', '2019-10-14 08:07:28'),
 (4, '1', '1', 'de', 'de', 'book_1571042971.jpg', 'ddd', 'dddd', '', '', '', 'document_1571042971.pdf', '[]', NULL, '36', 1, '2019-10-14 00:00:00', '2019-10-14 08:49:31'),
 (5, '1', '1', 'sd', 'sd', 'book_1571043066.jpg', 'sdss', 's', '', '', '', '', '[\"ssss\",\"ddddd\"]', NULL, '19', 0, '2019-10-14 00:00:00', '2019-10-14 08:51:06'),
 (6, '1', '2', 'ff', 'ff', 'book_1571045911.jpg', 'cc', 'cc', '', '', 'audio_1571045911.mp3', 'document_1571045911.PDF', '[]', NULL, '6', 0, '2019-10-14 00:00:00', '2019-10-14 09:38:31'),
@@ -366,6 +366,7 @@ CREATE TABLE `tbl_note` (
 INSERT INTO `tbl_note` (`id`, `user_id`, `title`, `description`, `status`, `created_at`, `updated_at`) VALUES
 (7, '1', NULL, 'rtt\nn', '1', '2019-10-19 10:34:24', '2019-10-19 10:34:24'),
 (2, '6', NULL, 'ghh', '1', '2019-10-10 14:47:35', '2019-10-10 14:47:35'),
+(12, '2', NULL, 'hii\n', '1', '2019-11-15 06:01:46', '2019-11-15 06:01:46'),
 (10, '1', NULL, 'raqhhh ddd do do do do do ', '1', '2019-10-25 07:37:35', '2019-10-25 07:37:18');
 
 -- --------------------------------------------------------
@@ -416,28 +417,93 @@ CREATE TABLE `user_chats` (
   `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `modified` timestamp NULL DEFAULT NULL,
   `read_msg` enum('0','1') DEFAULT '0',
-  `is_active` enum('0','1') DEFAULT '1'
+  `is_active` enum('0','1') DEFAULT '1',
+  `is_deleted` enum('0','1') NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `user_chats`
 --
 
-INSERT INTO `user_chats` (`id`, `channel_id`, `sender`, `receiver`, `type`, `message`, `created`, `modified`, `read_msg`, `is_active`) VALUES
-(1, 584811, 4, 1, 'text', 'gg', '2019-11-13 11:21:22', NULL, '0', '1'),
-(2, 584811, 1, 4, 'text', 'ttt', '2019-11-13 11:21:39', NULL, '0', '1'),
-(3, 362732, 4, 3, 'text', 'ggg', '2019-11-13 11:21:58', NULL, '0', '1'),
-(4, 478177, 1, 3, 'text', 'ffff', '2019-11-13 11:22:27', NULL, '0', '1'),
-(5, 584811, 4, 1, 'text', 'hhh', '2019-11-13 11:22:41', NULL, '0', '1'),
-(6, 584811, 4, 1, 'text', 'jj', '2019-11-13 11:23:14', NULL, '0', '1'),
-(7, 584811, 1, 4, 'image', 'upload/chats/gallery/gallery_1573644223.jpg', '2019-11-13 11:23:43', NULL, '0', '1'),
-(8, 297146, 4, 2, 'text', 'dgdgdg', '2019-11-13 11:26:29', NULL, '0', '1'),
-(9, 297146, 2, 4, 'text', 'hii', '2019-11-13 11:31:31', NULL, '0', '1'),
-(10, 297146, 4, 2, 'text', 'ccc', '2019-11-13 11:31:43', NULL, '0', '1'),
-(11, 297146, 2, 4, 'image', 'upload/chats/gallery/gallery_1573644725.jpg', '2019-11-13 11:32:05', NULL, '0', '1'),
-(12, 297146, 4, 2, 'image', 'upload/chats/gallery/gallery_1573644754.jpg', '2019-11-13 11:32:34', NULL, '0', '1'),
-(13, 297146, 2, 4, 'image', 'upload/chats/gallery/gallery_1573644823.jpg', '2019-11-13 11:33:43', NULL, '0', '1'),
-(14, 571017, 2, 3, 'text', 'hii', '2019-11-13 11:35:47', NULL, '0', '1');
+INSERT INTO `user_chats` (`id`, `channel_id`, `sender`, `receiver`, `type`, `message`, `created`, `modified`, `read_msg`, `is_active`, `is_deleted`) VALUES
+(1, 373625, 6, 4, 'text', 'hi', '2019-11-15 08:48:34', NULL, '0', '1', '1'),
+(2, 373625, 6, 4, 'text', 'hi', '2019-11-15 08:48:57', NULL, '0', '1', '1'),
+(3, 373625, 6, 4, 'text', 'huu', '2019-11-15 08:53:08', NULL, '0', '1', '1'),
+(4, 373625, 6, 4, 'text', 'hh', '2019-11-15 08:56:29', NULL, '0', '1', '1'),
+(5, 373625, 6, 4, 'text', 'hh', '2019-11-15 08:58:15', NULL, '0', '1', '1'),
+(6, 373625, 6, 4, 'text', 'bb', '2019-11-15 08:58:37', NULL, '0', '1', '1'),
+(7, 373625, 6, 4, 'text', 'hahaha', '2019-11-15 09:00:29', NULL, '0', '1', '1'),
+(8, 373625, 6, 4, 'text', 'hhs', '2019-11-15 09:00:41', NULL, '0', '1', '1'),
+(9, 373625, 6, 4, 'text', 'gaag', '2019-11-15 09:00:58', NULL, '0', '1', '1'),
+(10, 373625, 6, 4, 'text', 'ss', '2019-11-15 09:01:18', NULL, '0', '1', '1'),
+(11, 373625, 6, 4, 'text', 'ff', '2019-11-15 09:01:24', NULL, '0', '1', '1'),
+(12, 373625, 6, 4, 'text', 'hh', '2019-11-15 09:02:45', NULL, '0', '1', '1'),
+(13, 373625, 6, 4, 'text', 'bb', '2019-11-15 09:03:24', NULL, '0', '1', '1'),
+(14, 373625, 6, 4, 'text', 'hh', '2019-11-15 09:09:08', NULL, '0', '1', '1'),
+(15, 373625, 6, 4, 'text', 'vb', '2019-11-15 09:09:22', NULL, '0', '1', '1'),
+(16, 373625, 6, 4, 'text', 'gg', '2019-11-15 09:10:27', NULL, '0', '1', '1'),
+(17, 373625, 6, 4, 'text', 'gh', '2019-11-15 09:11:37', NULL, '0', '1', '1'),
+(18, 373625, 6, 4, 'text', 'bh', '2019-11-15 09:15:27', NULL, '0', '1', '1'),
+(19, 373625, 6, 4, 'text', 'bb', '2019-11-15 09:15:38', NULL, '0', '1', '1'),
+(20, 373625, 6, 4, 'text', 'cff', '2019-11-15 09:15:47', NULL, '0', '1', '1'),
+(21, 373625, 6, 4, 'text', 'hh', '2019-11-15 09:18:46', NULL, '0', '1', '1'),
+(22, 373625, 6, 4, 'text', 'bh', '2019-11-15 09:18:59', NULL, '0', '1', '1'),
+(23, 373625, 6, 4, 'text', 'sdd', '2019-11-15 09:19:14', NULL, '0', '1', '1'),
+(24, 373625, 6, 4, 'image', 'upload/chats/gallery/gallery_1573809575.jpg', '2019-11-15 09:19:35', NULL, '0', '1', '1'),
+(25, 373625, 6, 4, 'image', 'upload/chats/gallery/gallery_1573809600.jpg', '2019-11-15 09:20:00', NULL, '0', '1', '1'),
+(26, 373625, 6, 4, 'image', 'upload/chats/gallery/gallery_1573809609.jpg', '2019-11-15 09:20:09', NULL, '0', '1', '1'),
+(27, 373625, 4, 6, 'text', 'xx', '2019-11-15 09:25:33', NULL, '0', '1', '1'),
+(28, 373625, 4, 6, 'text', 'ssss', '2019-11-15 09:25:43', NULL, '0', '1', '1'),
+(29, 373625, 4, 6, 'text', 'xss', '2019-11-15 09:25:53', NULL, '0', '1', '1'),
+(30, 373625, 6, 4, 'text', 'hh', '2019-11-15 09:27:09', NULL, '0', '1', '1'),
+(31, 373625, 6, 4, 'text', 'hh', '2019-11-15 09:27:09', NULL, '0', '1', '1'),
+(32, 373625, 4, 6, 'text', 'vv', '2019-11-15 09:27:40', NULL, '0', '1', '1'),
+(33, 373625, 4, 6, 'text', 'vv', '2019-11-15 09:27:45', NULL, '0', '1', '1'),
+(34, 373625, 6, 4, 'text', 'jj', '2019-11-15 09:27:53', NULL, '0', '1', '1'),
+(35, 373625, 6, 4, 'text', 'bb', '2019-11-15 09:28:07', NULL, '0', '1', '1'),
+(36, 373625, 6, 4, 'text', 'bb', '2019-11-15 09:28:08', NULL, '0', '1', '1'),
+(37, 373625, 6, 4, 'text', 'hh', '2019-11-15 09:28:16', NULL, '0', '1', '1'),
+(38, 373625, 6, 4, 'text', 'hh', '2019-11-15 09:28:17', NULL, '0', '1', '1'),
+(39, 373625, 6, 4, 'image', 'upload/chats/gallery/gallery_1573810152.jpg', '2019-11-15 09:29:12', NULL, '0', '1', '1'),
+(40, 373625, 6, 4, 'image', 'upload/chats/gallery/gallery_1573810158.jpg', '2019-11-15 09:29:18', NULL, '0', '1', '1'),
+(41, 373625, 6, 4, 'image', 'upload/chats/gallery/gallery_1573810159.jpg', '2019-11-15 09:29:19', NULL, '0', '1', '1'),
+(42, 946662, 6, 5, 'text', 'hi', '2019-11-15 09:39:16', NULL, '0', '1', '1'),
+(43, 946662, 6, 5, 'text', 'hhh', '2019-11-15 09:39:35', NULL, '0', '1', '1'),
+(44, 946662, 6, 5, 'text', 'ff', '2019-11-15 09:40:08', NULL, '0', '1', '1'),
+(45, 946662, 5, 6, 'text', 'heel', '2019-11-15 09:40:16', NULL, '0', '1', '0'),
+(46, 946662, 5, 6, 'image', 'upload/chats/gallery/gallery_1573810834.jpg', '2019-11-15 09:40:34', NULL, '0', '1', '0'),
+(47, 946662, 5, 6, 'image', 'upload/chats/gallery/gallery_1573810868.jpg', '2019-11-15 09:41:08', NULL, '0', '1', '0'),
+(48, 373625, 6, 4, 'text', 'hii', '2019-11-15 10:34:21', NULL, '0', '1', '1'),
+(49, 209850, 2, 4, 'image', 'upload/chats/gallery/gallery_1573814078.jpg', '2019-11-15 10:34:38', NULL, '0', '1', '1'),
+(50, 373625, 6, 4, 'text', 'bh', '2019-11-15 10:35:23', NULL, '0', '1', '1'),
+(51, 373625, 6, 4, 'text', 'hh', '2019-11-15 10:35:33', NULL, '0', '1', '1'),
+(52, 209850, 2, 4, 'text', 'smothing is good', '2019-11-15 10:35:43', NULL, '0', '1', '1'),
+(53, 209850, 2, 4, 'image', 'upload/chats/gallery/gallery_1573814160.jpg', '2019-11-15 10:36:00', NULL, '0', '1', '1'),
+(54, 373625, 6, 4, 'text', 'bb', '2019-11-15 10:36:25', NULL, '0', '1', '1'),
+(55, 373625, 6, 4, 'image', 'upload/chats/gallery/gallery_1573814249.jpg', '2019-11-15 10:37:29', NULL, '0', '1', '1'),
+(56, 373625, 6, 4, 'text', 'hy', '2019-11-15 10:48:24', NULL, '0', '1', '1'),
+(57, 373625, 6, 4, 'text', 'hh', '2019-11-15 10:50:20', NULL, '0', '1', '1'),
+(58, 373625, 6, 4, 'text', 'HH', '2019-11-15 10:50:49', NULL, '0', '1', '1'),
+(59, 373625, 6, 4, 'text', 'hh', '2019-11-15 10:52:30', NULL, '0', '1', '1'),
+(60, 373625, 6, 4, 'text', 'hh', '2019-11-15 10:55:09', NULL, '0', '1', '1'),
+(61, 373625, 6, 4, 'text', 'hu', '2019-11-15 10:57:27', NULL, '0', '1', '1'),
+(62, 373625, 6, 4, 'text', 'bb', '2019-11-15 10:59:08', NULL, '0', '1', '1'),
+(63, 373625, 6, 4, 'text', 'hh', '2019-11-15 10:59:16', NULL, '0', '1', '1'),
+(64, 373625, 6, 4, 'text', 'gg', '2019-11-15 11:06:15', NULL, '0', '1', '1'),
+(65, 373625, 6, 4, 'text', 'bj', '2019-11-15 11:08:17', NULL, '0', '1', '1'),
+(66, 373625, 6, 4, 'text', 'hh', '2019-11-15 11:15:10', NULL, '0', '1', '1'),
+(67, 373625, 6, 4, 'text', 'dd', '2019-11-15 11:16:10', NULL, '0', '1', '1'),
+(68, 373625, 6, 4, 'text', 'bh', '2019-11-15 11:20:37', NULL, '0', '1', '1'),
+(69, 373625, 6, 4, 'text', 'hhhhh', '2019-11-15 11:22:07', NULL, '0', '1', '1'),
+(70, 373625, 6, 4, 'text', 'ff', '2019-11-15 11:22:18', NULL, '0', '1', '1'),
+(71, 373625, 6, 4, 'text', 'hhaa ', '2019-11-15 11:23:35', NULL, '0', '1', '1'),
+(72, 373625, 6, 4, 'text', 'yu', '2019-11-15 11:24:25', NULL, '0', '1', '1'),
+(73, 373625, 6, 4, 'image', 'upload/chats/gallery/gallery_1573817084.jpg', '2019-11-15 11:24:44', NULL, '0', '1', '1'),
+(74, 373625, 4, 6, 'image', 'upload/chats/gallery/gallery_1573817103.jpg', '2019-11-15 11:25:03', NULL, '0', '1', '1'),
+(75, 373625, 4, 6, 'image', 'upload/chats/gallery/gallery_1573817123.jpg', '2019-11-15 11:25:23', NULL, '0', '1', '1'),
+(76, 373625, 4, 6, 'text', 'dfddfgg', '2019-11-15 11:25:36', NULL, '0', '1', '1'),
+(77, 667770, 1, 6, 'text', 'ff', '2019-11-15 11:26:12', NULL, '0', '1', '0'),
+(78, 373625, 6, 4, 'text', 'hy', '2019-11-15 11:27:47', NULL, '0', '1', '1');
 
 -- --------------------------------------------------------
 
@@ -552,9 +618,11 @@ CREATE TABLE `user_login_table` (
 
 INSERT INTO `user_login_table` (`id`, `register_id`, `chat_id`, `full_name`, `user_name`, `url`, `email`, `gender`, `phone_no`, `about_me`, `country`, `password`, `confirmation_key`, `date_added`, `date_edited`, `status`, `message_status`, `publisher_type`, `device_token`, `device_type`, `address`, `thumb_image`, `createdAt`, `global_posting`) VALUES
 (1, '637426', 98300993, '', 'Vansh raj', 'pic_1571640636.jpg', 'vansh1996raj@gmail.com', '', '', 'fdhf dfdfff sdf dfhk kdhkfh dhf fkdfhkdfh khfkfhk kffh fdfyuduf dfudjfk FJ dfdufdf dufiu fodufo dfudufuid', '', 'IA==', NULL, NULL, 1570701195, 1, '1', 'Publish House', '', '', '', NULL, '2019-10-10 09:53:15', '1'),
-(2, '304950', 98482280, '', 'Shyam Soft', 'pic_1571640636.jpg', 'shyamsoft38@gmail.com', '', '', '', '', 'IA==', NULL, NULL, 1571035221, 1, '1', 'Writer', '', '', '', NULL, '2019-10-14 06:40:21', '1'),
+(2, '304950', 98482280, '', 'Shyam Soft', 'pic_1571640636.jpg', 'shyamsoft38@gmail.com', '', '', '', '', 'MTIzNDU2', NULL, NULL, 1571035221, 1, '1', 'Writer', 'ddddddd321', 'eeeeeee123', '', NULL, '2019-10-14 06:40:21', '1'),
 (3, '276218', 99591519, '', 'IUITR', 'pic_1573126444.', 'RYUYRURYRYUYU', 'male', '', 'YURURYUY', 'YUYU', 'VVVSVVJVUg==', NULL, NULL, 1573126444, 1, '1', 'Writer', 'SDHDHDD', 'android', '', NULL, '2019-11-07 11:34:04', '1'),
-(4, '496726', 99875169, '', 'ss', 'pic_1573551059.', 'sss', 'male', '', 'sss', 'cc', 'YWFhYw==', NULL, NULL, 1573551059, 1, '1', 'Reader', 'cLl0NjjvgsM:APA91bGMXmfXhbUwHBHnyqR9TbxZAk5BKZbotsZcrin-GAEL8mNRlsD7ybXsZlxa6s04Lu70ajm9yo6j2xWGNYNJ9RTda4eY2ngfLdYfdJPCvw5pk6abT1Chvvaudq3RIO6ie3ak9VUN', 'android', NULL, NULL, '2019-11-12 09:30:59', '1');
+(4, '496726', 99875169, '', 'ss', 'pic_1573551059.', 'sss', 'male', '', 'sss', 'cc', 'YWFhYw==', NULL, NULL, 1573551059, 1, '1', 'Reader', 'cLl0NjjvgsM:APA91bGMXmfXhbUwHBHnyqR9TbxZAk5BKZbotsZcrin-GAEL8mNRlsD7ybXsZlxa6s04Lu70ajm9yo6j2xWGNYNJ9RTda4eY2ngfLdYfdJPCvw5pk6abT1Chvvaudq3RIO6ie3ak9VUN', 'android', NULL, NULL, '2019-11-12 09:30:59', '1'),
+(5, '919199', 100058049, '', 'amit', 'pic_1573804586.', 'haha', 'male', '', 'hahha', 'Pakistan', 'MTIz', NULL, NULL, 1573804586, 1, '1', 'Writer', 'coogTnns-lE:APA91bE7IimYYBY1lsETokGYGmVLHX3k382SI-BxdJiLowtjXmtOjxdZ8VggP2icdJUjZkug6GCXB9uAAGT6THT6djcsiJbT50y0EhK8b5osqe_XLa638R9GUayvMtmQ9awLhu1nSXiT', 'android', NULL, NULL, '2019-11-15 07:56:26', '1'),
+(6, '535452', 98301022, '', 'demo', 'pic_1573804637.', 'bbaa', 'male', '', 'hshsh', 'hshs', 'MTIz', NULL, NULL, 1573804637, 1, '1', 'Writer', 'eTKlywT3x3Y:APA91bE5_UMXu0NvAS1q3M2vAFLVEf8QOZayzmkTq2m99w4vUNUEG2Z8BBlCdOH9EZW-WkLrXxwrD6GlalFQCqBNMp_oDx1UeGx_KTgy-zEz-DPl8dESkLsJIhcVWBfFdhpqQqYE42Tr', 'android', NULL, NULL, '2019-11-15 07:57:17', '1');
 
 -- --------------------------------------------------------
 
@@ -763,7 +831,7 @@ ALTER TABLE `tbl_frnds`
 -- AUTO_INCREMENT for table `tbl_note`
 --
 ALTER TABLE `tbl_note`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `tbl_review`
@@ -775,7 +843,7 @@ ALTER TABLE `tbl_review`
 -- AUTO_INCREMENT for table `user_chats`
 --
 ALTER TABLE `user_chats`
-  MODIFY `id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` bigint(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- AUTO_INCREMENT for table `user_device_token`
@@ -787,7 +855,7 @@ ALTER TABLE `user_device_token`
 -- AUTO_INCREMENT for table `user_login_table`
 --
 ALTER TABLE `user_login_table`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `WORDS`
