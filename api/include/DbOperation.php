@@ -66,7 +66,7 @@ class DbOperation {
         $mysql = "SELECT * FROM user_login_table WHERE (user_name='".$user_name."') and password='".$password."'";
         $run = mysql_query($mysql);
         $num_rows = mysql_num_rows($run);
-        $mysql = mysql_query("update user_login_table set device_token='".$device_token."' ,device_type='".$device_type."' where email='".$user_name."'");
+        $mysql = mysql_query("update user_login_table set device_token='".$device_token."' ,device_type='".$device_type."' where user_name='".$user_name."'");		
         return $num_rows > 0;
     }
 
@@ -692,8 +692,28 @@ public function getBookbyCategoryId($cat_id){
     }
 	
 
+	public function getAuthorDetails3($userid) {
+        if($userid !==''){
+            $mysql = "SELECT DISTINCT(user_login_table.id),user_login_table.user_name, user_login_table.url, user_login_table.chat_id,user_chats.channel_id FROM user_login_table LEFT JOIN user_chats ON user_login_table.id = user_chats.sender WHERE user_chats.sender ='".$userid."'";
+            $run = mysql_query($mysql);
+            $row = mysql_fetch_object($run);
+            return $row;
+        }else{
+            return NULL;
+        }
+    }
 	
 	
+	function UpdateUserChat($userid, $channelId){
+        $mysql = "UPDATE user_chats SET is_deleted = '1' WHERE sender = '6'";
+		echo $mysql;exit;
+        $run = mysql_query($mysql);
+        if($run > 0){
+            return 0;
+        }else{
+            return 1;
+        }
+    }
 	
 
 
