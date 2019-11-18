@@ -1309,7 +1309,7 @@ $app->post('/user_chat', function () use ($app){
     $UserDetails = $db->getAuthorDetails3($userid);
     $arr = $db->getAuthorDetails2($sendTO);
 
-	//echo "<pre>";print_r($UserDetails);exit;
+	//echo "<pre>";print_r($arr); die;
 	
 	$userList = array();
 	
@@ -1427,8 +1427,9 @@ $app->post('/user_chat', function () use ($app){
 				  }
 				} */
 			}else{ 
-				$message = $app->request->post('message');
+				$message = $app->request->post('message'); 
 			}
+			
 			
 			$query_state = "set channel_id='".$channelId."',sender='".$userid."',receiver='".$app->request->post('sendTO')."',type='".$app->request->post('type')."',message='".$message."' "; 
 			if($message!=''){
@@ -1507,9 +1508,10 @@ $app->post('/user_chat', function () use ($app){
 				$chats = array();
 				
 				$chats = $db->user_chats($channelId);
+				
 				$typedata = $app->request->post('type');
 				
-				if(!empty($typedata)){
+				 if(!empty($typedata)){
 					if($typedata == 'file'){
 						$message = 'File';
 					}elseif($typedata == 'image'){
@@ -1522,17 +1524,18 @@ $app->post('/user_chat', function () use ($app){
 						$message = 'Docfile';
 					}
 					
+					
 					$fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 					$token = $arr->device_token; 
 					$notification = [
 						'user_id' => $UserDetails->id, 
 						'UserName' => $UserDetails->user_name, 
 						'Avtar' => $UserDetails->url, 
-						'channel_id' => $UserDetails->channel_id, 
+						'channel_id' => $channelId, 
 						'noti_msg' => $message,
 					];
 					
-					//echo "<pre>";print_r($notification);exit;
+					
 
 					$extraNotificationData = ["message" => $notification];        
 					$fcmNotification = [
@@ -1559,10 +1562,13 @@ $app->post('/user_chat', function () use ($app){
 					$result = curl_exec($ch);
 					curl_close($ch);
 					$response['pushMessaage'] = json_decode($result);
-					}
-				
+					} 
+				 
+				 //echo "<pre>";print_r($chats);exit('pf');
+					
+					
 				if($chats){
-					 $chat_list = array();
+					 $chat_list = array(); 
 					foreach($chats as $row)
 					{
 						$msg = "";
@@ -1580,7 +1586,7 @@ $app->post('/user_chat', function () use ($app){
 							"message" => $msg
 						);
 					}
-					//echo "<pre>";print_r($arr);exit('push data');
+					//echo "<pre>";print_r($chat_list);exit('push data');
 					
 					$response["error"] = false;
 					$response["data"] = $arr;
