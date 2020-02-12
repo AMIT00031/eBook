@@ -8,40 +8,152 @@ require '.././libs/Slim/Slim.php';
 \Slim\Slim::registerAutoloader();
 define('API_ACCESS_KEY','AAAA2RSvweQ:APA91bEnwlkf53HXU4559AUAIgsoEgnPLwDT3tw1cpju0WIPPdguWgmYEHHWGONZ4aNaxn8jAw0s5lbNbbJqFd1w-aEnHJ-5G-36bw3m5lj3u53e15RoERzNBoUX8O8cam40Qmy77d8G'); 
 
+require_once "FaceDetector.php";
+
 /*define("ROOT_FOLDER","/ebooks/development/");
 define("DOCUMENTROOT",$_SERVER['DOCUMENT_ROOT'].ROOT_FOLDER);*/
 
 $app = new \Slim\Slim(); 
+
+
+/**
+ * URL: http://dnddemo.com/ebooks/api/v1/userFaceLogin
+ * Parameters: user_id, image_name
+ * Method: POST
+ * */
+ 
+$app->post('/userFaceLogin', function () use ($app) {
+    $_['en_login_msg'] = "Invalid image";
+    $_['en_login_user_msg'] = "Please provide user image";
+    
+	//verifyRequiredParams(array('password'));
+
+	$upload_path = 'upload/';
+	
+	$fileinfo = pathinfo($_FILES['face_detect_image']['name']);
+	
+	$extension = $fileinfo['extension'];
+	
+	if ( !empty($extension) && !empty($fileinfo['filename'])){
+		//$file_url = $upload_url . 'face_' . time() . '.' . $extension;
+		
+		$file_path = $upload_path . 'face_'.$fileinfo['filename'].'_' . time() . '.' . $extension;
+		move_uploaded_file($_FILES['face_detect_image']['tmp_name'], $file_path);
+	}
+			
+	if(!empty($fileinfo['filename'])) {
+		
+		$face_detect = new Face_Detector('detection.dat');
+		
+		//$img = 'ebooks/api/v1/vansh.jpg';
+		
+		$img = $_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$file_path;
+		
+		$user_image_detail = $face_detect->face_detect($img); //get user cordination with script
+		
+		//print_r($user_image_detail); die;
+
+		$lang = 'en';
+		
+		$db = new DbOperation(); 
+		
+		$response = array();
+		
+		unlink($_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$file_path); 
+		
+		$user_deatil = $db->userfacelogin($user_image_detail['x'], $user_image_detail['y'], $user_image_detail['w']);
+	   
+	   //print_r($user_deatil);  die;
+	   
+		if(!empty($user_deatil)){
+			
+			$email = $user_deatil->email;
+			$user_name = $user_deatil->user_name;
+			$password = $user_deatil->password;
+			//$device_token = $user_deatil->device_token;
+			//$device_type = $user_deatil->device_type;
+		   //if ($db->userlogin($email, $user_name, $password, $device_token, $device_type)){
+			$users = $db->getFaceUser($email, $user_name, $password);
+			//echo "<pre>";print_r($users);exit();
+			$response['error'] = false;
+			$response['response'] = $users;
+		   
+		}else{
+			$response['error'] = true;
+			$response['message'] = $_[$lang . '_login_msg']; //"Invalid username or password";
+		}
+	
+	}else{
+		
+		$response['error'] = true;
+		$response['message'] = $_[$lang . '_login_user_msg']; //"Invalid Image";
+		
+	}
+    echoResponse(200, $response);
+});
+
+
+/* apli create user login http://dnddemo.com/ebooks/api/v1/createUser */
+
 $app->post('/createUser', function () use ($app) {
 
  ///echo "<pre>";print_r($_POST);exit('signup');
     $_['en_create_user_msg1'] = "You are successfully registered";
     $_['en_create_user_msg2'] = "Oops! An error occurred while registereing";
     $_['en_create_user_msg3'] = "Sorry, this user  already existed";
+    $_['en_create_user_msg4'] = "Email id not exists";
     verifyRequiredParams(array('email','user_name'));
     $response = array();
     $full_name = $app->request->post('full_name');
-    $password = $app->request->post('password');
+    
     $email = $app->request->post('email');
     $phone_no = $app->request->post('phone_no');
     $device_token = $app->request->post('device_token');
     $device_type = $app->request->post('device_type');
     $random_number = mt_rand(100000, 999999);
+	
+	$login_type = $app->request->post('login_type');
+	if($login_type=="facebook" || $login_type=="google"){
+		$password  = time();
+	}else {
+		$password = $app->request->post('password');
+	}
+	
     $lang = 'en';
     $country = $app->request->post('country');
     $gender = $app->request->post('gender');
     $publisher_type = $app->request->post('publisher_type');
     $user_name = $app->request->post('user_name');
+	
     $about_me = $app->request->post('about_me');
-        $upload_path = 'upload/';
-        $fileinfo = pathinfo($_FILES['image']['name']);
-        $extension = $fileinfo['extension'];
-        $file_url = $upload_url . 'pic_' . time() . '.' . $extension;
-        $file_path = $upload_path . 'pic_' . time() . '.' . $extension;
-        move_uploaded_file($_FILES['image']['tmp_name'], $file_path);
-
+	$upload_path = 'upload/';
+	$fileinfo = pathinfo($_FILES['image']['name']);
+	$extension = $fileinfo['extension'];
+	$file_url = $upload_url . 'pic_' . time() . '.' . $extension;
+	$file_path = $upload_path . 'pic_' . time() . '.' . $extension;
+	move_uploaded_file($_FILES['image']['tmp_name'], $file_path);
+	
+	
+	//$upload_path = 'upload/';
+	
+	$fileinfo = pathinfo($_FILES['face_detect_image']['name']);
+	$extension = $fileinfo['extension'];
+	if ( !empty($extension) && !empty($fileinfo['filename'])){
+		//$file_url = $upload_url . 'face_' . time() . '.' . $extension;
+		$file_path = $upload_path . 'face_'.$fileinfo['filename'].'_' . time() . '.' . $extension;
+		move_uploaded_file($_FILES['face_detect_image']['tmp_name'], $file_path);
+	}
+			
+	if(!empty($fileinfo['filename'])) {
+		$face_detect = new Face_Detector('detection.dat');
+		//$img = 'ebooks/api/v1/vansh.jpg';
+		$img = $_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$file_path;
+		$user_image_detail = $face_detect->face_detect($img); //get user cordination with script
+		unlink($_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$file_path); 
+	}	
+		
     $db = new DbOperation();
-    $res = $db->createUser($full_name, $password, $email, $phone_no,$file_url, $device_token, $device_type, $random_number, $country, $gender, $publisher_type, $user_name,$about_me);
+    $res = $db->createUser($full_name, $password, $email, $phone_no,$file_url, $device_token, $device_type, $random_number, $country, $gender, $publisher_type, $user_name,$about_me,$user_image_detail['x'],$user_image_detail['y'],$user_image_detail['w'],$login_type);
         $resParse = explode('&', $res);
         $user_id = $resParse[0];
         $email = $resParse[1];
@@ -64,11 +176,22 @@ $app->post('/createUser', function () use ($app) {
         echoResponse(200, $response);
     } else if($res == 2){
          //echo "<pre>";print_r($email);exit();
-        $response["error"] = false;
-        $users = $db->getUserInfoByEmail($email);
-        $response['user_data'] = $users;
-        $response["message"] = $_[$lang .'_create_user_msg3'];
-        echoResponse(200, $response);
+		 
+        
+		$updateUser = $db->updateUser($device_type,$device_token,$login_type,$email);
+		if($updateUser){
+			
+			$users = $db->getUserInfoByEmail($email);
+			$response["error"] = false;
+			$response['user_data'] = $users;
+			$response["message"] = $_[$lang .'_create_user_msg3'];
+			echoResponse(200, $response);
+		}else{
+			$response["error"] = true;
+			$response["message"] = $_[$lang . '_create_user_msg4'];
+			echoResponse(200, $response);
+		}
+        
     }
 });
 
@@ -102,6 +225,8 @@ $app->post('/userLogin', function () use ($app) {
     }
     echoResponse(200, $response);
 });
+
+
 
 /**
  * URL: http://dnddemo.com/ebooks/api/v1/getUserInfo
@@ -359,6 +484,7 @@ $app->post('/UpdatePrfilePic', function () use ($app) {
  * */
 
 $app->post('/updatePassword', function () use ($app) {
+	
     verifyRequiredParams(array('user_id'));
     $_['en_oops_error'] = "Oops! some error occurs.";
     $_['en_updatePassword'] = "Your password is updated successfully.";
@@ -410,7 +536,7 @@ $app->post('/forgetPassword', function () use ($app) {
         echoResponse(201, $response);
     } else if ($res == 1) {
         $response["error"] = true;
-        $response["message"] = $_[$lang . '_oops_error'];
+        $response["message"] = $_[$lang . '_oops_error']; 
         echoResponse(200, $response);
     }
 });
@@ -426,11 +552,24 @@ $app->post('/getAllCategory', function() use ($app) {
     $_['en_categorymsg'] = "listed all category successfully.";
     $lang = 'en';
     $db = new DbOperation();
-    $response = array();
+    $response = array(); 
     $res = $db->allCategoryList();
+	
+	$datas = array();
     if($res!= 1){
+		foreach($res as $key=>$result){ 
+			$datas[$key]['id'] = $result->id; 
+            $datas[$key]['category_name'] = $result->category_name; 
+            $datas[$key]['slug_url'] = $result->slug_url; 
+            $datas[$key]['description'] =utf8_decode($result->description);
+            $datas[$key]['status'] = $result->status; 
+            $datas[$key]['thum_image'] = $result->thum_image; 
+            $datas[$key]['created'] = $result->created; 
+            $datas[$key]['created_at'] = $result->created_at; 
+            $datas[$key]['updated_at'] = $result->updated_at; 
+		}
         $response['error'] = false;
-        $response['response'] = $res;
+        $response['response'] = $datas;
     }else{
         $response['error'] = true;
         $response['message'] = $_[$lang . '_categorymsg'];
@@ -451,7 +590,11 @@ $app->post('/addNewBook', function () use ($app){
     	/*$_POST = json_decode($_POST['questiondata']);
     echo "<pre>";print_r($_POST);exit;*/
     verifyRequiredParams(array('user_id','category_id','book_title'));
-    $response = array();  
+    $response = array();
+	$book_id='';
+	if($app->request->post('book_id')){	
+		$book_id = $app->request->post('book_id');
+	}
     $user_id = $app->request->post('user_id');
     $category_id = $app->request->post('category_id');
     $book_title = $app->request->post('book_title');
@@ -460,91 +603,100 @@ $app->post('/addNewBook', function () use ($app){
     $isbn_number = $app->request->post('isbn_number');
     $questiondata = $app->request->post('questiondata');
     $status = $app->request->post('status');
-            /****Cover image*/
-            if(!empty($_FILES['thubm_image'])){
-                $upload_path = 'upload/books/';
-                $fileinfo = pathinfo($_FILES['thubm_image']['name']);
-                $extension = $fileinfo['extension'];
-                $file_url = $upload_url.'book_'.time().'.'.$extension;
-                $file_path = $upload_path .'book_'.time().'.'.$extension;
-                move_uploaded_file($_FILES['thubm_image']['tmp_name'], $file_path);
-            }
-            
-            /****Document file*/
-            if(!empty($_FILES['pdf_url'])){
-                $upload_path = 'upload/books/document/';
-                $fileinfo = pathinfo($_FILES['pdf_url']['name']);
-                $extension = $fileinfo['extension'];
-                $pdf_url = $upload_url.'document_'.time().'.'.$extension;
-                $file_path = $upload_path .'document_'.time().'.'.$extension;
-                move_uploaded_file($_FILES['pdf_url']['tmp_name'], $file_path);
-            }
-            /****audio file*/
-            if(!empty($_FILES['audio_url'])){
-                $upload_path = 'upload/books/audio/';
-                $fileinfo = pathinfo($_FILES['audio_url']['name']);
-                $extension = $fileinfo['extension'];
-                $audio_url = $upload_url.'audio_'.time().'.'.$extension;
-                $file_path = $upload_path .'audio_'.time().'.'.$extension;
-                move_uploaded_file($_FILES['audio_url']['tmp_name'], $file_path);
-            }
+	
+		/****Cover image*/
+		if(!empty($_FILES['thubm_image'])){
+			//$upload_path = '../../uploads/product/';
+			$upload_path = 'upload/books/';
+			$fileinfo = pathinfo($_FILES['thubm_image']['name']); 
+			$extension = $fileinfo['extension'];
+			$file_url = $upload_url.'book_'.time().'.'.$extension;
+			$file_path = $upload_path .'book_'.time().'.'.$extension;
+			move_uploaded_file($_FILES['thubm_image']['tmp_name'], $file_path);
+		}
+		else{
+			 $file_url = $app->request->post('cover_url'); 
+		}
+		/****Document file*/
+		if(!empty($_FILES['pdf_url'])){
+			$upload_path = 'upload/books/document/';
+			$fileinfo = pathinfo($_FILES['pdf_url']['name']);
+			$extension = $fileinfo['extension'];
+			$pdf_url = $upload_url.'document_'.time().'.'.$extension;
+			$file_path = $upload_path .'document_'.time().'.'.$extension;
+			move_uploaded_file($_FILES['pdf_url']['tmp_name'], $file_path);
+		}
+		/****audio file*/
+		if(!empty($_FILES['audio_url'])){
+			$upload_path = 'upload/books/audio/';
+			$fileinfo = pathinfo($_FILES['audio_url']['name']);
+			$extension = $fileinfo['extension'];
+			$audio_url = $upload_url.'audio_'.time().'.'.$extension;
+			$file_path = $upload_path .'audio_'.time().'.'.$extension;
+			move_uploaded_file($_FILES['audio_url']['tmp_name'], $file_path);
+		}
 
-            /****gallery file*/
-             if(!empty($_FILES['book_image'])){
-                $upload_path = 'upload/books/gallery/';
-                $fileinfo = pathinfo($_FILES['book_image']['name']);
-                $extension = $fileinfo['extension'];
-                $book_image = $upload_url.'gallery_'.time().'.'.$extension;
-                $file_path = $upload_path .'gallery_'.time().'.'.$extension;
-                move_uploaded_file($_FILES['book_image']['tmp_name'], $file_path);
-            }
+		/****gallery file*/
+		if(!empty($_FILES['book_image'])){
+			$upload_path = 'upload/books/gallery/';
+			$fileinfo = pathinfo($_FILES['book_image']['name']);
+			$extension = $fileinfo['extension'];
+			$book_image = $upload_url.'gallery_'.time().'.'.$extension;
+			$file_path = $upload_path .'gallery_'.time().'.'.$extension;
+			move_uploaded_file($_FILES['book_image']['tmp_name'], $file_path);
+		}
 
-            /****video file*/
-             if(!empty($_FILES['video_url'])){
-                $upload_path = 'upload/books/video/';
-                $fileinfo = pathinfo($_FILES['video_url']['name']);
-                $extension = $fileinfo['extension'];
-                $video_url = $upload_url.'video_'.time().'.'.$extension;
-                $file_path = $upload_path .'video_'.time().'.'.$extension;
-                move_uploaded_file($_FILES['video_url']['tmp_name'], $file_path);
-            }
+		/****video file*/
+		 if(!empty($_FILES['video_url'])){
+			$upload_path = 'upload/books/video/';
+			$fileinfo = pathinfo($_FILES['video_url']['name']);
+			$extension = $fileinfo['extension'];
+			$video_url = $upload_url.'video_'.time().'.'.$extension;
+			$file_path = $upload_path .'video_'.time().'.'.$extension;
+			move_uploaded_file($_FILES['video_url']['tmp_name'], $file_path);
+		}
+		if(is_numeric($book_id) && $book_id!=''){ $status =1; }
+		$sendData = array( 
+			'book_id' => ($book_id)?$book_id:'',
+			'user_id' => $user_id,
+			'category_id' => $category_id,
+			'book_title' => htmlspecialchars_decode(html_entity_decode($book_title)),
+			'book_description' => htmlspecialchars_decode(html_entity_decode($book_description)),
+			'author_name' => $author_name,
+			'thubm_image' => $file_url,
+			'pdf_url' => $pdf_url,
+			'audio_url' => $audio_url,
+			'book_image' => $book_image,
+			'video_url' => $video_url,
+			'questiondata' => $questiondata,
+			'isbn_number' => $isbn_number,
+			'status' => $status
+		);
 
-    $sendData = array(
-        'user_id' => $user_id,
-        'category_id' => $category_id,
-        'book_title' => htmlspecialchars_decode(html_entity_decode($book_title)),
-        'book_description' => htmlspecialchars_decode(html_entity_decode($book_description)),
-        'author_name' => $author_name,
-        'thubm_image' => $file_url,
-        'pdf_url' => $pdf_url,
-        'audio_url' => $audio_url,
-        'book_image' => $book_image,
-        'video_url' => $video_url,
-        'questiondata' => $questiondata,
-        'isbn_number' => $isbn_number,
-        'status' => $status
-    );
-
-    $db = new DbOperation();
-    $res = $db->publishNewBook($sendData);
-    if($res){
-        $arr = array();
-        $arr = $db->getbookByid($res);
-        //echo "<pre>";print_r($arr);exit();
-        $bookId = $arr->id;
-        $user_id = $arr->user_id;
-        $question = $arr->question_data;
-        $questionData = $db->addAssignment($bookId,$user_id,$question);
-        $response["error"] = false;
-        $response["data"] = $arr;
-        $response["message"] = "Book published successfully.";
-        echoResponse(200, $response);
-    }else if($res == false){
-        $response["error"] = true;
-        $response["message"] = "failed.";
-        echoResponse(201, $response);
-    }
-});
+		$db = new DbOperation();
+		$res = $db->publishNewBook($sendData);
+		if($res){
+			$arr = array();
+			$arr = $db->getbookByid($res);
+			//echo "<pre>";print_r($arr);exit();
+			$bookId = $arr->id;
+			$user_id = $arr->user_id;
+			$question = $arr->question_data; 
+			
+			if($question!=''){ 
+				$questionData = $db->addAssignment($bookId,$user_id,$question);
+			}
+			
+			$response["error"] = false;
+			$response["data"] = $arr;
+			$response["message"] = "Book published successfully.";
+			echoResponse(200, $response);
+		}else if($res == false){
+			$response["error"] = true;
+			$response["message"] = "failed.";
+			echoResponse(201, $response);
+		}
+	});
 
 /**
  * URL: http://dnddemo.com/ebooks/api/v1/updateBookByid
@@ -565,54 +717,54 @@ $app->post('/updateBookByid', function () use ($app) {
     $author_name = $app->request->post('author_name');
     $isbn_number = $app->request->post('isbn_number');
     $status = $app->request->post('status');
-            /****Cover image*/
-            if(!empty($_FILES['thubm_image'])){
-                $upload_path = 'upload/books/';
-                $fileinfo = pathinfo($_FILES['thubm_image']['name']);
-                $extension = $fileinfo['extension'];
-                $file_url = $upload_url.'book_'.time().'.'.$extension;
-                $file_path = $upload_path .'book_'.time().'.'.$extension;
-                move_uploaded_file($_FILES['thubm_image']['tmp_name'], $file_path);
-            }
-            
-            /****Document file*/
-            if(!empty($_FILES['pdf_url'])){
-                $upload_path = 'upload/books/document/';
-                $fileinfo = pathinfo($_FILES['pdf_url']['name']);
-                $extension = $fileinfo['extension'];
-                $pdf_url = $upload_url.'document_'.time().'.'.$extension;
-                $file_path = $upload_path .'document_'.time().'.'.$extension;
-                move_uploaded_file($_FILES['pdf_url']['tmp_name'], $file_path);
-            }
-            /****audio file*/
-            if(!empty($_FILES['audio_url'])){
-                $upload_path = 'upload/books/audio/';
-                $fileinfo = pathinfo($_FILES['audio_url']['name']);
-                $extension = $fileinfo['extension'];
-                $audio_url = $upload_url.'audio_'.time().'.'.$extension;
-                $file_path = $upload_path .'audio_'.time().'.'.$extension;
-                move_uploaded_file($_FILES['audio_url']['tmp_name'], $file_path);
-            }
+	/****Cover image*/
+	if(!empty($_FILES['thubm_image'])){
+		$upload_path = 'upload/books/';
+		$fileinfo = pathinfo($_FILES['thubm_image']['name']);
+		$extension = $fileinfo['extension'];
+		$file_url = $upload_url.'book_'.time().'.'.$extension;
+		$file_path = $upload_path .'book_'.time().'.'.$extension;
+		move_uploaded_file($_FILES['thubm_image']['tmp_name'], $file_path);
+	}
 
-            /****gallery file*/
-             if(!empty($_FILES['book_image'])){
-                $upload_path = 'upload/books/gallery/';
-                $fileinfo = pathinfo($_FILES['book_image']['name']);
-                $extension = $fileinfo['extension'];
-                $book_image = $upload_url.'gallery_'.time().'.'.$extension;
-                $file_path = $upload_path .'gallery_'.time().'.'.$extension;
-                move_uploaded_file($_FILES['book_image']['tmp_name'], $file_path);
-            }
+	/****Document file*/
+	if(!empty($_FILES['pdf_url'])){
+		$upload_path = 'upload/books/document/';
+		$fileinfo = pathinfo($_FILES['pdf_url']['name']);
+		$extension = $fileinfo['extension'];
+		$pdf_url = $upload_url.'document_'.time().'.'.$extension;
+		$file_path = $upload_path .'document_'.time().'.'.$extension;
+		move_uploaded_file($_FILES['pdf_url']['tmp_name'], $file_path);
+	}
+	/****audio file*/
+	if(!empty($_FILES['audio_url'])){
+		$upload_path = 'upload/books/audio/';
+		$fileinfo = pathinfo($_FILES['audio_url']['name']);
+		$extension = $fileinfo['extension'];
+		$audio_url = $upload_url.'audio_'.time().'.'.$extension;
+		$file_path = $upload_path .'audio_'.time().'.'.$extension;
+		move_uploaded_file($_FILES['audio_url']['tmp_name'], $file_path);
+	}
 
-            /****video file*/
-             if(!empty($_FILES['video_url'])){
-                $upload_path = 'upload/books/video/';
-                $fileinfo = pathinfo($_FILES['video_url']['name']);
-                $extension = $fileinfo['extension'];
-                $video_url = $upload_url.'video_'.time().'.'.$extension;
-                $file_path = $upload_path .'video_'.time().'.'.$extension;
-                move_uploaded_file($_FILES['video_url']['tmp_name'], $file_path);
-            }
+	/****gallery file*/
+	 if(!empty($_FILES['book_image'])){
+		$upload_path = 'upload/books/gallery/';
+		$fileinfo = pathinfo($_FILES['book_image']['name']);
+		$extension = $fileinfo['extension'];
+		$book_image = $upload_url.'gallery_'.time().'.'.$extension;
+		$file_path = $upload_path .'gallery_'.time().'.'.$extension;
+		move_uploaded_file($_FILES['book_image']['tmp_name'], $file_path);
+	}
+
+	/****video file*/
+	 if(!empty($_FILES['video_url'])){
+		$upload_path = 'upload/books/video/';
+		$fileinfo = pathinfo($_FILES['video_url']['name']);
+		$extension = $fileinfo['extension'];
+		$video_url = $upload_url.'video_'.time().'.'.$extension;
+		$file_path = $upload_path .'video_'.time().'.'.$extension;
+		move_uploaded_file($_FILES['video_url']['tmp_name'], $file_path);
+	}
 
     $sendData = array(
         'book_id' => $book_id,
@@ -631,7 +783,7 @@ $app->post('/updateBookByid', function () use ($app) {
 
     $db = new DbOperation();
     $res = $db->updateBook($sendData);
-	echo "<pre>";print_r($res);
+	//echo "<pre>";print_r($res);
     if($res){
         $arr = array();
         $arr = $db->getbookByid($res);
@@ -670,7 +822,6 @@ $app->post('/validateIsbn', function () use ($app) {
 		echoResponse(201, $response);
     }
 });
-
 
 
 
@@ -806,8 +957,9 @@ $app->post('/getUserDetails', function () use ($app){
     $db = new DbOperation();
     $arr = array();
     $arr = $db->getAuthorDetails($userid); 
+	//echo "<pre>";print_r($arr);exit;
     if(!empty($arr)){
-        $bookList = $db->getAuthorBooklist($arr->id);
+        $bookList = $db->getAuthorBooklist($arr[id]);
         //echo "<pre>";print_r($bookList);exit;  
         $response["error"] = false;
         $response["data"] = $arr;
@@ -931,11 +1083,12 @@ $app->post('/getAllbookMarkByUser', function () use ($app) {
 $app->post('/addNote', function () use ($app){
     $response = array();
     $user_id = $app->request->post('user_id');
+	$title 	 = $app->request->post('title');
     $description = $app->request->post('description');
 
         $db = new DbOperation();
         $arr = array();
-        $arr = $db->craeteNoteBook($user_id,$description);
+        $arr = $db->craeteNoteBook($user_id,$description,$title);
 
         if (!empty($arr)){
             $response["error"] = false;
@@ -961,7 +1114,7 @@ $app->post('/getAllNotebyUser', function () use ($app){
 
         $db = new DbOperation();
         $arr = array();
-        $arr = $db->gteNoteByUser($user_id);
+        $arr = $db->gteNoteByUser($user_id); 
 
         if (!empty($arr)){
             $response["error"] = false;
@@ -984,11 +1137,12 @@ $app->post('/getAllNotebyUser', function () use ($app){
 $app->post('/UpdateNoteBook', function () use ($app){
     $response = array();
     $note_id = $app->request->post('note_id');
+	$title = $app->request->post('title');
     $description = $app->request->post('description');
 
         $db = new DbOperation();
         $arr = array();
-        $arr = $db->UpdateNote($note_id,$description);
+        $arr = $db->UpdateNote($note_id,$description,$title);
 
         if (!empty($arr)){
             $response["error"] = false;
@@ -1040,7 +1194,9 @@ $app->post('/DeleteNote', function () use ($app) {
  * Method: POST
  * */
 
-$app->post('/getAllpopularBook', function () use ($app){
+$app->post('/getAllpopularBook', function () use ($app){ 
+	
+	  
        $response = array();
         $db = new DbOperation();
         $arr = array();
@@ -1084,6 +1240,38 @@ $app->post('/getAllRequestbyUser', function () use ($app){
             echoResponse(201, $response);
         }
 });
+
+//URL: http://dnddemo.com/ebooks/api/v1/getFollowStatus
+
+$app->post('/getFollowStatus', function () use ($app){
+       $response = array();
+       $userId = $app->request->post('user_id');
+	   $friend_id = $app->request->post('friend_id');
+        $db = new DbOperation();
+        $arr = array();
+        $arr = $db->getFollowUsersStaus($userId,$friend_id);
+		//$chats_hist = array();
+        if (!empty($arr)){
+			
+			$response["error"] = false;
+			if($arr[0]->status==1){
+				$channelId = $db->getChannelId($userId,$friend_id);
+				$response["channelId"] = $channelId;
+			}else{
+				$response["channelId"] = '';
+			}
+            $response["message"] = "Listed requested users.";
+            $response["data"] = $arr;
+			
+            echoResponse(200, $response);
+          }else{
+            $response["error"] = true;
+            $response["message"] = NULL;
+            $response["data"] = NULL;
+            echoResponse(201, $response);
+        }
+});
+
 
 
 /**
@@ -1234,15 +1422,18 @@ $app->post('/user_list', function () use ($app){
     $arr = array();
 
     $arr = $db->getAuthorDetails($userid); 
-	$userList = array();
 	
+	
+	/*  echo "<pre>";print_r($arr); */
+ $userList = array();
     if(!empty($arr)){
 		
-		$fields = "id,user_name,chat_id,url,email,about_me, publisher_type,device_token, device_type,phone_no,status";
-		$whrcond = " id != $arr->id "; 
-        $userList = $db->getDetails("user_login_table",$fields,$whrcond);
-       // echo "<pre>";print_r($userList);exit; 
-
+		$fields = "ult.id,ult.user_name,ult.url,ult.email,ult.about_me, ult.publisher_type,ult.device_token, ult.device_type,ult.phone_no,ult.status";
+		$whrcond = " ult.id != $arr[id] "; 
+		$user_id = $arr['id'];
+        //$userList = $db->getDetails("user_login_table",$fields,$whrcond);
+        $userList = $db->getDetailsOther("user_login_table",$fields,$whrcond,$user_id);
+       
 		 if(!empty($userList))
 		 { 
 			foreach($userList as $row)
@@ -1294,7 +1485,9 @@ $app->post('/user_list', function () use ($app){
 
 
 
-//require to work on this
+
+/* user chat function start here */ 
+
 $app->post('/user_chat', function () use ($app){
 	verifyRequiredParams(array('user_id', 'sendTO')); 
     $userid = $app->request->post('user_id');
@@ -1314,8 +1507,9 @@ $app->post('/user_chat', function () use ($app){
 	$userList = array();
 	
     if(!empty($arr)){ 
-		
+		//echo "fd";die;
 		if($userid && $app->request->post('sendTO') && $app->request->post('type')){
+			
 			if($app->request->post('channelId')) {
 				$channelId = $app->request->post('channelId');
 			}else {
@@ -1396,42 +1590,12 @@ $app->post('/user_chat', function () use ($app){
 				}
 			
 			
-				/* if(isset($_FILES['message'])){
-				  $errors= array();
-				  $newFileName ="";
-				  $file_name ="";
-				  $file_size ="";
-				  $file_tmp ="";
-				  $file_type ="";
-				  $file_ext ="";
-				  
-				  $file_name = $_FILES['message']['name'];
-				  $file_size =$_FILES['message']['size'];
-				  $file_tmp =$_FILES['message']['tmp_name'];
-				  $file_type=$_FILES['message']['type'];
-				  $file_ext= strtolower(pathinfo($_FILES['message']['name'], PATHINFO_EXTENSION));
-				  
-				  if(empty($errors)==true){
-					$newFileName = uniqid('uploaded-', true) . '.' . strtolower(pathinfo($_FILES['message']['name'], PATHINFO_EXTENSION));
-					move_uploaded_file($_FILES['message']['tmp_name'], 'upload/chats/' . $newFileName);
-					 //move_uploaded_file($file_tmp,"images/".$file_name);
-					$message = $newFileName;
-					
-				  }else{
-					//print_r($errors);
-					$response["error"] = true;
-					$response["message"] = "file size must not be more than 2 MB";
-					echoResponse(201, $response);
-					exit();
-					
-				  }
-				} */
 			}else{ 
 				$message = $app->request->post('message'); 
 			}
 			
 			
-			$query_state = "set channel_id='".$channelId."',sender='".$userid."',receiver='".$app->request->post('sendTO')."',type='".$app->request->post('type')."',message='".$message."' "; 
+			$query_state = "set channel_id='".$channelId."',sender='".$userid."',receiver='".$app->request->post('sendTO')."',type='".$app->request->post('type')."',message='".addslashes($message)."' "; 
 			if($message!=''){
 				$insId = $db->addEditRecord("user_chats", $query_state);	
 			}
@@ -1439,14 +1603,14 @@ $app->post('/user_chat', function () use ($app){
 			$user_details = array();
 			$user_details = $arr;
 			
-			//$fields = "id,user_name,chat_id,url,email,about_me, publisher_type,device_token, device_type,phone_no";
+			//$fields = "id,user_name,url,email,about_me, publisher_type,device_token, device_type,phone_no";
 			//$whrcond = " id != $arr->id "; 
 			//$userList = $db->getDetails("user_login_table",$fields,$whrcond);
 			
 			$fields_token = "id,deviceid,pushtoken";
 			$whrcond_token = " user_id = '".$app->request->post('sendTO')."' "; 
 			$user_tokens = $db->getDetails("user_device_token",$fields_token,$whrcond_token);
-			
+			//print_r($user_tokens); die;
 			if(!empty($user_tokens)){
 					$sendTO = $app->request->post('sendTO');
 					$chats_hist = array();
@@ -1535,14 +1699,13 @@ $app->post('/user_chat', function () use ($app){
 						'noti_msg' => $message,
 					];
 					
-					
 
 					$extraNotificationData = ["message" => $notification];        
 					$fcmNotification = [
 						//'registration_ids' => $tokenList, //multple token array
 						'to'        => $token, //single token
 						'notification' => $notification,
-						'data' => $extraNotificationData
+						'data' => $notification
 					];
 
 					//echo "<pre>";print_r($fcmNotification);exit;
@@ -1596,20 +1759,11 @@ $app->post('/user_chat', function () use ($app){
 					echoResponse(200, $response); 
 					
 				}
-			
-		}
-		
-		elseif($userid && $app->request->post('channelId')){
-			
+		  }elseif($userid && $app->request->post('channelId')){
 			
 			$chats = array(); 
-		
 			$chats = $db->user_chats($app->request->post('channelId'));               
-			
-			
-			if($chats)
-			{       
-		 
+			if($chats){       
                 //delete case
 				$where_del_cond = "user_id='".$app->request->post('sendTO')."' and channel_id='".$app->request->post('channelId')."' ";
 				$db->delete_data("user_chats_removed", $where_del_cond);
@@ -1618,12 +1772,13 @@ $app->post('/user_chat', function () use ($app){
 				
 				//$this->Api_model->delete_data("user_chats_removed", array("user_id"=>$this->input->post('userId'), "channel_id"=>$this->input->post('channelId')));
 	 
-				$update_stmt = "set read_msg=1"; 
-				$update_whrcond = "set receiver = '".$userid."',channel_id ='".$app->request->post('channelId')."' ";
+				$update_stmt = "set read_msg='1'";
+				$update_whrcond = "receiver='".$userid."' AND channel_id ='".$app->request->post('channelId')."'";
 				
-				if($message!=''){
-					$db->addEditRecord('user_chats',$update_stmt,$update_whrcond);
+				if($chats!=''){
+					$readdata = $db->addEditRecord('user_chats',$update_stmt,$update_whrcond);
 				}
+				
 				$chat_list = array();
 				
 				foreach($chats as $row)
@@ -1654,14 +1809,12 @@ $app->post('/user_chat', function () use ($app){
 		}
 		
 		else{
-			
-			   $response["error"] = false;
-				//$response["data"] = $arr;
-				$response["chat_list"] = $chat_list;
-				$response['status'] = 'success';
-				$response["message"] = "Successfully fetch";
-				echoResponse(200, $response); 	
-			
+			$response["error"] = false;
+			//$response["data"] = $arr;
+			$response["chat_list"] = $chat_list;
+			$response['status'] = 'success';
+			$response["message"] = "Successfully fetch";
+			echoResponse(200, $response); 	
 		}
 	
 	}else{
@@ -1760,14 +1913,23 @@ $app->post('/user_chat_list', function () use ($app){
     if(!empty($arr)){
 		$chats_hist = array();
 		$chats_hist = $db->user_chat_list_history($userId);
+		//$group_detil = $db->getGropDetail($userId);
+		
+		/*if(!empty($group_detil)){
+			
+			 foreach($chats_hist as $key=>$chats_histry){
+				$group_detil->is_group = "Yes";
+				$chats_hist[$key]->group_detil= $group_detil;
+			} 
+			//$res->group_detail = $group_detil;
+		}*/
+		
 		
 		$response["error"] = false;
 		$response["data"] = $arr;
 		$response["userList"] = $chats_hist;
 		$response["message"] = "success"; 
 		echoResponse(200, $response);
-		
-
 	}else{
 		$response["error"] = true;
 		$response["message"] = "Failed";
@@ -1780,19 +1942,25 @@ $app->post('/user_chat_list', function () use ($app){
 	
 $app->post('/delete_chat', function () use ($app){
     $userid = $app->request->post('user_id');
+    $receiver = $app->request->post('receiver');
     $response = array();
     $db = new DbOperation();
+	$receiverDetail = array();
     $arr = array();
     $arr = $db->getAuthorDetails3($userid);
+	
+	/* echo "<pre> reciver data";print_r($receiverDetail);
+	echo "<pre>";print_r($arr);exit('sender data'); */
+	
 	$channelId = $arr->channel_id;
-    $UpdateUerchat = $db->UpdateUserChat($userid,$channelId);
+    $UpdateUerchat = $db->UpdateUserChat($userid,$channelId,$receiver);
 	
 	
     if(!empty($arr)){
 		$response["error"] = false;
 		$response["status"] = "Success";
 		$response["userData"] = $arr;
-		$response["message"] = "Data listed successfully.";
+		$response["message"] = "Chat is deleted successfully.";
 		echoResponse(201, $response);		
 	 }else{
 	   $response["error"] = true;
@@ -1803,6 +1971,10 @@ $app->post('/delete_chat', function () use ($app){
 	}
 	
 });
+
+
+/* user chat function start here */ 
+
 
 /* public function send_push($device_id="", $messagetype="", $username="", $message="",$badge)
 	{
@@ -1861,7 +2033,892 @@ $app->post('/sendEmailData', function () use ($app) {
 });
 
 
+//calling api
 
+//URL: http://dnddemo.com/ebooks/api/v1/user_calling
+//params: user_id, sendTO, channelId
+$app->post('/user_calling', function () use ($app){
+	
+	verifyRequiredParams(array('user_id', 'sendTO')); 
+    $userid = $app->request->post('user_id');
+    $sendTO = $app->request->post('sendTO');
+	$type   = $app->request->post('type');
+	$channelId = $app->request->post('channelId');
+    $response = array();
+    $db = new DbOperation();
+    $arr = array();
+	$insertData = array();
+	
+	$message = "";          
+
+    $UserDetails = $db->getAuthorDetails3($userid);
+    $arr = $db->getAuthorDetails2($sendTO);
+
+	//echo "<pre>";print_r($arr); die;
+	
+	$userList = array();
+	
+    if(!empty($arr)){ 
+		//echo "fd";die;
+		if($userid && $app->request->post('sendTO') && $channelId!=''){
+
+			$user_details = array();
+			$user_details = $arr;
+			
+			//$fields = "id,user_name,url,email,about_me, publisher_type,device_token, device_type,phone_no";
+			//$whrcond = " id != $arr->id "; 
+			//$userList = $db->getDetails("user_login_table",$fields,$whrcond);
+			
+			$fields_token = "id,device_token,device_type";
+			$whrcond_token = " id = '".$app->request->post('sendTO')."' "; 
+			$user_tokens = $db->getDetails("user_login_table",$fields_token,$whrcond_token);
+			
+			if($type=="audioCall") $slogon = "audioCall"; else  $slogon = "videoCall"; 
+			
+			if(!empty($user_tokens)){
+	
+				$fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+				$token = $arr->device_token; 
+				$notification = [
+					'user_id' => $UserDetails->id, 
+					'UserName' => $UserDetails->user_name, 
+					'Avtar' => $UserDetails->url, 
+					'channel_id' => $channelId, 
+					'noti_msg' => $slogon,
+				];						
+
+				$extraNotificationData = ["message" => $notification];        
+				$fcmNotification = [
+					//'registration_ids' => $tokenList, //multple token array
+					'to'        => $token, //single token
+					'notification' => $notification,
+					'data' => $notification
+				];
+
+				//echo "<pre>";print_r($fcmNotification);exit;
+
+				$headers = [
+				'Authorization: key='.API_ACCESS_KEY,
+				'Content-Type: application/json'
+				];
+
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL,$fcmUrl);
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmNotification));
+				$result = curl_exec($ch);
+				curl_close($ch);
+				$response['pushMessaage'] = json_decode($result);
+			} 
+				 
+				 //echo "<pre>";print_r($chats);exit('pf');	
+			$response["error"] = false;
+			//$response["data"] = $arr;
+			$response["message_data"] = 'Message for calling';
+			$response['status'] = 'success';
+			$response["message"] = "Successfully fetch";
+			echoResponse(200, $response); 		
+		
+		}else{
+			
+			$response["error"] = true;
+			$response["message"] = "Channel Id does not exists";
+			echoResponse(201, $response);
+		}
+	
+	}else{
+		
+        $response["error"] = true;
+        $response["message"] = "Failed";
+        echoResponse(201, $response);
+	}
+   
+});
+
+/*==============strt to group calling/message =======*/
+
+	//URL: http://dnddemo.com/ebooks/api/v1/addGroups
+	$app->post('/addEditGroups', function () use ($app) { 
+		verifyRequiredParams(array('user_id')); 
+		$group_id  			= $app->request->post('group_id');
+		$group_name  		= $app->request->post('group_name');
+		$user_id	 		= $app->request->post('user_id');
+		$group_user_ids		= $app->request->post('group_user_id');
+		
+	    $group_uids	=	explode(',',$group_user_ids); 
+	   
+		
+		$response 		= array();
+		$totalMember = 10;
+		$db = new DbOperation();
+        
+        //  echo count($exp);
+        $is_group = $db->checkGroup($group_name,$user_id);  
+        //  print_r($clisifiedcat); exit;
+        if($is_group>=1) { 	
+		    
+			if(is_numeric($group_id) && $group_id!=''){
+				
+				$is_group_recheck = $db->recheckGroup($group_name,$user_id);  
+				
+				if(!$is_group_recheck>=1){				
+					$whrecond = " id ='".$group_id."'";
+					$updateData = " set name='".$group_name."', updated_at='".date("Y-m-d h:i:s")."'"; 
+					$res = $db->addEditRecord('groups_calling',$updateData,$whrecond);
+					if($res === FALSE){
+						$res = FALSE;
+					}else{
+						
+						$res ="update_group_user_id";
+					}
+				}else{
+					$res ="groupuserid";
+				}
+				
+			}else{
+				$res ="groupuserid";
+			}
+		} 
+        elseif(count($group_uids)>$totalMember) { $res = 'userid';}
+        else {  
+			$insData = " set name='".$group_name."', userid='".$user_id."',groupuserid='".$group_user_ids."', status='1', created_at='".date("Y-m-d h:i:s")."', type='video'"; 
+			$res = $db->addEditRecord('groups_calling',$insData); 
+		}
+
+        if($res === 'userid'){
+			
+			$response["error"] = true;
+			$response["message"] = "Not More Then 10 Member Allowed";
+			echoResponse(201, $response);
+           
+           
+        }elseif($res === 'groupuserid'){
+                
+			$response["error"] = true;
+			$response["message"] = "Group name already exists";
+			echoResponse(201, $response);
+           
+        }elseif($res === FALSE){
+               
+			$response["error"] = true;
+			$response["message"] = "Group not added";
+			echoResponse(201, $response);
+           
+        } else if($res === 'update_group_user_id'){
+			
+			$response["error"] = false;
+			//$response["data"] = $arr;
+			$response["message_data"] = 'Grop name updates sucessfully sucessfully';
+			$response['status'] = 'success';
+			$response["message"] = "Successfully fetch";
+			echoResponse(200, $response); 		
+
+        } else{
+			$response["error"] = false;
+			//$response["data"] = $arr;
+			$response["message_data"] = 'Group Added Sucessfully';
+			$response['status'] = 'success';
+			$response["message"] = "Successfully fetch";
+			echoResponse(200, $response); 	
+		}			
+     
+    });
+	
+	//http://dnddemo.com/ebooks/api/v1/groupList
+	$app->post('/groupList', function () use ($app) { 
+		
+		verifyRequiredParams(array('user_id'));
+		
+		$group_id  			= $app->request->post('group_id');
+		$user_id	 		= $app->request->post('user_id'); 
+		$arr = array();
+		$message = "";          
+		
+		$response 	= array();
+		$db = new DbOperation();
+        //$arr = $db->getAuthorDetails($user_id); 
+		//$group_details = $db->getGroupDetails($user_id); 
+		$group_details = $db->getGroupDetailsOK($user_id); 
+		$arr['group_details']    = $group_details;
+		
+		if(!empty($group_details)){
+			
+			$response["error"] = false;
+			//$response["data"] = $arr;
+			$response["data"] = $group_details ;
+			$response['status'] = 'success';
+			$response["message"] = 'Group listed Sucessfully';
+			echoResponse(200, $response); 			
+
+        } else{
+			
+			$response["error"] = true;
+			//$response["data"] = $arr;
+			$response['status'] = 'failed';
+			$response["message"] = "Group not found";
+			echoResponse(200, $response); 
+		}			
+     
+    });
+	
+	//http://dnddemo.com/ebooks/api/v1/groupsChat
+	$app->post('/groupsChat', function () use ($app){ //used
+		
+		verifyRequiredParams(array('send_by', 'group_id')); 
+		$send_by  		= $app->request->post('send_by'); //sender user id
+		$group_id 		= $app->request->post('group_id'); //group id
+		$messagetype 	= $app->request->post('message_type'); //image | text | voice | video 
+		$message 		= $app->request->post('message'); 
+		$sender_name 	= $app->request->post('sender_name'); 
+		//$message 		= $app->request->post('video'); 
+		
+		//$userid = $app->request->post('user_id');
+		//$sendTO = $app->request->post('sendTO');
+		$response = array();
+		$db = new DbOperation();
+		$arr = array();
+		$insertData = array();
+		$channelId = "";
+		
+		$group_details = $db->selUserMessageGroupData($send_by,$group_id);
+		
+		if(!empty($group_details)){
+			
+			if($messagetype != "text")
+			{	
+				//Document file
+				if(!empty($_FILES['pdf_file'])){
+					$errors= array();
+					if(empty($errors)==true){
+						$upload_path = 'upload/chats/document/';
+						$fileinfo = pathinfo($_FILES['pdf_file']['name']);
+						$extension = $fileinfo['extension'];
+						$message = $upload_path.'document_'.time().'.'.$extension;
+						$file_path = $upload_path .'document_'.time().'.'.$extension;
+						move_uploaded_file($_FILES['pdf_file']['tmp_name'], $file_path);
+					}else{
+						$response["error"] = true;
+						$response["message"] = "file size must not be more than 2 MB";
+						echoResponse(201, $response);
+						exit();
+					}
+				}
+				
+				//image file
+				 if(!empty($_FILES['image_file'])){ 
+					 $errors= array();
+					if(empty($errors)==true){
+						$upload_path = 'upload/chats/gallery/'; 
+						$fileinfo = pathinfo($_FILES['image_file']['name']);
+						$extension = $fileinfo['extension']; 
+						$message = $upload_path.'gallery_'.time().'.'.$extension; 
+						$file_path = $upload_path .'gallery_'.time().'.'.$extension;
+						move_uploaded_file($_FILES['image_file']['tmp_name'], $file_path);
+					}else{
+						$response["error"] = true;
+						$response["message"] = "file size must not be more than 2 MB";
+						echoResponse(201, $response);
+						exit();
+					}
+				}
+				
+				//audio file
+				if(!empty($_FILES['audio_file'])){
+					$errors= array();
+					if(empty($errors)==true){
+						$upload_path = 'upload/chats/audio/';
+						$fileinfo  = pathinfo($_FILES['audio_file']['name']);
+						$extension = $fileinfo['extension'];
+						$message   =  $upload_path.'audio_'.time().'.'.$extension;
+						$file_path = $upload_path .'audio_'.time().'.'.$extension;
+						move_uploaded_file($_FILES['audio_file']['tmp_name'], $file_path);
+					}else{
+						$response["error"] = true;
+						$response["message"] = "file size must not be more than 2 MB";
+						echoResponse(201, $response);
+						exit();
+					}
+				}
+				
+				//video file
+				 if(!empty($_FILES['video_file'])){
+					 $errors= array();
+					if(empty($errors)==true){
+						$upload_path = 'upload/chats/video/';
+						$fileinfo   = pathinfo($_FILES['video_file']['name']);
+						$extension = $fileinfo['extension'];
+						$message   = 	 $upload_path.'video_'.time().'.'.$extension;
+						$file_path = $upload_path .'video_'.time().'.'.$extension;
+						move_uploaded_file($_FILES['video_file']['tmp_name'], $file_path);
+					}else{
+						$response["error"] = true;
+						$response["message"] = "file size must not be more than 2 MB";
+						echoResponse(201, $response);
+						exit();
+					}
+				}
+			
+			}else{ 
+			  
+				$message = $message;  
+			}	
+			
+			$senduser 	= $db->getAuthorDetails2($send_by); //get sender user details
+			
+			$sendername = $senduser->user_name;
+			//print_r($postDatanew); exit;
+			$user_groups_ids=	explode(",",$group_details->groupuserid);
+			$groupid 		=	$group_id;           
+			$userid 		= 	$send_by;
+			$sendtoid 		= 	$group_details->userid; //groupname
+			$created_date   =   date("Y-m-d h:i:s");
+			//channel_id='".$channelId."',
+			
+			$ins_query_goups = "set userid='".$userid."',sendtoid='".$sendtoid."',groupid='".$group_id."',messagetype='".$messagetype."',unreadmessage=0,message='".addslashes($message)."',created_at='".$created_date."',sendername='".$sender_name."' "; 
+			if($message!=''){
+				$group_insId = $db->addEditRecord("groupsuserschat", $ins_query_goups);	
+			} 
+			
+			if($group_insId){
+				
+				//$senduser 			= $db->getAuthorDetails2($send_by);
+				
+				foreach($user_groups_ids as $groups_ids) {  //grus
+					
+					$groupid 	=  $group_id;          
+					$userid     =  $send_by;
+					$sendtoid 	=  $groups_ids;
+					$sendername =  $sendername; 
+					$rec_user_detail 	= $db->getAuthorDetails2($sendtoid);
+					//echo "<pre>";print_r($rec_user_detail); die;
+					$userList = array();
+					//echo $rec_user_detail->device_token; die;
+					if($userid && $sendtoid && $messagetype && $rec_user_detail->device_token){
+						
+						if($app->request->post('channelId')) {
+							$channelId = $app->request->post('channelId');
+						}else {
+							$channelId = rand(100000, 999999); 
+						}
+						
+						$ins_query_goups = "set userid='".$userid."',sendtoid='".$sendtoid."',groupid='".$group_id."',messagetype='".$messagetype."',unreadmessage=0,message='".addslashes($message)."',created_at='".$created_date."',sendername='".$sender_name."'"; 
+						if($message!=''){
+							$group_idd = $db->addEditRecord("groupsuserschat", $ins_query_goups);	
+						}
+						
+						$user_details = array();
+						$user_details = $rec_user_detail;
+						
+						if(!empty($rec_user_detail)){
+							
+								//$sendTO = $sendtoid;
+								
+								
+								$badge = 0;
+								//var_dump($user_list_arr);
+								
+								/* foreach ($user_tokens as $key => $value) {
+									$this->send_push(@$value["pushtoken"], $app->request->post('type'), @$user_details->name, $message,$badge);
+								} */
+						//}
+										 
+							$chats = array();
+							//$chats = $db->user_chats($channelId);
+							if(!empty($messagetype)){
+								
+								if($messagetype == 'file'){
+									$messagetype = 'File';
+								}elseif($messagetype == 'image'){
+									$messagetype = 'Image';
+								}elseif($messagetype == 'audio'){
+									$messagetype = 'Audio';
+								}elseif($messagetype == 'video'){
+									$messagetype = 'Video';
+								}elseif($messagetype == 'docfile'){
+									$messagetype = 'Docfile';
+								}
+								
+								//'channel_id' => $channelId, 
+								$fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+								//$token = $senduser->device_token; 
+								$token = $rec_user_detail->device_token; 
+								$notification = [
+									'user_id' => $senduser->id, 
+									'UserName' => $senduser->user_name, 
+									'Avtar' => $senduser->url, 
+									'channel_id' => $channelId, 
+									'noti_msg' => $messagetype,
+								];
+								$extraNotificationData = ["message" => $notification];        
+								$fcmNotification = [
+									//'registration_ids' => $tokenList, //multple token array
+									'to'        => $token, //single token
+									'notification' => $notification,
+									'data' => $notification
+								];
+
+								//echo "<pre>";print_r($fcmNotification);exit;
+
+								$headers = [
+								'Authorization: key='.API_ACCESS_KEY,
+								'Content-Type: application/json'
+								];
+
+								$ch = curl_init();
+								curl_setopt($ch, CURLOPT_URL,$fcmUrl);
+								curl_setopt($ch, CURLOPT_POST, true);
+								curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+								curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+								curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+								curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmNotification));
+								$result = curl_exec($ch);
+								curl_close($ch);
+								$response['pushMessaage'] = json_decode($result);
+								
+								
+							}  
+						
+						}
+						   //echo "<pre>";print_r($chats);exit('pf');
+					}
+					
+					$response["error"] = false;
+					$response["data"] = $arr;
+					$response["chat_list"] = $rec_user_detail->device_token;
+					$response['status'] = 'success';
+					$response["message"] = "Successfully sent";
+					echoResponse(200, $response);
+				} //end of foeach loop
+			
+			}else{
+					$response["error"] = true;
+					$response["message"] = "Failed";
+					echoResponse(201, $response);
+			}
+		
+		}else{
+			$response["error"] = true;
+			$response['status'] = 'failed';
+			$response["message"] = "Group does not exists";
+			echoResponse(201, $response);
+		}
+
+	});
+	
+	//http://dnddemo.com/ebooks/api/v1/getGroupChatLists
+	$app->post('/getGroupChatLists', function () use ($app) {  // getgroupsmessgaebyuserid
+		
+		verifyRequiredParams(array('user_id','group_id')); 
+		$group_id  			= $app->request->post('group_id');
+		$user_id	 		= $app->request->post('user_id'); 
+		$unreadmessage      = 1;
+		$arr = array();
+		$response 	= array();
+		if(is_numeric($user_id) && $user_id!='' && is_numeric($group_id) && $group_id!=''){
+			
+			$db = new DbOperation();
+			
+			/* $datan = array('unreadmessage' => 1);  
+			$this->db->where('groupid', $data['groupid']);
+			$this->db->where('sendtoid', $data['userid']);
+			$this->db->update('groupsuserschat', $datan); 
+			$groupupdate = $this->group_model->selectuserreadstatus($postDatavals);*/
+			
+			$fields_token = "";
+			$whrcond_token = " (sendtoid = '".$user_id."' or userid = '".$user_id."') AND groupid = '".$group_id."' AND status = '1'"; 
+			$group_user_chat_list = $db->getGroupChats($user_id,$group_id);
+			
+			if(!empty($group_user_chat_list)){
+				
+				$response["error"] = false;
+				//$response["data"] = $arr;
+				$response["data"] = $group_user_chat_list ;
+				$response['status'] = 'success';
+				$response["message"] = 'Group chat listed sucessfully';
+				echoResponse(200, $response); 
+				
+			} else {
+				$response["error"] = true;
+				//$response["data"] = $arr;
+				$response['status'] = 'failed';
+				$response["message"] = "Message not found";
+				echoResponse(200, $response); 
+			}
+		}else{
+			$response["error"] = true;
+			//$response["data"] = $arr;
+			$response['status'] = 'failed';
+			$response["message"] = "Something went wrong! user not found.";
+			echoResponse(200, $response); 
+		}
+
+    });
+	
+	//http://dnddemo.com/ebooks/api/v1/groupMemberList	
+	$app->post('/groupMemberList', function () use ($app) {  //used  
+		
+		verifyRequiredParams(array('user_id','group_id'));
+		
+		$group_id  			 = $app->request->post('group_id');
+		$user_id  			 = $app->request->post('user_id');
+		$add_mem_id_in_group = $app->request->post('add_mem_id_in_group');
+		$action  			 = $app->request->post('action'); 
+		//$type  				= $app->request->post('type');
+		$arr = array();
+		$message = "";   
+		$final_data   = array(); 
+		$response 	= array();
+		$db = new DbOperation();
+		$senduser 		  =  $db->getAuthorDetails2($user_id);
+		$user_groups_list =  $db->selUserMessageGroupData($user_id,$group_id);
+        	
+		$is_admin_id 	  =  $user_groups_list->userid;
+		
+		if($add_mem_id_in_group && $user_groups_list->groupuserid!='' && $action=="delete_member"){//delete member
+			
+			$group_member_array = explode(",",$user_groups_list->groupuserid);
+			
+			$delete_member_id	= array($add_mem_id_in_group);
+
+			$user_groups_ids    = array_diff($group_member_array, $delete_member_id);
+			
+			$array_without_id   = implode(",",$user_groups_ids);
+			
+			if($user_groups_list->removegroupuserid!=''){
+				if(in_array($add_mem_id_in_group,explode(",",$user_groups_list->removegroupuserid))){
+					$removed_user_ids = $user_groups_list->removegroupuserid;
+				}else{
+					$removed_user_ids = $user_groups_list->removegroupuserid.",".$add_mem_id_in_group;
+				}
+			}else{
+				$removed_user_ids = $add_mem_id_in_group;
+			}
+			
+			$all_groups_mem_lists = implode(",",$user_groups_ids);
+			$whrecond = " id ='".$group_id."'";
+			$updateData = " set groupuserid='".$all_groups_mem_lists."',removegroupuserid ='".$removed_user_ids."'"; 
+			$res 	   = $db->addEditRecord('groups_calling',$updateData,$whrecond); //update user group
+			if($res === FALSE){
+				//$user_groups_ids  =  explode(",",$user_groups_list->groupuserid);
+				$user_groups_ids  =  $group_member_array;
+				$action_message   = "Member not deleted, please try again.";
+			}else{
+				
+				$user_groups_ids  =  $user_groups_ids;
+				$action_message   = "Member has been deleted sucessfully.";
+			}
+		} else if($add_mem_id_in_group && $user_groups_list->groupuserid!='' && $action=="add_member"){ //add member
+			
+			$removed_user_ids  		 =  '';
+			$removed_user_ids        = $user_groups_list->removegroupuserid;
+			$removed_user_ids_array  =  explode(",",$user_groups_list->removegroupuserid);
+			$add_member_id			 =  array($add_mem_id_in_group);
+			
+			if($removed_user_ids!=''){
+				
+				$new_removed_user_ids   =  array_diff($removed_user_ids_array, $add_member_id);
+				//echo $position = array_search($add_mem_id_in_group,$new_removed_user_ids); 
+				$position = array_search($add_mem_id_in_group,$removed_user_ids_array);		
+				unset($removed_user_ids_array[$position]);  //remove existing 
+				if(count($removed_user_ids_array)>0){
+					$removed_user_ids       =  implode(",",$removed_user_ids_array);
+				}else{
+					$removed_user_ids       =  '';
+				}
+			}else{
+				$removed_user_ids   = '';
+			}
+			
+			$user_groups_ids_array  =  explode(",",$user_groups_list->groupuserid);
+			if(in_array($add_mem_id_in_group,$user_groups_ids_array)){
+				$all_groups_mem_lists = $user_groups_list->groupuserid;
+			}else{
+				$all_groups_mem_lists = $user_groups_list->groupuserid.",".$add_mem_id_in_group;
+			}
+			$whrecond = " id ='".$group_id."'";
+			
+			$updateData = " set groupuserid='".$all_groups_mem_lists."',removegroupuserid ='".$removed_user_ids."'"; 
+			
+			$res = $db->addEditRecord('groups_calling',$updateData,$whrecond); //update user group
+			if($res === FALSE){
+				$user_groups_ids  =  explode(",",$all_groups_mem_lists);
+				$action_message  = "Sorry, member has not been added please try again.";
+			}else{
+				
+				$user_groups_ids =  explode(",",$all_groups_mem_lists);
+				$action_message  = "Member has been added sucessfully.";
+			}
+		}else{
+			$user_groups_list->groupuserid; 
+			$user_groups_ids  =  explode(",",$user_groups_list->groupuserid); //list member
+		  
+		}
+		
+		if(!empty($user_groups_list)){
+			
+			$removedUserId = explode(",", $user_groups_list->removegroupuserid);
+			
+			
+			if(!in_array($is_logged_id,$user_groups_ids)){
+				array_push($user_groups_ids, $is_admin_id);
+			}
+			
+			sort($user_groups_ids);
+			
+			$user_groups_idsss = implode(',',$user_groups_ids);
+			
+			//if (!in_array($user_id, $removedUserId)) {
+				if( $user_groups_list->groupuserid!='') {
+					
+					$groupuser = $db->selectUsersByGroup($user_groups_idsss);
+					
+					
+					foreach($groupuser as $key=>$gusers){ 
+						
+						if($gusers->id==$is_admin_id){
+							$final_data[$key]['is_admin'] = "Yes"; 
+						}else{
+							$final_data[$key]['is_admin'] = "No"; 
+						}
+						$final_data[$key]['id'] = $gusers->id; 
+						$final_data[$key]['user_name'] = $gusers->user_name;
+						$final_data[$key]['url'] = $gusers->url;
+						$final_data[$key]['device_token'] = $gusers->device_token;
+						$final_data[$key]['android'] = $gusers->android;
+						/* $final_data[$key]->user_name = $gusers->user_name;
+						$final_data[$key]->url = $gusers->url;
+						$final_data[$key]->device_token = $gusers->device_token;
+						$final_data[$key]->android = $gusers->android;  */
+					}
+					
+					  //  print_r($groupuser);
+					/* $final_group[] = array(
+					    "id" => $user_groups_list[$key]->id,
+						"name" => $user_groups_list[$key]->name,
+						"userid" => $user_groups_list[$key]->userid,
+						"groupuserid" => $groupuser,
+						"status" => $user_groups_list[$key]->status,
+						"created_at" => $user_groups_list[$key]->created_at,
+						"removegroupuserid"=>$user_groups_list[$key]->removegroupuserid,
+						
+						
+					); */
+				   $final_data =  $final_data;     
+				}else{
+					$final_data = '';
+				}
+			//}
+			
+		
+		}else{$final_data='';}
+		
+		if($final_data!=''){
+			
+			$response["error"] = false;
+			$response["data"] = $senduser;
+			$response["user_list"] = $final_data;
+			$response['status'] = 'success';
+			$response["action_message"] = $action_message;
+			$response["message"] = "Group user lists";
+			echoResponse(200, $response);
+			
+		}else{
+			
+			$response["error"] = true;
+			//$response["data"] = $arr;
+			$response['status'] = 'failed';
+			$response["message"] = "Group not available";
+			echoResponse(200, $response); 
+		}
+				
+    });
+
+	$app->post('/groupMemberCallingNotification', function () use ($app) {  //used 
+		
+		verifyRequiredParams(array('user_id','group_id'));
+		
+		$group_id  			= $app->request->post('group_id');
+	
+		$user_id  			= $app->request->post('user_id');
+	
+		$type  				= $app->request->post('type');
+		
+		$group_call_users_id= $app->request->post('group_call_users_id');
+		
+		
+		$arr = array();
+	
+		$response 	= array();
+		$db = new DbOperation();
+		$senduser 		  =  $db->getAuthorDetails2($user_id );
+		
+		//$user_groups_list =  $db->selUserMessageGroupData($user_id,$group_id);
+	    $user_groups_ids  =  explode(",",$group_call_users_id);
+		
+		if(!empty($user_groups_ids)){ 
+			
+			//$groupuser = $db->selectUsersByGroup($user_groups_list->groupuserid); //get users list based on ids
+			$receiver_details = array();
+			
+			foreach($user_groups_ids as $members_id) {  
+				 
+				$groupid 	=  $group_id;          
+				$sendtoid 	=  $members_id;
+				$sendername =  $senduser->user_name; 
+				$rec_user_detail 	= $db->getAuthorDetails2($sendtoid);
+				
+			
+				//echo "<pre>";print_r($rec_user_detail); die;
+				$userList = array();
+				//echo $rec_user_detail->device_token; die;
+				
+				if(is_numeric($sendtoid) && $user_id && $rec_user_detail->device_token!=''){
+					
+					$receiver_details[] = $rec_user_detail;
+					
+					$user_details = array();
+					$user_details = $rec_user_detail;
+					
+					$chats = array();
+					
+					if($type=="audioCall") $slogon = "audioCall"; else  $slogon = "videoCall"; 
+					
+					
+					//'channel_id' => $channelId, 
+					$fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+					//$token = $senduser->device_token; 
+					$token = $rec_user_detail->device_token; 
+					$notification = [
+						'user_id' => $senduser->id, 
+						'UserName' => $senduser->user_name, 
+						'Avtar' => $senduser->url, 
+						'channel_id' => $groupid,  
+						'noti_msg' => $slogon, 
+					];
+					$extraNotificationData = ["message" => $notification];        
+					$fcmNotification = [
+						//'registration_ids' => $tokenList, //multple token array
+						'to'        => $token, //single token
+						'notification' => $notification,
+						'data' => $notification
+					];
+
+					//echo "<pre>";print_r($fcmNotification);exit;
+
+					$headers = [
+					'Authorization: key='.API_ACCESS_KEY,
+					'Content-Type: application/json'
+					];
+
+					$ch = curl_init();
+					curl_setopt($ch, CURLOPT_URL,$fcmUrl);
+					curl_setopt($ch, CURLOPT_POST, true);
+					curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+					curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmNotification));
+					$result = curl_exec($ch);
+					curl_close($ch);
+					$response['pushMessaage'] = json_decode($result);
+					
+					$noti_send[] = $sendtoid;	
+					
+				} 
+				//echo "<pre>";print_r($chats);exit('pf');
+			} //end of foeach loop
+		}else { $noti_send[] = '';} 		
+		
+		if(!empty($noti_send)){
+			
+			$response["error"] = false;
+			$response["sender_data"] = $senduser;
+			$response["rece_deta"] = $receiver_details;
+			$response['status'] = 'success';
+			$response["message"] = "Successfully sent";
+			echoResponse(200, $response);
+			
+		}else{
+			
+			$response["error"] = true;
+			//$response["data"] = $arr;
+			$response['status'] = 'failed';
+			$response["message"] = "Call not allowed because member not available.";
+			echoResponse(200, $response);
+		}
+
+     
+    });
+	
+
+
+/*==============end to group calling/message =======*/
+
+//not used yet
+//http://dnddemo.com/ebooks/api/v1/groupMessageList
+	$app->post('/groupMessageList', function () use ($app) {  // getgroupsuserdata groupsmessagelist
+		
+		verifyRequiredParams(array('user_id')); 
+		$group_id  			= $app->request->post('group_id');
+		//$group_name  		= $app->request->post('group_name');
+		$user_id	 		= $app->request->post('user_id'); 
+		$arr = array();
+		$response 	= array();
+		if(is_numeric($user_id) && $user_id!=''){
+			
+			$db = new DbOperation();
+			
+			$user_list_group = $db->userGroupList($user_id);         
+			
+			if(!empty($user_list_group)){
+				
+				foreach($user_list_group as $key => $value){ 
+					$removedUserId = explode(",", $user_list_group[$key]->removegroupuserid);
+					if (!in_array($user_id, $removedUserId)) {
+						if( $user_list_group[$key]->groupuserid!='') {
+							$groupuser = $db->selectUsersByGroup($user_list_group[$key]->groupuserid);  
+							  //  print_r($groupuser);
+							$final_group[] = array(
+								"id" => $user_list_group[$key]->id,
+								"name" => $user_list_group[$key]->name,
+								"userid" => $user_list_group[$key]->userid,
+								"groupuserid" => $groupuser,
+								"status" => $user_list_group[$key]->status,
+								"created_at" => $user_list_group[$key]->created_at,
+								"removegroupuserid"=>$user_list_group[$key]->removegroupuserid,
+							);
+						   $final_data =  $final_group;     
+						}
+					}
+				}
+			
+			}else{$final_data='';}
+			
+			if (!empty($final_data)) {
+				 $response["error"] = false;
+				//$response["data"] = $arr;
+				$response["data"] = $group_details ;
+				$response['status'] = 'success';
+				$response["message"] = 'Group listed Sucessfully';
+				echoResponse(200, $response); 
+			} else {
+				$response["error"] = true;
+				//$response["data"] = $arr;
+				$response['status'] = 'failed';
+				$response["message"] = "Group not found";
+				echoResponse(200, $response); 
+			}
+		}else{
+			$response["error"] = true;
+			//$response["data"] = $arr;
+			$response['status'] = 'failed';
+			$response["message"] = "Something went wrong! user not found.";
+			echoResponse(200, $response); 
+		}
+
+    });
 
 /********************************************************************************/
 
