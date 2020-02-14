@@ -2609,8 +2609,8 @@ $app->post('/user_calling', function () use ($app){
 				
 				$user_groups_ids  =  $user_groups_ids;
 				$action_message   = "Member has been deleted sucessfully.";
-			}
-		} else if($add_mem_id_in_group && $user_groups_list->groupuserid!='' && $action=="add_member"){ //add member
+			} //&& $user_groups_list->groupuserid!=''
+		} else if($add_mem_id_in_group  && $action=="add_member"){ //add member
 			
 			$removed_user_ids  		 =  '';
 			$removed_user_ids        = $user_groups_list->removegroupuserid;
@@ -2629,14 +2629,17 @@ $app->post('/user_calling', function () use ($app){
 					$removed_user_ids       =  '';
 				}
 			}else{
-				$removed_user_ids   = '';
+				$removed_user_ids   = '';	
 			}
-			
-			$user_groups_ids_array  =  explode(",",$user_groups_list->groupuserid);
-			if(in_array($add_mem_id_in_group,$user_groups_ids_array)){
-				$all_groups_mem_lists = $user_groups_list->groupuserid;
+			if($user_groups_list->groupuserid!=''){
+				$user_groups_ids_array  =  explode(",",$user_groups_list->groupuserid);
+				if(in_array($add_mem_id_in_group,$user_groups_ids_array)){
+					$all_groups_mem_lists = $user_groups_list->groupuserid;
+				}else{
+					$all_groups_mem_lists = $user_groups_list->groupuserid.",".$add_mem_id_in_group;
+				}
 			}else{
-				$all_groups_mem_lists = $user_groups_list->groupuserid.",".$add_mem_id_in_group;
+				$all_groups_mem_lists = $add_mem_id_in_group; 
 			}
 			$whrecond = " id ='".$group_id."'";
 			
@@ -2652,10 +2655,15 @@ $app->post('/user_calling', function () use ($app){
 				$action_message  = "Member has been added sucessfully.";
 			}
 		}else{
-			$user_groups_list->groupuserid; 
-			$user_groups_ids  =  explode(",",$user_groups_list->groupuserid); //list member
-		  
+			$user_groups_list =  $db->selUserMessageGroupData($user_id,$group_id);
+			if($user_groups_list->groupuserid!=''){
+				$user_groups_ids  =  explode(",",$user_groups_list->groupuserid); //list member
+			}else{
+				$user_groups_ids  =  explode(",",$user_groups_list->userid);
+			}
+
 		}
+		
 		
 		if(!empty($user_groups_list)){
 			
@@ -2671,10 +2679,11 @@ $app->post('/user_calling', function () use ($app){
 			$user_groups_idsss = implode(',',$user_groups_ids);
 			
 			//if (!in_array($user_id, $removedUserId)) {
-				if( $user_groups_list->groupuserid!='') {
+				//if( $user_groups_list->groupuserid!='') {
 					
-					$groupuser = $db->selectUsersByGroup($user_groups_idsss);
-					
+				$groupuser = $db->selectUsersByGroup($user_groups_idsss);
+				
+				if(!empty($groupuser)){	
 					
 					foreach($groupuser as $key=>$gusers){ 
 						
@@ -2735,6 +2744,138 @@ $app->post('/user_calling', function () use ($app){
 		}
 				
     });
+	
+	//http://dnddemo.com/ebooks/api/v1/groupMemberList	
+	$app->post('/exitMemberFromGroup', function () use ($app) {  //used  
+		
+		verifyRequiredParams(array('user_id','group_id'));
+		
+		$group_id  			 = $app->request->post('group_id');
+		$user_id  			 = $app->request->post('user_id');
+		$tomake_admin_id     = $app->request->post('tomake_admin_id');
+		//$action  			 = $app->request->post('action'); 
+		//$type  				= $app->request->post('type');
+		$arr = array();
+		$message = "";   
+		$final_data   = array(); 
+		$response 	= array();
+		$db = new DbOperation();
+		//$senduser 		  =  $db->getAuthorDetails2($user_id);
+		//$user_groups_list =  $db->selUserMessageGroupData($user_id,$group_id);
+		$user_groups_list =  $db->selRecordByGroupId($group_id);
+        	
+		$is_admin_id 	  =  $user_groups_list->userid; 
+		
+	
+		if( ($user_id===$is_admin_id)){
+			
+			if($tomake_admin_id){
+				$tomake_admin_id = $tomake_admin_id;
+				$remove_id_from_groupid = $tomake_admin_id;
+				$remove_mem_id 	 = "Yes";
+			}else{  
+				$tomake_admin_id = '';
+				$remove_id_from_groupid = '';
+				$remove_mem_id 	 = "No";
+			}
+		}else{ 
+			$tomake_admin_id = '';
+			$remove_id_from_groupid = $user_id;
+			$remove_mem_id 	 = "Yes";
+			
+		}
+		
+		if($remove_mem_id=="Yes"){
+			
+			if( ($remove_id_from_groupid) && ( in_array($user_id, explode(",",$user_groups_list->groupuserid)) || in_array($user_id, explode(",",$user_groups_list->userid))) ){ 
+				 
+				$all_groups_mem_lists  		 =  '';
+				$all_groups_mem_lists        =  $user_groups_list->groupuserid;
+				$removed_user_ids_array  	=  explode(",",$user_groups_list->groupuserid);
+				$add_member_id			 	=  array($remove_id_from_groupid);
+				
+				if($all_groups_mem_lists!=''){
+					 
+					$position = array_search($remove_id_from_groupid,$removed_user_ids_array);		
+					unset($removed_user_ids_array[$position]);  //remove existing 
+					if(count($removed_user_ids_array)>0){
+						$all_groups_mem_lists       =  implode(",",$removed_user_ids_array);
+					}else{
+						$all_groups_mem_lists       =  '';
+					}
+				}else{
+					$all_groups_mem_lists   = '';
+					 
+				}
+				//echo $all_groups_mem_lists; 
+				if($user_groups_list->removegroupuserid!=''){
+					
+					if($tomake_admin_id) 
+						$remove_id_from_groupid	=	$user_id; 
+					else 
+						$remove_id_from_groupid	=	$remove_id_from_groupid;
+					
+					$removed_group_ids_array  =  explode(",",$user_groups_list->removegroupuserid);
+					if(in_array($remove_id_from_groupid,$removed_group_ids_array)){
+						$removed_user_ids = $user_groups_list->removegroupuserid;
+					}else{
+						$removed_user_ids = $user_groups_list->removegroupuserid.",".$remove_id_from_groupid;
+					}
+				}else{
+					$removed_user_ids = $remove_id_from_groupid;
+				}
+				
+				if(is_numeric($tomake_admin_id) && $tomake_admin_id!=''){
+					
+					$updateData = " set userid='".$tomake_admin_id."', groupuserid='".$all_groups_mem_lists."',removegroupuserid ='".$removed_user_ids."'"; 
+				}else {
+					
+					$updateData = " set groupuserid='".$all_groups_mem_lists."',removegroupuserid ='".$removed_user_ids."'"; 
+				}
+				
+				$whrecond = " id ='".$group_id."'";
+				
+				$res = $db->addEditRecord('groups_calling',$updateData,$whrecond); //update user group
+				if($res === FALSE){
+					//$user_groups_ids  =  explode(",",$all_groups_mem_lists);
+					
+					$response["error"] = true;
+					//$response["data"] = $arr;
+					$response['status'] = 'failed';
+					$response["message"] = "Something went wrong! please try again.";
+					echoResponse(200, $response); 
+				
+				}else{
+					
+					//$user_groups_ids =  explode(",",$all_groups_mem_lists);
+					$response["error"] = true;
+					//$response["data"] = $arr;
+					$response['status'] = 'failed';
+					$response["message"] = "Member has been removed sucessfully.";
+					echoResponse(200, $response); 
+				}
+			}else{
+				
+				$response["error"] = true;
+				//$response["data"] = $arr;
+				$response['status'] = 'failed';
+				$response["message"] = "Pleae provide member id.";
+				echoResponse(200, $response); 
+	
+				/* $user_groups_list->groupuserid; 
+				$user_groups_ids  =  explode(",",$user_groups_list->groupuserid); //list member */
+			  
+			}
+		}else{
+			$response["error"] = true;
+			//$response["data"] = $arr;
+			$response['status'] = 'failed';
+			$response["message"] = "Please create admin to any member then exit.";
+			echoResponse(200, $response); 
+		}	
+					
+    });
+
 
 	$app->post('/groupMemberCallingNotification', function () use ($app) {  //used 
 		
