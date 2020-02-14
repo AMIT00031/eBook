@@ -1,9 +1,9 @@
 <?php
-/*ini_set('display_errors', 1);
+/*ini_set('display_errors', 1); 
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
 require_once '../include/DbOperation.php';
-require_once '../include/Braintree_lib.php';
+require_once '../include/Braintree_lib.php'; 
 require '.././libs/Slim/Slim.php';
 \Slim\Slim::registerAutoloader();
 define('API_ACCESS_KEY','AAAA2RSvweQ:APA91bEnwlkf53HXU4559AUAIgsoEgnPLwDT3tw1cpju0WIPPdguWgmYEHHWGONZ4aNaxn8jAw0s5lbNbbJqFd1w-aEnHJ-5G-36bw3m5lj3u53e15RoERzNBoUX8O8cam40Qmy77d8G'); 
@@ -416,11 +416,11 @@ $app->post('/userEdit', function () use ($app) {
         $upload_path = 'upload/';
         $fileinfo = pathinfo($_FILES['profile_image']['name']);
         $extension = $fileinfo['extension'];
-            if (!empty($extension)){
-                $file_url = $upload_url . 'pic_' . time() . '.' . $extension;
-                $file_path = $upload_path . 'pic_' . time() . '.' . $extension;
-                move_uploaded_file($_FILES['profile_image']['tmp_name'], $file_path);
-            }
+		if (!empty($extension)){
+			$file_url = $upload_url . 'pic_' . time() . '.' . $extension;
+			$file_path = $upload_path . 'pic_' . time() . '.' . $extension;
+			move_uploaded_file($_FILES['profile_image']['tmp_name'], $file_path);
+		}
 
         $db = new DbOperation();
         $response = array();
@@ -2140,7 +2140,7 @@ $app->post('/user_calling', function () use ($app){
 
 /*==============strt to group calling/message =======*/
 
-	//URL: http://dnddemo.com/ebooks/api/v1/addGroups
+	//URL: http://dnddemo.com/ebooks/api/v1/addEditGroups
 	$app->post('/addEditGroups', function () use ($app) { 
 		verifyRequiredParams(array('user_id')); 
 		$group_id  			= $app->request->post('group_id');
@@ -2154,36 +2154,47 @@ $app->post('/user_calling', function () use ($app){
 		$response 		= array();
 		$totalMember = 10;
 		$db = new DbOperation();
-        
+ 
         //  echo count($exp);
-        $is_group = $db->checkGroup($group_name,$user_id);  
-        //  print_r($clisifiedcat); exit;
-        if($is_group>=1) { 	
+        //$is_group = $db->checkGroup($group_name,$user_id);
+		$is_group = array();
+		if($group_id){
+			$is_group = $db->checkGroup($group_id);  
+		}
+        
+        if(!empty($is_group)) { 	
 		    
-			if(is_numeric($group_id) && $group_id!=''){
+			if( $user_id==$is_group->userid || in_array($user_id,explode(",",$is_group->groupuserid)) ){
 				
-				$is_group_recheck = $db->recheckGroup($group_name,$user_id);  
-				
-				if(!$is_group_recheck>=1){				
-					$whrecond = " id ='".$group_id."'";
-					$updateData = " set name='".$group_name."', updated_at='".date("Y-m-d h:i:s")."'"; 
-					$res = $db->addEditRecord('groups_calling',$updateData,$whrecond);
-					if($res === FALSE){
-						$res = FALSE;
+				if(is_numeric($group_id) && $group_id!=''){
+					
+					//$is_group_recheck = $db->recheckGroup($group_name,$user_id);  
+					$is_group_recheck = $db->recheckGroup($group_name,$group_id);  
+					
+					if(!$is_group_recheck){				
+						$whrecond = " id ='".$group_id."'";
+						$updateData = " set name='".$group_name."', updated_at='".date("Y-m-d h:i:s")."'"; 
+						$res = $db->addEditRecord('groups_calling',$updateData,$whrecond);
+						if($res === FALSE){
+							$res = FALSE;
+						}else{
+							
+							$res ="update_group_user_id";
+						}
 					}else{
-						
-						$res ="update_group_user_id";
+						$res ="groupuserid";
 					}
+					
 				}else{
 					$res ="groupuserid";
 				}
-				
-			}else{
-				$res ="groupuserid";
+			}else{ 
+				$res ="usernotallowed";
+			
 			}
 		} 
-        elseif(count($group_uids)>$totalMember) { $res = 'userid';}
-        else {  
+		elseif(count($group_uids)>$totalMember) { $res = 'userid';}
+        else {   
 			$insData = " set name='".$group_name."', userid='".$user_id."',groupuserid='".$group_user_ids."', status='1', created_at='".date("Y-m-d h:i:s")."', type='video'"; 
 			$res = $db->addEditRecord('groups_calling',$insData); 
 		}
@@ -2216,7 +2227,12 @@ $app->post('/user_calling', function () use ($app){
 			$response["message"] = "Successfully fetch";
 			echoResponse(200, $response); 		
 
-        } else{
+        } elseif($res =="usernotallowed"){
+			$response["error"] = true;
+			$response["message"] = "You are not allowed to update group.";
+			echoResponse(201, $response);
+		}
+		else{
 			$response["error"] = false;
 			//$response["data"] = $arr;
 			$response["message_data"] = 'Group Added Sucessfully';
@@ -2745,7 +2761,8 @@ $app->post('/user_calling', function () use ($app){
 				
     });
 	
-	//http://dnddemo.com/ebooks/api/v1/groupMemberList	
+	//http://dnddemo.com/ebooks/api/v1/exitMemberFromGroup	
+	
 	$app->post('/exitMemberFromGroup', function () use ($app) {  //used  
 		
 		verifyRequiredParams(array('user_id','group_id'));
@@ -2876,7 +2893,7 @@ $app->post('/user_calling', function () use ($app){
 					
     });
 
-
+	//http://dnddemo.com/ebooks/api/v1/groupMemberCallingNotification	
 	$app->post('/groupMemberCallingNotification', function () use ($app) {  //used 
 		
 		verifyRequiredParams(array('user_id','group_id'));
@@ -2993,6 +3010,126 @@ $app->post('/user_calling', function () use ($app){
      
     });
 	
+	//http://dnddemo.com/ebooks/api/v1/uploadGroupPic	
+	$app->post('/uploadGroupPic', function () use ($app) {
+		
+		verifyRequiredParams(array('user_id','group_id'));
+		
+		$group_id  			 = $app->request->post('group_id');
+		$user_id  			 = $app->request->post('user_id');
+		$action  			 = $app->request->post('action'); 
+		$message = "";   
+		$lang = 'en';
+		$response 	= array();
+		$db = new DbOperation();
+		//$senduser 		  =  $db->getAuthorDetails2($user_id);
+		$user_groups_list =  $db->selUserMessageGroupData($user_id,$group_id);	
+		
+		$is_admin_id 	  =  $user_groups_list->userid;
+		
+		if( $user_id==$user_groups_list->userid || in_array($user_id,explode(",",$user_groups_list->groupuserid)) ){
+		//if($is_admin_id==$user_id){
+			
+			$upload_path = 'upload/group/';
+		    
+			if($action=="delete"){
+				//delete image code here
+				
+				 if(file_exists($_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$user_groups_list->group_image)){	
+					if($user_groups_list->group_image!=''){
+						unlink($_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$user_groups_list->group_image);
+					}
+					$updateData = " set group_image=''"; 
+					$whrecond = " id ='".$group_id."'";
+					$res = $db->addEditRecord('groups_calling',$updateData,$whrecond); //update group
+					if($res === FALSE){
+						$uploaded="No";
+						$_['en_message'] = "Group profile has not been deleted, please try again.";						
+					}else{
+						$uploaded="Yes"; 
+						$_['en_message'] = "Group profile deleted sucessfully.";
+					}
+				}
+				$user_groups_list =  $db->selUserMessageGroupData($user_id,$group_id);
+				$group_pic = '';
+				if($user_groups_list->group_image!=''){
+					$group_pic = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/'.strip_tags($user_groups_list->group_image);
+				}
+				
+				
+			}
+			else
+			{
+				
+				$fileinfo = pathinfo($_FILES['group_image']['name']);
+				
+				$extension = $fileinfo['extension'];
+				if ( !empty($extension) && !empty($fileinfo['filename'])){
+					//$file_url = $upload_url . 'face_' . time() . '.' . $extension;
+					$file_path = $upload_path . 'group_'.$fileinfo['filename'].'_' . time() . '.' . $extension;
+					$is_uploaded = move_uploaded_file($_FILES['group_image']['tmp_name'], $file_path);
+					if($is_uploaded){
+						$updateData = " set group_image='".$file_path."'"; 
+						$whrecond = " id ='".$group_id."'";
+						$res = $db->addEditRecord('groups_calling',$updateData,$whrecond); //update user group
+						if($res === FALSE){
+							$uploaded="No"; 
+							
+						}else{ 
+							if(file_exists($_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$user_groups_list->group_image)){
+								 
+								if($user_groups_list->group_image!=''){ 
+									unlink($_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$user_groups_list->group_image);
+								}
+								
+							}
+							$user_groups_list =  $db->selUserMessageGroupData($user_id,$group_id);
+							$group_pic = '';
+							if($user_groups_list->group_image!=''){
+								$group_pic = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/'.strip_tags($user_groups_list->group_image);
+							}
+							
+							$uploaded="Yes"; 
+							$_['en_message'] = "Group profile add/update sucessfully.";
+						}
+
+					}else{
+						$uploaded="No";
+						$_['en_message'] = "Image has not been upload pleae try again.";						
+					}
+				}else{
+					$_['en_message'] = "Image should not empty.";
+					$uploaded="No"; 
+				}
+				
+			}
+			
+			if($uploaded=="No"){
+
+				$response["error"] = true;
+				//$response["data"] = $arr;
+				$response['status'] = 'failed';
+				$response["message"] = $_[$lang . '_message'];
+				echoResponse(200, $response);
+			}else{
+				$response["error"] = false;
+				$response["group_image"] = $group_pic;
+				$response['status'] = 'success';
+				$response['message'] = $_[$lang . '_message'];
+				echoResponse(200, $response);
+			}
+				
+				
+		}else{
+			$response["error"] = true;
+			//$response["data"] = $arr;
+			$response['status'] = 'failed';
+			$response["message"] = "You can\'t upload/delete group picture.";
+			echoResponse(200, $response);
+		}
+	});
+	
+
 
 
 /*==============end to group calling/message =======*/
