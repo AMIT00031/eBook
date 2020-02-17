@@ -1413,35 +1413,45 @@ $app->post('/contact_us', function () use ($app) {
     }
 });
 
-
+//http://dnddemo.com/ebooks/api/v1/user_list
 $app->post('/user_list', function () use ($app){
 	
-    $userid = $app->request->post('user_id');
-    $response = array();
-    $db = new DbOperation();
-    $arr = array();
+    $userid 			= $app->request->post('user_id');
+    $is_all_users_list  = $app->request->post('is_all_users_list');
+    $response 			= array();
+    $db 				= new DbOperation();
+    $arr 				= array();
 
     $arr = $db->getAuthorDetails($userid); 
 	
-	
 	/*  echo "<pre>";print_r($arr); */
- $userList = array();
+	$userList = array();
     if(!empty($arr)){
 		
-		$fields = "ult.id,ult.user_name,ult.url,ult.email,ult.about_me, ult.publisher_type,ult.device_token, ult.device_type,ult.phone_no,ult.status";
-		$whrcond = " ult.id != $arr[id] "; 
 		$user_id = $arr['id'];
-        //$userList = $db->getDetails("user_login_table",$fields,$whrcond);
-        $userList = $db->getDetailsOther("user_login_table",$fields,$whrcond,$user_id);
-       
-		 if(!empty($userList))
-		 { 
+		if($is_all_users_list=="Yes"){
+			$fields = "id,user_name,url,email,about_me, publisher_type,device_token, device_type,phone_no,status";
+			$whrcond = " status = 1 ";  
+			$userList = $db->getDetails2("user_login_table",$fields,$whrcond);
+			
+		}else{
+			
+			$fields = "ult.id,ult.user_name,ult.url,ult.email,ult.about_me, ult.publisher_type,ult.device_token, ult.device_type,ult.phone_no,ult.status";
+			$whrcond = " ult.id != $arr[id] "; 
+			$userList = $db->getDetailsOther("user_login_table",$fields,$whrcond,$user_id);
+		}
+		
+		if(!empty($userList))
+		{ 
 			foreach($userList as $row)
-			{
+			{   
 				$img = "";
-
-				if($row['avatar']) $img = 'upload/chats/'.$row['avatar'];
 				$channelId = "";
+
+				//if($is_all_users_list!="Yes"){
+					
+				if($row['avatar']) $img = 'upload/chats/'.$row['avatar'];
+				
 				$channelId = $db->has_channel($row['id'], $userid);
 				
 				$is_delete = "";
@@ -1454,6 +1464,7 @@ $app->post('/user_list', function () use ($app){
 				} */
 				
 				if($is_delete) $channelId = "";
+				//}
 				
 				$user_list_arr[] = array(
 					'userId' => $row['id'],
@@ -1469,7 +1480,8 @@ $app->post('/user_list', function () use ($app){
 				);
 			}
 			//print_r($user_list_arr); die;
-		} 	
+		} 
+		
         $response["error"] = false;
         //$response["data"] = $arr;
         $response["userList"] = $user_list_arr;
@@ -3128,6 +3140,7 @@ $app->post('/user_calling', function () use ($app){
 			echoResponse(200, $response);
 		}
 	});
+	
 	
 
 
