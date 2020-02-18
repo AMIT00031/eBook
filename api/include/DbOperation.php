@@ -1515,15 +1515,10 @@ public function deleteNoteBook($note_id) {
 		
 		if($tbl!=''){
 			$query = "select $fields from $tbl where 1";
-			
-			//tbl_frnds.frnd_id='".$userId."' AND
 			if($whrcond) $query .= " and ".$whrcond;
 			//echo $query; die;
 			$result = mysql_query($query);
-			
 			$num_rows = mysql_num_rows($result);
-			
-			
             if ($num_rows > 0) {
                 while($res = mysql_fetch_object($result)){
                    
@@ -1532,9 +1527,34 @@ public function deleteNoteBook($note_id) {
                     $rows[] = $res;
 					
                 }
-				
                 return $rows;
-				
+			}else{
+				return NULL;
+			}
+		}else{
+			return NULL;
+		}
+    }
+	
+	 public function getDetails2($tbl,$fields='', $whrcond='',$order_by='', $order='', $orWhere='', $limit='', $start='') {
+        
+		$fields  = ($fields)?$fields:"*"; 
+		
+		if($tbl!=''){
+			$query = "select $fields from $tbl where 1";
+			if($whrcond) $query .= " and ".$whrcond;
+			//echo $query; die;
+			$result = mysql_query($query);
+			$num_rows = mysql_num_rows($result);
+            if ($num_rows > 0) {
+                while($res = mysql_fetch_array($result)){
+                   
+                    //$res->thubm_image = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.strip_tags($res->thubm_image);
+                    //$res->book_description = strip_tags($res->book_description);
+                    $rows[] = $res;
+					
+                }
+                return $rows;
 			}else{
 				return NULL;
 			}
@@ -1555,10 +1575,7 @@ public function deleteNoteBook($note_id) {
 			//if($whrcond) $query .= " and ".$whrcond."  group by ult.id"; die;
 			//echo $query; die;
 			$result = mysql_query($query);
-			
 			$num_rows = mysql_num_rows($result);
-			
-			
             if ($num_rows > 0) {
                 while($res = mysql_fetch_array($result)){
                    
@@ -1774,20 +1791,22 @@ public function deleteNoteBook($note_id) {
 	  Group message/calling 
  */
  
-    public function checkGroup($name,$usid) {
+    public function checkGroup($groupid,$name='') {
         
-		$query = 'select a.* from groups_calling as a where a.name="'.$name.'" and a.userid='.$usid.'  and a.status=1   ';
+		//$query = 'select a.* from groups_calling as a where a.name="'.$name.'" and a.userid='.$usid.'  and a.status=1   ';
+		$query = 'select a.* from groups_calling as a where a.id="'.$groupid.'" and a.status=1'; 
 		$run = mysql_query($query);
 		$row = mysql_fetch_object($run);
 		if(!empty($row)){
-			return 1;
+			return $row;
 		}else{
 			return NULL;
 		}	
 	} 
-	 public function recheckGroup($name,$usid) {
+	 public function recheckGroup($name,$groupid) {
         
-		$query = 'select a.* from groups_calling as a where a.name="'.$name.'" and a.userid !='.$usid.'  and a.status=1   ';
+		//$query = 'select a.* from groups_calling as a where a.name="'.$name.'" and a.userid !='.$usid.'  and a.status=1 ';
+		$query = 'select a.* from groups_calling as a where a.name="'.$name.'" and a.id !='.$groupid.'  and a.status=1 ';
 		$run = mysql_query($query);
 		$row = mysql_fetch_object($run);
 		if(!empty($row)){
@@ -1842,12 +1861,29 @@ public function deleteNoteBook($note_id) {
 		if($user_id!=''){
 			
 			$query = 'select a.* from groups_calling as a where   (a.userid='.$user_id.'  || FIND_IN_SET('.$user_id.',a.groupuserid) )  and a.status=1 order by a.id desc '; 
+			//echo $query = 'select a.*,guc.messagetype,guc.message from groups_calling as a left join groupsuserschat as guc  where (a.userid='.$user_id.' || FIND_IN_SET('.$user_id.',a.groupuserid) )  and a.status=1  order by guc.id desc ';  die;
 			
 			$result = mysql_query($query);
 			$num_rows = mysql_num_rows($result);
 			if ($num_rows > 0) {
 				while($res = mysql_fetch_object($result)){
-				 
+					
+					$queryMessage = 'select guc.messagetype,guc.message,guc.unreadmessage from groupsuserschat as guc where (guc.userid='.$user_id.'  || FIND_IN_SET('.$user_id.',guc.sendtoid) )  and guc.status=1 order by guc.uschid desc limit 1 '; 
+					
+					$resultMessage = mysql_query($queryMessage);
+					$num_rows_message = mysql_num_rows($resultMessage);
+					if ($num_rows_message > 0) {
+						while($resMessage = mysql_fetch_object($resultMessage)){		
+							$res->messagetype = $resMessage->messagetype;
+							$res->message = $resMessage->message;
+							$res->unreadmessage = $resMessage->unreadmessage;
+						}
+					}else {
+						$res->messagetype = $resMessage->messagetype;
+						$res->message = $resMessage->message;
+						$res->unreadmessage = $resMessage->unreadmessage;
+					}						
+					
 					$allGrops[] = $res;
 				}
 				return $allGrops;
