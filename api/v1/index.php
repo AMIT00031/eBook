@@ -357,7 +357,68 @@ $app->post('/sendFrndReq', function() use ($app) {
     $db = new DbOperation();
     $response = array();
     $res = $db->sendFrndReq($user_id, $frnd_id);
+	
     if($res== 1){
+		
+		$senduser 	= $db->getAuthorDetails2($user_id);
+		
+		if(!empty($senduser)){ 
+			
+			$groupid 	=  $group_id;          
+			$sendtoid 	=  $frnd_id;
+			$rec_user_detail 	= $db->getAuthorDetails2($sendtoid);
+			//echo "<pre>";print_r($rec_user_detail); die;
+	
+			if(is_numeric($sendtoid) && $user_id && $rec_user_detail->device_token!=''){
+				
+				/* $user_details = array();
+				$user_details = $rec_user_detail;
+				$chats = array(); */
+				
+				//'channel_id' => $channelId, 
+				$fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+				//$token = $senduser->device_token; 
+				$token = $rec_user_detail->device_token; 
+				$notification = [
+					'user_id' => $senduser->id, 
+					'UserName' => $senduser->user_name, 
+					'Avtar' => $senduser->url, 
+					'channel_id' => $frnd_id,
+					'noti_msg' => 'friend_req', 
+				];
+				$extraNotificationData = ["message" => $notification];        
+				$fcmNotification = [
+					//'registration_ids' => $tokenList, //multple token array
+					'to'        => $token, //single token
+					'notification' => $notification,
+					'data' => $notification
+				];
+
+				//echo "<pre>";print_r($fcmNotification);exit;
+
+				$headers = [
+				'Authorization: key='.API_ACCESS_KEY,
+				'Content-Type: application/json'
+				];
+
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL,$fcmUrl);
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmNotification));
+				$result = curl_exec($ch);
+				curl_close($ch);
+				$response['pushMessaage'] = json_decode($result);
+				
+				$noti_send = $sendtoid;	
+				
+			} 
+			//echo "<pre>";print_r($chats);exit('pf');
+		
+		}else { $noti_send = '';} 		
+
         $response['error'] = false;
         $response['response'] = 'Friend Request Sent Successfully...';        
     }else{
@@ -3130,8 +3191,7 @@ $app->post('/user_calling', function () use ($app){
 				$response['message'] = $_[$lang . '_message'];
 				echoResponse(200, $response);
 			}
-				
-				
+
 		}else{
 			$response["error"] = true;
 			//$response["data"] = $arr;
@@ -3140,9 +3200,48 @@ $app->post('/user_calling', function () use ($app){
 			echoResponse(200, $response);
 		}
 	});
-	
-	
 
+	//http://dnddemo.com/ebooks/api/v1/displayGroupNameAndPic	
+	$app->post('/displayGroupNameAndPic', function () use ($app) {
+		
+		verifyRequiredParams(array('user_id','group_id'));
+		$group_id  			 = $app->request->post('group_id');
+		$user_id  			 = $app->request->post('user_id');
+		$message = "";   
+		$lang = 'en';
+		$response 	= array();
+		$db = new DbOperation();
+		//$senduser 		  =  $db->getAuthorDetails2($user_id);
+		$user_groups_list =  $db->selUserMessageGroupData($user_id,$group_id);	
+		$is_admin_id 	  =  $user_groups_list->userid;
+		
+		if( $user_id==$user_groups_list->userid || in_array($user_id,explode(",",$user_groups_list->groupuserid)) ){
+		//if($is_admin_id==$user_id){
+			
+			$upload_path = 'upload/group/';
+		    $group_pic = '';
+			if(file_exists($_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$user_groups_list->group_image)){	
+				if($user_groups_list->group_image!=''){
+					$group_pic = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/'.strip_tags($user_groups_list->group_image);
+				}
+			}
+			$_['en_message'] = "Group profile listed below.";
+			$user_groups_list->group_image = $group_pic;
+			$response["error"] = false;
+			$response["group_detail"] = $user_groups_list;
+			$response['status'] = 'success';
+			$response['message'] = $_[$lang . '_message'];
+			echoResponse(200, $response);	
+		}else{
+			$_['en_message'] = "No data available.";
+			$response["error"] = true;
+			//$response["data"] = $arr;
+			$response['status'] = 'failed';
+			$response["message"] = $_[$lang . '_message'];
+			echoResponse(200, $response);
+		}
+	});
+	
 
 
 /*==============end to group calling/message =======*/
