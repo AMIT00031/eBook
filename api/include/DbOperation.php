@@ -1856,19 +1856,31 @@ public function deleteNoteBook($note_id) {
 		}
 	}
 	
-	public function  getGroupDetailsOK($user_id){
+	public function  getGroupDetailsOK($user_id){ 
 		
 		if($user_id!=''){
 			
-			$query = 'select a.* from groups_calling as a where   (a.userid='.$user_id.'  || FIND_IN_SET('.$user_id.',a.groupuserid) )  and a.status=1 order by a.id desc '; 
+			$query = 'select a.*,guc.messagetype,guc.message,guc.unreadmessage,guc.groupid,guc.created_at as message_date from groups_calling as a left join groupsuserschat as guc on (a.id=guc.groupid) where (a.userid='.$user_id.'  || FIND_IN_SET('.$user_id.',a.groupuserid) ) group by a.id order by guc.created_at desc'; 
+			
+			//$query = 'select a.* from groups_calling as a where   (a.userid='.$user_id.'  || FIND_IN_SET('.$user_id.',a.groupuserid) )  and a.status=1 order by a.id desc ';  
+			
 			//echo $query = 'select a.*,guc.messagetype,guc.message from groups_calling as a left join groupsuserschat as guc  where (a.userid='.$user_id.' || FIND_IN_SET('.$user_id.',a.groupuserid) )  and a.status=1  order by guc.id desc ';  die;
 			
 			$result = mysql_query($query);
-			$num_rows = mysql_num_rows($result);
+			$num_rows = mysql_num_rows($result);	
 			if ($num_rows > 0) {
 				while($res = mysql_fetch_object($result)){
 					
-					$queryMessage = 'select guc.messagetype,guc.message,guc.unreadmessage from groupsuserschat as guc where (guc.userid='.$user_id.'  || FIND_IN_SET('.$user_id.',guc.sendtoid) )  and guc.status=1 order by guc.uschid desc limit 1 '; 
+					$group_pic = '';
+					if(file_exists($_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$res->group_image)){ 
+						if($res->group_image!=''){
+							//$group_pic = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/'.strip_tags($res->group_image);
+							$group_pic = strip_tags($res->group_image);
+						}
+					} 
+					$res->group_image = $group_pic; 
+					
+					/* $queryMessage = 'select guc.messagetype,guc.message,guc.unreadmessage from groupsuserschat as guc where (guc.userid='.$user_id.'  || FIND_IN_SET('.$user_id.',guc.sendtoid) )  and guc.status=1 order by guc.uschid desc limit 1 '; 
 					
 					$resultMessage = mysql_query($queryMessage);
 					$num_rows_message = mysql_num_rows($resultMessage);
@@ -1882,7 +1894,7 @@ public function deleteNoteBook($note_id) {
 						$res->messagetype = $resMessage->messagetype;
 						$res->message = $resMessage->message;
 						$res->unreadmessage = $resMessage->unreadmessage;
-					}						
+					} */						
 					
 					$allGrops[] = $res;
 				}
@@ -1988,6 +2000,11 @@ public function deleteNoteBook($note_id) {
 			
 			 //$query = "select * from groupsuserschat where 1 and (sendtoid = '".$user_id."' or userid = '".$user_id."') AND groupid = '".$group_id."' AND status = '1'"; 
 			 $query = "select * from groupsuserschat where 1 AND groupid = '".$group_id."' AND status = '1' group by message,created_at order by uschid asc"; 
+
+			//$query = "select * from groupsuserschat where 1 AND groupid = '".$group_id."' AND status = '1' and userdelete group by message,created_at order by uschid asc"; 
+			
+			 //$query = "select * from groupsuserschat where 1 AND groupid = '".$group_id."' AND status = '1' and if(`userdelete`!= if(userid=$user_id) group by message,created_at order by uschid asc"; 
+			 
 			
 			$result = mysql_query($query);
 			$num_rows = mysql_num_rows($result);
