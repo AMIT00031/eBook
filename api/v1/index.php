@@ -1558,7 +1558,6 @@ $app->post('/user_list', function () use ($app){
 
 
 
-
 /* user chat function start here */ 
 
 $app->post('/user_chat', function () use ($app){
@@ -1761,7 +1760,6 @@ $app->post('/user_chat', function () use ($app){
 						$message = 'Docfile';
 					}
 					
-					
 					$fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 					$token = $arr->device_token; 
 					$notification = [
@@ -1769,6 +1767,7 @@ $app->post('/user_chat', function () use ($app){
 						'UserName' => $UserDetails->user_name, 
 						'Avtar' => $UserDetails->url, 
 						'channel_id' => $channelId, 
+						'noti_type' => "individual",
 						'noti_msg' => $message,
 					];
 					
@@ -2014,7 +2013,8 @@ $app->post('/user_chat_list', function () use ($app){
 	
 	
 $app->post('/delete_chat', function () use ($app){
-    $userid = $app->request->post('user_id');
+    
+	$userid = $app->request->post('user_id');
     $receiver = $app->request->post('receiver');
     $response = array();
     $db = new DbOperation();
@@ -2027,7 +2027,6 @@ $app->post('/delete_chat', function () use ($app){
 	
 	$channelId = $arr->channel_id;
     $UpdateUerchat = $db->UpdateUserChat($userid,$channelId,$receiver);
-	
 	
     if(!empty($arr)){
 		$response["error"] = false;
@@ -2106,112 +2105,113 @@ $app->post('/sendEmailData', function () use ($app) {
 });
 
 
-//calling api
+	//calling api
 
-//URL: http://dnddemo.com/ebooks/api/v1/user_calling
-//params: user_id, sendTO, channelId
-$app->post('/user_calling', function () use ($app){
-	
-	verifyRequiredParams(array('user_id', 'sendTO')); 
-    $userid = $app->request->post('user_id');
-    $sendTO = $app->request->post('sendTO');
-	$type   = $app->request->post('type');
-	$channelId = $app->request->post('channelId');
-    $response = array();
-    $db = new DbOperation();
-    $arr = array();
-	$insertData = array();
-	
-	$message = "";          
+	//URL: http://dnddemo.com/ebooks/api/v1/user_calling
+	//params: user_id, sendTO, channelId
+	$app->post('/user_calling', function () use ($app){
+		
+		verifyRequiredParams(array('user_id', 'sendTO')); 
+		$userid = $app->request->post('user_id');
+		$sendTO = $app->request->post('sendTO');
+		$type   = $app->request->post('type');
+		$channelId = $app->request->post('channelId');
+		$response = array();
+		$db = new DbOperation();
+		$arr = array();
+		$insertData = array();
+		
+		$message = "";          
 
-    $UserDetails = $db->getAuthorDetails3($userid);
-    $arr = $db->getAuthorDetails2($sendTO);
+		$UserDetails = $db->getAuthorDetails3($userid);
+		$arr = $db->getAuthorDetails2($sendTO);
 
-	//echo "<pre>";print_r($arr); die;
-	
-	$userList = array();
-	
-    if(!empty($arr)){ 
-		//echo "fd";die;
-		if($userid && $app->request->post('sendTO') && $channelId!=''){
+		//echo "<pre>";print_r($arr); die;
+		
+		$userList = array();
+		
+		if(!empty($arr)){ 
+			//echo "fd";die;
+			if($userid && $app->request->post('sendTO') && $channelId!=''){
 
-			$user_details = array();
-			$user_details = $arr;
+				$user_details = array();
+				$user_details = $arr;
+				
+				//$fields = "id,user_name,url,email,about_me, publisher_type,device_token, device_type,phone_no";
+				//$whrcond = " id != $arr->id "; 
+				//$userList = $db->getDetails("user_login_table",$fields,$whrcond);
+				
+				$fields_token = "id,device_token,device_type";
+				$whrcond_token = " id = '".$app->request->post('sendTO')."' "; 
+				$user_tokens = $db->getDetails("user_login_table",$fields_token,$whrcond_token);
+				
+				if($type=="audioCall") $slogon = "audioCall"; else  $slogon = "videoCall"; 
+				
+				if(!empty($user_tokens)){
+		
+					$fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+					$token = $arr->device_token; 
+					$notification = [
+						'user_id' => $UserDetails->id, 
+						'UserName' => $UserDetails->user_name, 
+						'Avtar' => $UserDetails->url, 
+						'channel_id' => $channelId, 
+						'noti_type' => "user_calling",
+						'noti_msg' => $slogon,
+					];						
+
+					$extraNotificationData = ["message" => $notification];        
+					$fcmNotification = [
+						//'registration_ids' => $tokenList, //multple token array
+						'to'        => $token, //single token
+						'notification' => $notification,
+						'data' => $notification
+					];
+
+					//echo "<pre>";print_r($fcmNotification);exit;
+
+					$headers = [
+					'Authorization: key='.API_ACCESS_KEY,
+					'Content-Type: application/json'
+					];
+
+					$ch = curl_init();
+					curl_setopt($ch, CURLOPT_URL,$fcmUrl);
+					curl_setopt($ch, CURLOPT_POST, true);
+					curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+					curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmNotification));
+					$result = curl_exec($ch);
+					curl_close($ch);
+					$response['pushMessaage'] = json_decode($result);
+				} 
+					 
+					 //echo "<pre>";print_r($chats);exit('pf');	
+				$response["error"] = false;
+				//$response["data"] = $arr;
+				$response["message_data"] = 'Message for calling';
+				$response['status'] = 'success';
+				$response["message"] = "Successfully fetch";
+				echoResponse(200, $response); 		
 			
-			//$fields = "id,user_name,url,email,about_me, publisher_type,device_token, device_type,phone_no";
-			//$whrcond = " id != $arr->id "; 
-			//$userList = $db->getDetails("user_login_table",$fields,$whrcond);
-			
-			$fields_token = "id,device_token,device_type";
-			$whrcond_token = " id = '".$app->request->post('sendTO')."' "; 
-			$user_tokens = $db->getDetails("user_login_table",$fields_token,$whrcond_token);
-			
-			if($type=="audioCall") $slogon = "audioCall"; else  $slogon = "videoCall"; 
-			
-			if(!empty($user_tokens)){
-	
-				$fcmUrl = 'https://fcm.googleapis.com/fcm/send';
-				$token = $arr->device_token; 
-				$notification = [
-					'user_id' => $UserDetails->id, 
-					'UserName' => $UserDetails->user_name, 
-					'Avtar' => $UserDetails->url, 
-					'channel_id' => $channelId, 
-					'noti_msg' => $slogon,
-				];						
-
-				$extraNotificationData = ["message" => $notification];        
-				$fcmNotification = [
-					//'registration_ids' => $tokenList, //multple token array
-					'to'        => $token, //single token
-					'notification' => $notification,
-					'data' => $notification
-				];
-
-				//echo "<pre>";print_r($fcmNotification);exit;
-
-				$headers = [
-				'Authorization: key='.API_ACCESS_KEY,
-				'Content-Type: application/json'
-				];
-
-				$ch = curl_init();
-				curl_setopt($ch, CURLOPT_URL,$fcmUrl);
-				curl_setopt($ch, CURLOPT_POST, true);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-				curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fcmNotification));
-				$result = curl_exec($ch);
-				curl_close($ch);
-				$response['pushMessaage'] = json_decode($result);
-			} 
-				 
-				 //echo "<pre>";print_r($chats);exit('pf');	
-			$response["error"] = false;
-			//$response["data"] = $arr;
-			$response["message_data"] = 'Message for calling';
-			$response['status'] = 'success';
-			$response["message"] = "Successfully fetch";
-			echoResponse(200, $response); 		
+			}else{
+				
+				$response["error"] = true;
+				$response["message"] = "Channel Id does not exists";
+				echoResponse(201, $response);
+			}
 		
 		}else{
 			
 			$response["error"] = true;
-			$response["message"] = "Channel Id does not exists";
+			$response["message"] = "Failed";
 			echoResponse(201, $response);
 		}
-	
-	}else{
-		
-        $response["error"] = true;
-        $response["message"] = "Failed";
-        echoResponse(201, $response);
-	}
-   
-});
+	   
+	});
 
-/*==============strt to group calling/message =======*/
+	/*==============strt to group calling/message =======*/
 
 	//URL: http://dnddemo.com/ebooks/api/v1/addEditGroups
 	$app->post('/addEditGroups', function () use ($app) { 
@@ -2452,7 +2452,7 @@ $app->post('/user_calling', function () use ($app){
 			
 			}else{ 
 			  
-				$message = $message;  
+				$message = addslashes($message);  
 			}	
 			
 			$senduser 	= $db->getAuthorDetails2($send_by); //get sender user details
@@ -2528,6 +2528,8 @@ $app->post('/user_calling', function () use ($app){
 									$messagetype = 'Video';
 								}elseif($messagetype == 'docfile'){
 									$messagetype = 'Docfile';
+								}else if($messagetype=="text"){
+									$messagetype = addslashes($app->request->post('message'));
 								}
 								
 								//'channel_id' => $channelId, 
@@ -2538,8 +2540,10 @@ $app->post('/user_calling', function () use ($app){
 									'user_id' => $senduser->id, 
 									'UserName' => $senduser->user_name, 
 									'Avtar' => $senduser->url, 
-									'channel_id' => $channelId, 
+									'channel_id' => $group_id, 
+									'noti_type' => "group", 
 									'noti_msg' => $messagetype,
+									
 								];
 								$extraNotificationData = ["message" => $notification];        
 								$fcmNotification = [
@@ -2645,6 +2649,68 @@ $app->post('/user_calling', function () use ($app){
 		}
 
     });
+	
+	
+	//http://dnddemo.com/ebooks/api/v1/removeGroupChatByUser
+	$app->post('/removeGroupChatByUser', function () use ($app) {  // removegroupsmessgaebyuserid
+		
+		verifyRequiredParams(array('user_id','group_id')); 
+		$group_id  			= $app->request->post('group_id');
+		$user_id	 		= $app->request->post('user_id'); 
+		$action	 			= $app->request->post('action');  //all,selected,single
+		$chat_id	 		= $app->request->post('chat_id');  
+		$unreadmessage      = 1;
+		$arr = array(); 
+		$response 	= array();
+		
+		if(is_numeric($user_id) && $user_id!='' && is_numeric($group_id) && $group_id!=''){
+			
+			$db = new DbOperation();
+
+		    $group_row_data = $db->selRecordByGroupId($group_id);
+			
+			$res='';
+			//if($group_row_data->userid==$user_id && $action=="all"){
+			if($group_row_data->userid && $action=="all"){
+				
+				$whrecond = " groupid ='".$group_id."'";
+				$updateData = " set userdelete='1', deleted_at='".date("Y-m-d h:i:s")."'"; 
+				$res = $db->addEditRecord('groupsuserschat',$updateData,$whrecond);
+
+			//}else if($group_row_data->userid==$user_id && $action=="selected"){
+			}else if($group_row_data->userid && $action=="selected" && $chat_id!=''){
+				
+				//$whrecond = " groupid ='".$chat_id."'";
+				$whrecond = " groupid in('".$chat_id."')";
+				$updateData = " set userdelete='1', deleted_at='".date("Y-m-d h:i:s")."'"; 
+				$res = $db->addEditRecord('groupsuserschat',$updateData,$whrecond);
+			}
+			
+			if(!empty($res)){
+				
+				$response["error"] = false;
+				//$response["data"] = $group_user_chat_list ;
+				$response['status'] = 'success';
+				$response["message"] = 'Group chat deleted sucessfully';
+				echoResponse(200, $response); 
+				
+			} else {
+				$response["error"] = true;
+				//$response["data"] = $arr;
+				$response['status'] = 'failed';
+				$response["message"] = "Message not deleted";
+				echoResponse(200, $response); 
+			}
+		}else{
+			$response["error"] = true;
+			//$response["data"] = $arr;
+			$response['status'] = 'failed';
+			$response["message"] = "Something went wrong! user not found.";
+			echoResponse(200, $response); 
+		}
+
+    });
+	
 	
 	//http://dnddemo.com/ebooks/api/v1/groupMemberList	
 	$app->post('/groupMemberList', function () use ($app) {  //used  
@@ -3220,11 +3286,12 @@ $app->post('/user_calling', function () use ($app){
 			
 			$upload_path = 'upload/group/';
 		    $group_pic = '';
-			if(file_exists($_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$user_groups_list->group_image)){	
+			if(file_exists($_SERVER['DOCUMENT_ROOT'].'/ebooks/api/v1/'.$user_groups_list->group_image)){ 
 				if($user_groups_list->group_image!=''){
 					$group_pic = $_SERVER['HTTP_HOST'].'/ebooks/api/v1/'.strip_tags($user_groups_list->group_image);
 				}
 			}
+			
 			$_['en_message'] = "Group profile listed below.";
 			$user_groups_list->group_image = $group_pic;
 			$response["error"] = false;
