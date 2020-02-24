@@ -3309,7 +3309,68 @@ $app->post('/sendEmailData', function () use ($app) {
 		}
 	});
 	
+	
+	//http://dnddemo.com/ebooks/api/v1/deleteChatByUser
+	$app->post('/deleteChatByUser', function () use ($app) {  
+		
+		verifyRequiredParams(array('user_id','group_id')); 
+		$group_id  			= $app->request->post('group_id');
+		$user_id	 		= $app->request->post('user_id'); 
+		$action	 			= $app->request->post('action');  //all,selected,single
+		$chat_id	 		= $app->request->post('chat_id');  
+		$unreadmessage      = 1;
+		$arr = array(); 
+		$response 	= array();
+		
+		if(is_numeric($user_id) && $user_id!='' && is_numeric($group_id) && $group_id!=''){
+			
+			$db = new DbOperation();
 
+		    $group_row_data = $db->selRecordByGroupId($group_id);
+			
+			$res='';
+			//if($group_row_data->userid==$user_id && $action=="all"){
+			if($group_row_data->userid && $action=="all"){
+				
+				$whrecond = " groupid ='".$group_id."'";
+				$updateData = " set userdelete='1', deleted_at='".date("Y-m-d h:i:s")."'"; 
+				$res = $db->addEditRecord('groupsuserschat',$updateData,$whrecond);
+
+			//}else if($group_row_data->userid==$user_id && $action=="selected"){
+			}else if($group_row_data->userid && $action=="selected" && $chat_id!=''){
+				
+				//$whrecond = " groupid ='".$chat_id."'";
+				$whrecond = " groupid in('".$chat_id."')";
+				$updateData = " set userdelete='1', deleted_at='".date("Y-m-d h:i:s")."'"; 
+				$res = $db->addEditRecord('groupsuserschat',$updateData,$whrecond);
+			}
+			
+			if(!empty($res)){
+				
+				$response["error"] = false;
+				//$response["data"] = $group_user_chat_list ;
+				$response['status'] = 'success';
+				$response["message"] = 'User chat deleted sucessfully';
+				echoResponse(200, $response); 
+				
+			} else {
+				$response["error"] = true;
+				//$response["data"] = $arr;
+				$response['status'] = 'failed';
+				$response["message"] = "Message not deleted";
+				echoResponse(200, $response); 
+			}
+		}else{
+			$response["error"] = true;
+			//$response["data"] = $arr;
+			$response['status'] = 'failed';
+			$response["message"] = "Something went wrong! user not found.";
+			echoResponse(200, $response); 
+		}
+
+    });
+	
+	
 
 /*==============end to group calling/message =======*/
 
