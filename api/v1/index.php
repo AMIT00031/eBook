@@ -628,6 +628,7 @@ $app->post('/getAllCategory', function() use ($app) {
             $datas[$key]['created'] = $result->created; 
             $datas[$key]['created_at'] = $result->created_at; 
             $datas[$key]['updated_at'] = $result->updated_at; 
+			$datas[$key]['book_count'] = $result->book_count; 
 		}
         $response['error'] = false;
         $response['response'] = $datas;
@@ -3079,7 +3080,7 @@ $app->post('/sendEmailData', function () use ($app) {
 					$user_details = array();
 					$user_details = $rec_user_detail;
 					
-					$chats = array();
+					$chats = array(); 
 					
 					if($type=="audioCall") $slogon = "audioCall"; else  $slogon = "videoCall"; 
 					
@@ -3092,7 +3093,8 @@ $app->post('/sendEmailData', function () use ($app) {
 						'user_id' => $senduser->id, 
 						'UserName' => $senduser->user_name, 
 						'Avtar' => $senduser->url, 
-						'channel_id' => $groupid,  
+						'channel_id' => $groupid,
+						'noti_type' => "groupCall",										
 						'noti_msg' => $slogon, 
 					];
 					$extraNotificationData = ["message" => $notification];        
