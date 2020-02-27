@@ -2080,30 +2080,28 @@ $app->post('/delete_chat', function () use ($app){
 		}
 	} */
 	
-/**
- * URL: http://dnddemo.com/ebooks/api/v1/sendEmailData
- * Parameters: 
- * Method: POST
- * */
+	/**
+	 * URL: http://dnddemo.com/ebooks/api/v1/sendEmailData
+	 * */
 
-$app->post('/sendEmailData', function () use ($app) {
-    $emailFrom = $app->request->post('from');
-    $emailto = $app->request->post('emailto');
-    $subject = $app->request->post('subject');
-    $message = $app->request->post('message');
-    $db = new DbOperation();
-    $response = array();
-    $res = $db->sendEmail($emailFrom, $emailto, $subject, $message);
-    if($res){
-        $response["error"] = false;
-        $response["message"] = "success";
-        echoResponse(200, $response);
-    } else if ($res == 0) {
-        $response["error"] = true;
-        $response["message"] = "failed";
-        echoResponse(200, $response);
-    }
-});
+	$app->post('/sendEmailData', function () use ($app) {
+		$emailFrom = $app->request->post('from');
+		$emailto = $app->request->post('emailto');
+		$subject = $app->request->post('subject');
+		$message = $app->request->post('message');
+		$db = new DbOperation();
+		$response = array();
+		$res = $db->sendEmail($emailFrom, $emailto, $subject, $message);
+		if($res){
+			$response["error"] = false;
+			$response["message"] = "success";
+			echoResponse(200, $response);
+		} else if ($res == 0) {
+			$response["error"] = true;
+			$response["message"] = "failed";
+			echoResponse(200, $response);
+		}
+	});
 
 
 	//calling api
@@ -3313,7 +3311,7 @@ $app->post('/sendEmailData', function () use ($app) {
 	
 	
 	//http://dnddemo.com/ebooks/api/v1/deleteChatByUser
-	$app->post('/deleteChatByUser', function () use ($app) {  
+	$app->post('/deleteGroupChatByUser', function () use ($app) {  
 		
 		verifyRequiredParams(array('user_id','group_id')); 
 		$group_id  			= $app->request->post('group_id');
@@ -3323,7 +3321,8 @@ $app->post('/sendEmailData', function () use ($app) {
 		$unreadmessage      = 1;
 		$arr = array(); 
 		$response 	= array();
-		
+		$parts = array();
+ 		
 		if(is_numeric($user_id) && $user_id!='' && is_numeric($group_id) && $group_id!=''){
 			
 			$db = new DbOperation();
@@ -3335,16 +3334,45 @@ $app->post('/sendEmailData', function () use ($app) {
 			if($group_row_data->userid && $action=="all"){
 				
 				$whrecond = " groupid ='".$group_id."'";
-				$updateData = " set userdelete='1', deleted_at='".date("Y-m-d h:i:s")."'"; 
+				$updateData = " set userdelete='1',message_deleted_by_user= '".$user_id."', deleted_at='".date("Y-m-d h:i:s")."'"; 
 				$res = $db->addEditRecord('groupsuserschat',$updateData,$whrecond);
 
 			//}else if($group_row_data->userid==$user_id && $action=="selected"){
 			}else if($group_row_data->userid && $action=="selected" && $chat_id!=''){
 				
-				//$whrecond = " groupid ='".$chat_id."'";
-				$whrecond = " groupid in('".$chat_id."')";
-				$updateData = " set userdelete='1', deleted_at='".date("Y-m-d h:i:s")."'"; 
-				$res = $db->addEditRecord('groupsuserschat',$updateData,$whrecond);
+				$message_delete_by_user_list = $db->mess_delete_by_user($chat_id, $group_id);
+				
+				
+				if(in_array($user_id,explode(",",$message_delete_by_user_list->message_deleted_by_user))){ 
+						//do something
+					$whrecond = " uschid ='".$chat_id."'";
+					//$whrecond = " groupid in('".$chat_id."')";
+					//$updateData = " set message_deleted_by_user= '".$user_id."', deleted_at='".date("Y-m-d h:i:s")."'"; 
+					$updateData = " set deleted_at='".date("Y-m-d h:i:s")."'"; 
+					$res = $db->addEditRecord('groupsuserschat',$updateData,$whrecond);
+					
+				}else{
+				   
+				   if($message_delete_by_user_list->message_deleted_by_user!=''){
+					   
+						$deleted_grop_chat_user_id = explode(',', $message_delete_by_user_list->message_deleted_by_user);
+						
+						array_push($deleted_grop_chat_user_id, $user_id);
+						
+						$new_list_message_delete = implode(',', $deleted_grop_chat_user_id);
+						
+					}else{ 
+						$new_list_message_delete = $user_id;
+					}
+				
+					$whrecond = " uschid ='".$chat_id."'";
+					//$whrecond = " groupid in('".$chat_id."')";
+					$updateData = " set message_deleted_by_user= '".$new_list_message_delete."', deleted_at='".date("Y-m-d h:i:s")."'"; 
+					$res = $db->addEditRecord('groupsuserschat',$updateData,$whrecond);
+				
+				}
+				
+				
 			}
 			
 			if(!empty($res)){
