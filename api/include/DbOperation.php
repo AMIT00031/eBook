@@ -4,7 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
 
 require_once('DbConnect.php');
-require_once('PHPMailerAutoload.php');
+require_once('PHPMailerAutoload.php'); 
 
 $db = new DbConnect();
 class DbOperation {
@@ -453,6 +453,13 @@ public function deleteBookbyId($books_id) {
         $rows = array();
         if ($num_rows > 0){
             while ($res = mysql_fetch_object($result)) {
+				$mysql_cate = "SELECT count(*) as cate_count FROM tbl_books where status=1 and category_id='".$res->id."'"; 
+				$result_cate = mysql_query($mysql_cate);
+				$num_rows_cate = mysql_num_rows($result_cate); 
+				if($num_rows_cate>0){
+					$res_cate = mysql_fetch_object($result_cate);
+					$res->book_count = $res_cate->cate_count;
+				}else $res->book_count=0;
                 $rows[] = $res;
             }
 			
@@ -755,12 +762,13 @@ public function getBookbyCategoryId($cat_id){
         $row->book_title = strip_tags($row->book_title);
         $row->book_description = strip_tags($row->book_description);
         if($row->thubm_image)
-        $row->thubm_image = !empty($row->thubm_image) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->thubm_image: NULL;
+        $row->thubm_image = !empty($row->thubm_image) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/'.$row->thubm_image: '';
 	
-        $row->book_image = !empty($row->book_image) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/gallery/'.$row->book_image: NULL;
-        $row->video_url = !empty($row->video_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/video/'.$row->video_url : NULL;
-        $row->audio_url = !empty($row->audio_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/audio/'.$row->audio_url : NULL;
-        $row->pdf_url = !empty($row->pdf_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/document/'.$row->pdf_url : NULL;
+        $row->book_image = !empty($row->book_image) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/gallery/'.$row->book_image: '';
+        $row->video_url = !empty($row->video_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/video/'.$row->video_url : '';
+        $row->audio_url = !empty($row->audio_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/audio/'.$row->audio_url : '';
+        $row->pdf_url = !empty($row->pdf_url) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/books/document/'.$row->pdf_url : '';
+		 $row->profile_pic = !empty($row->profile_pic) ? $_SERVER['HTTP_HOST'].'/ebooks/api/v1/upload/'.strip_tags($row->profile_pic) : '';
      
         if($row->mostView >= 0){
             $MostVl = $row->mostView+1;
@@ -1930,6 +1938,24 @@ public function deleteNoteBook($note_id) {
 		}
 	}
 	
+	public function mess_delete_by_user($chat_id, $group_id){
+		
+		if($chat_id!='' && $group_id!=''){
+			
+			$query  = "SELECT * FROM groupsuserschat WHERE uschid = '".$chat_id."' AND groupid= '".$group_id."' and status=1 "; 
+			
+			$run = mysql_query($query);
+			$num_rows = mysql_num_rows($run);
+			if($num_rows > 0){
+				$row = mysql_fetch_object($run);
+				return $row;
+			}else{
+				return NULL;
+			}
+			
+		}
+	}
+	
 	public function  selRecordByGroupId($group_id){
 		
 		if($group_id!=''){
@@ -1999,12 +2025,17 @@ public function deleteNoteBook($note_id) {
 		if($user_id && $group_id){
 			
 			 //$query = "select * from groupsuserschat where 1 and (sendtoid = '".$user_id."' or userid = '".$user_id."') AND groupid = '".$group_id."' AND status = '1'"; 
-			 $query = "select * from groupsuserschat where 1 AND groupid = '".$group_id."' AND status = '1' group by message,created_at order by uschid asc"; 
+			
 
 			//$query = "select * from groupsuserschat where 1 AND groupid = '".$group_id."' AND status = '1' and userdelete group by message,created_at order by uschid asc"; 
 			
 			 //$query = "select * from groupsuserschat where 1 AND groupid = '".$group_id."' AND status = '1' and if(`userdelete`!= if(userid=$user_id) group by message,created_at order by uschid asc"; 
-			 
+			//$query = "select * from groupsuserschat where 1 AND groupid = '".$group_id."' AND status = '1' group by message,created_at order by uschid asc"; 
+			  
+			//$query = "select * from groupsuserschat where 1 AND groupid =  '".$group_id."' AND status = '1' AND uschid NOT IN (SELECT uschid FROM groupsuserschat where FIND_IN_SET('".$user_id."', message_deleted_by_user)) group by message,created_at order by uschid asc"; 
+
+
+			$query = "select * from groupsuserschat where 1 AND groupid =  '".$group_id."' AND status = '1' AND (sendtoid = '".$user_id."' or userid = '".$user_id."') AND uschid NOT IN (SELECT uschid FROM groupsuserschat where FIND_IN_SET('".$user_id."', message_deleted_by_user)) group by message,created_at order by uschid asc"; 			
 			
 			$result = mysql_query($query);
 			$num_rows = mysql_num_rows($result);
