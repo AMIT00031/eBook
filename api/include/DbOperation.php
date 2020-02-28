@@ -847,15 +847,34 @@ public function getBookbyCategoryId($cat_id){
     }
 	
 	
-	function UpdateUserChat($userid, $channelId, $receiver){
-        $mysql = "UPDATE user_chats SET is_deleted = '1', is_reciver='1' WHERE sender ='".$userid."' AND receiver='".$receiver."'";
+	function UpdateUserChat($userid, $channelId, $receiver,$chat_id,$action){ 
+		
+		if($action=="all"){
+				$mysql = "UPDATE user_chats SET is_deleted = '1', WHERE sender ='".$userid."' AND receiver='".$receiver."'";
+				//$mysql = "UPDATE user_chats SET is_deleted = '1',deleted_msg_from_user = '".$mess_delete_from_users."' WHERE sender ='".$userid."' AND receiver='".$receiver."'";
+		}else{
+			$mysqlRecord = "SELECT deleted_msg_from_user from user_chats WHERE id ='".$chat_id."'";
+			$runRecord = mysql_query($mysqlRecord);
+            $rowRecord = mysql_fetch_object($runRecord);
+			
+			if($rowRecord->deleted_msg_from_user!=''){
+				$mess_delete_from_users = $rowRecord->deleted_msg_from_user.",".$userid;
+			}else{
+				$mess_delete_from_users = $userid;
+			}
+			$mess_delete_from_users; 
+			//$mysql = "UPDATE user_chats SET deleted_msg_from_user = '".$mess_delete_from_users."' WHERE sender ='".$userid."' AND receiver='".$receiver."'";
+			$mysql = "UPDATE user_chats SET deleted_msg_from_user = '".$mess_delete_from_users."' WHERE id='".$chat_id."'";
+			
+		}
 		//echo $mysql;exit;
-        $run = mysql_query($mysql);
-        if($run > 0){
-            return 0;
-        }else{
-            return 1;
-        }
+		$run = mysql_query($mysql);
+		if($run > 0){
+			return 0;
+		}else{
+			return 1;
+		}
+		
     }
 	
 
@@ -1651,19 +1670,22 @@ public function deleteNoteBook($note_id) {
 		
 		//$sql   = "SELECT distinct(user_chats.channel_id) as chid,user_chats.* FROM  user_chats as user_chats  WHERE (user_chats.sender = '2' or user_chats.receiver = '2') and is_active='1' and id IN ( SELECT MAX(id) FROM user_chats GROUP BY user_chats.channel_id order by created desc )  GROUP BY user_chats.channel_id ORDER  BY user_chats.created desc";
 		
-		$sql  = "SELECT distinct(user_chats.channel_id) as chid,user_chats.* FROM  user_chats as user_chats  WHERE (user_chats.sender = '".$user_id."' or user_chats.receiver = '".$user_id."') and is_active='1' and id IN ( SELECT MAX(id) FROM user_chats GROUP BY channel_id order by created desc )  GROUP BY channel_id ORDER  BY user_chats.created desc";
+		//$sql  = "SELECT distinct(user_chats.channel_id) as chid,user_chats.* FROM  user_chats as user_chats  WHERE (user_chats.sender = '".$user_id."' or user_chats.receiver = '".$user_id."') and is_active='1' and id IN ( SELECT MAX(id) FROM user_chats GROUP BY channel_id order by created desc ) GROUP BY channel_id ORDER  BY user_chats.created desc";  
 		
-		//echo $sql  = "SELECT distinct(user_chats.channel_id) as chid,user_chats.*,ug.name,ug.group_image,ug.userid,ug.status FROM user_chats as user_chats  left join groups_calling as ug on ug.userid=user_chats.id  WHERE (user_chats.sender = '".$user_id."' or user_chats.receiver = '".$user_id."') and is_active='1' and id IN ( SELECT MAX(id) FROM user_chats GROUP BY channel_id order by created desc ) and ug.userid='".$user_id."'  and ug.status=1 GROUP BY user_chats.channel_id ORDER BY user_chats.created desc"; die;
-		
-		//SELECT distinct(user_chats.channel_id) as chid,user_chats.*,ug.name,ug.group_image,ug.userid,ug.status FROM user_chats as user_chats inner join groups_calling as ug WHERE (user_chats.sender = '79' or user_chats.receiver = '79') and is_active='1' and user_chats.id IN ( SELECT MAX(id) FROM user_chats GROUP BY channel_id order by created desc )  and ug.userid='79' and ug.status=1 GROUP BY user_chats.channel_id ORDER BY user_chats.created desc
-		
-		/* $group_detil = 	$this->getGropDetail($user_id);
-		if(!empty($group_detil)){
-			$group_detil->is_group="Yes"; 
-			$group_detilss[] = $group_detil;
-		} */
-		
-		
+		$musql_check ="SELECT max(id) as maxid FROM user_chats where FIND_IN_SET('".$user_id."', deleted_msg_from_user)";
+		$result_check = mysql_query($musql_check);
+		$num_rows_check = mysql_num_rows($result_check);
+		$res_check = mysql_fetch_object($result_check);	
+      
+		if($res_check->maxid!='' && $num_rows_check>0){
+			
+			$sql  = "SELECT distinct(user_chats.channel_id) as chid,user_chats.* FROM  user_chats as user_chats  WHERE (user_chats.sender = '".$user_id."' or user_chats.receiver = '".$user_id."') and is_active='1' and id IN ( SELECT MAX(id) FROM user_chats where id not in (SELECT max(id) FROM user_chats where FIND_IN_SET('".$user_id."', deleted_msg_from_user)) GROUP BY channel_id order by created desc ) GROUP BY channel_id ORDER  BY user_chats.created desc";   
+		}else{
+			$sql  = "SELECT distinct(user_chats.channel_id) as chid,user_chats.* FROM  user_chats as user_chats  WHERE (user_chats.sender = '".$user_id."' or user_chats.receiver = '".$user_id."') and is_active='1' and id IN ( SELECT MAX(id) FROM user_chats GROUP BY channel_id order by created desc ) GROUP BY channel_id ORDER  BY user_chats.created desc"; 
+		}
+			 
+		 
+	
 		$result = mysql_query($sql);
 		
 		$otherA = array();
@@ -1726,14 +1748,14 @@ public function deleteNoteBook($note_id) {
         
     }
  
-	public function user_chats($channel_id=""){
+	public function user_chats($channel_id='',$user_id){
 		$chats = array();
 		//$sql   = "SELECT * from user_chats WHERE user_chats.channel_id  = '".$channel_id."' and user_chats.is_active='1' ORDER BY user_chats.id ASC";
 		
-		$sql   = "SELECT * from user_chats WHERE user_chats.channel_id  = '".$channel_id."' and user_chats.is_active='1' AND user_chats.is_deleted !='1' ORDER BY user_chats.id ASC";
+		//$sql   = "SELECT * from user_chats WHERE user_chats.channel_id  = '".$channel_id."' and user_chats.is_active='1' AND user_chats.is_deleted !='1' ORDER BY user_chats.id ASC";
 		
-		/* $sql   = "SELECT * from user_chats WHERE user_chats.channel_id  = '" . $channel_id . "' and user_chats.is_active='1' AND (user_chats.is_deleted !='1' or user_chats.is_reciver !='1' ) and (user_chats.sender=3 or user_chats.reciver=3) ORDER BY user_chats.id ASC"; */	
-		//echo $sql;exit;
+		$sql   = "SELECT * from user_chats WHERE user_chats.channel_id  = '".$channel_id."' and user_chats.is_active='1' AND user_chats.id not in (SELECT id FROM user_chats where FIND_IN_SET('".$user_id."', deleted_msg_from_user)) ORDER BY user_chats.id ASC";
+		
 		
 		$result = mysql_query($sql);
 		$num_rows = mysql_num_rows($result);
@@ -2035,7 +2057,9 @@ public function deleteNoteBook($note_id) {
 			//$query = "select * from groupsuserschat where 1 AND groupid =  '".$group_id."' AND status = '1' AND uschid NOT IN (SELECT uschid FROM groupsuserschat where FIND_IN_SET('".$user_id."', message_deleted_by_user)) group by message,created_at order by uschid asc"; 
 
 
-			$query = "select * from groupsuserschat where 1 AND groupid =  '".$group_id."' AND status = '1' AND (sendtoid = '".$user_id."' or userid = '".$user_id."') AND uschid NOT IN (SELECT uschid FROM groupsuserschat where FIND_IN_SET('".$user_id."', message_deleted_by_user)) group by message,created_at order by uschid asc"; 			
+			$query = "select * from groupsuserschat where 1 AND groupid =  '".$group_id."' AND status = '1' AND (sendtoid = '".$user_id."' or userid = '".$user_id."') AND uschid NOT IN (SELECT uschid FROM groupsuserschat where FIND_IN_SET('".$user_id."', message_deleted_by_user)) group by message,created_at order by uschid asc"; 	
+
+			
 			
 			$result = mysql_query($query);
 			$num_rows = mysql_num_rows($result);
