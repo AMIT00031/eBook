@@ -1744,7 +1744,7 @@ $app->post('/user_chat', function () use ($app){
 				$db->delete_data("user_chats_removed", $where_del_cond);				
 				$chats = array();
 				
-				$chats = $db->user_chats($channelId);
+				$chats = $db->user_chats($channelId,$userid);
 				
 				$typedata = $app->request->post('type');
 				
@@ -1831,11 +1831,18 @@ $app->post('/user_chat', function () use ($app){
 					$response["message"] = "Successfully fetch";
 					echoResponse(200, $response); 
 					
-				}
+				}else{
+					$response["error"] = false;
+					//$response["data"] = $arr;
+					$response["chat_list"] = $chat_list;
+					$response['status'] = 'success';
+					$response["message"] = "No message found";
+					echoResponse(200, $response); 	
+				}	
 		  }elseif($userid && $app->request->post('channelId')){
 			
 			$chats = array(); 
-			$chats = $db->user_chats($app->request->post('channelId'));               
+			$chats = $db->user_chats($app->request->post('channelId'),$userid);               
 			if($chats){       
                 //delete case
 				$where_del_cond = "user_id='".$app->request->post('sendTO')."' and channel_id='".$app->request->post('channelId')."' ";
@@ -1878,10 +1885,18 @@ $app->post('/user_chat', function () use ($app){
 				$response['status'] = 'success';
 				$response["message"] = "Successfully fetch";
 				echoResponse(200, $response); 	
-			} 
+			}else{
+				$response["error"] = false;
+				//$response["data"] = $arr;
+				$response["chat_list"] = $chat_list;
+				$response['status'] = 'success';
+				$response["message"] = "No message found";
+				echoResponse(200, $response); 	
+			}				
 		}
 		
-		else{
+		else{ 
+		     $chat_list = array();
 			$response["error"] = false;
 			//$response["data"] = $arr;
 			$response["chat_list"] = $chat_list;
@@ -1890,7 +1905,7 @@ $app->post('/user_chat', function () use ($app){
 			echoResponse(200, $response); 	
 		}
 	
-	}else{
+	}else{  
         $response["error"] = true;
         $response["message"] = "Failed";
         echoResponse(201, $response);
@@ -1997,7 +2012,6 @@ $app->post('/user_chat_list', function () use ($app){
 			//$res->group_detail = $group_detil;
 		}*/
 		
-		
 		$response["error"] = false;
 		$response["data"] = $arr;
 		$response["userList"] = $chats_hist;
@@ -2015,19 +2029,21 @@ $app->post('/user_chat_list', function () use ($app){
 	
 $app->post('/delete_chat', function () use ($app){
     
-	$userid = $app->request->post('user_id');
+	$userid   = $app->request->post('user_id');
     $receiver = $app->request->post('receiver');
+    $chat_id  = $app->request->post('chat_id');
+    $action  = $app->request->post('action');  //all or individual from users
     $response = array();
     $db = new DbOperation();
 	$receiverDetail = array();
     $arr = array();
     $arr = $db->getAuthorDetails3($userid);
-	
+
 	/* echo "<pre> reciver data";print_r($receiverDetail);
 	echo "<pre>";print_r($arr);exit('sender data'); */
-	
+	 
 	$channelId = $arr->channel_id;
-    $UpdateUerchat = $db->UpdateUserChat($userid,$channelId,$receiver);
+    $UpdateUerchat = $db->UpdateUserChat($userid,$channelId,$receiver,$chat_id,$action);
 	
     if(!empty($arr)){
 		$response["error"] = false;
@@ -2049,37 +2065,6 @@ $app->post('/delete_chat', function () use ($app){
 /* user chat function start here */ 
 
 
-/* public function send_push($device_id="", $messagetype="", $username="", $message="",$badge)
-	{
-		//$badge = (int)$userId;
-		if ( $device_id!="") {				
-			$apnsHost = 'gateway.sandbox.push.apple.com';	
-			
-			//$apnsCert = FCPATH.'application/third_party/pushcert.pem';					
-			$apnsCert = FCPATH.'application/third_party/pushcert.pem';					
-			$apnsPort = 2195;					
-			$apnsPass = '1234';					
-			$token = $device_id;	
-			if($messagetype=='text'){ 	$mst = $username." :\r\n ".$message; }
-			elseif($messagetype=='file'){ 	$mst = $username." has sent a file "; }
-			 
-			
-			$payload['aps'] = array('alert' => $mst, 'badge' => $badge, 'sound' => 'default');			
-			$payload['api_type'] = 'one2oneuser_chat';					
-			$output = json_encode($payload);						
-			$token = pack('H*', str_replace(' ', '', $token));			
-			$apnsMessage = chr(0).chr(0).chr(32).$token.chr(0).chr(strlen($output)).$output;	
-			$streamContext = stream_context_create();						
-			stream_context_set_option($streamContext, 'ssl', 'local_cert', $apnsCert);	
-			stream_context_set_option($streamContext, 'ssl', 'passphrase', $apnsPass);			
-			$apns = stream_socket_client('ssl://'.$apnsHost.':'.$apnsPort, $error, $errorString, 2, STREAM_CLIENT_CONNECT, $streamContext);
-			//echo json_encode($apns); die;	
-			fwrite($apns, $apnsMessage);						
-			fclose($apns);			
-		///////////////////////////////////////////////////////////					
-		}
-	} */
-	
 	/**
 	 * URL: http://dnddemo.com/ebooks/api/v1/sendEmailData
 	 * */
@@ -3310,7 +3295,7 @@ $app->post('/delete_chat', function () use ($app){
 	});
 	
 	
-	//http://dnddemo.com/ebooks/api/v1/deleteChatByUser
+	//http://dnddemo.com/ebooks/api/v1/deleteGroupChatByUser
 	$app->post('/deleteGroupChatByUser', function () use ($app) {  
 		
 		verifyRequiredParams(array('user_id','group_id')); 
@@ -3468,6 +3453,40 @@ $app->post('/delete_chat', function () use ($app){
 
     });
 
+
+
+/* public function send_push($device_id="", $messagetype="", $username="", $message="",$badge)
+	{
+		//$badge = (int)$userId;
+		if ( $device_id!="") {				
+			$apnsHost = 'gateway.sandbox.push.apple.com';	
+			
+			//$apnsCert = FCPATH.'application/third_party/pushcert.pem';					
+			$apnsCert = FCPATH.'application/third_party/pushcert.pem';					
+			$apnsPort = 2195;					
+			$apnsPass = '1234';					
+			$token = $device_id;	
+			if($messagetype=='text'){ 	$mst = $username." :\r\n ".$message; }
+			elseif($messagetype=='file'){ 	$mst = $username." has sent a file "; }
+			 
+			
+			$payload['aps'] = array('alert' => $mst, 'badge' => $badge, 'sound' => 'default');			
+			$payload['api_type'] = 'one2oneuser_chat';					
+			$output = json_encode($payload);						
+			$token = pack('H*', str_replace(' ', '', $token));			
+			$apnsMessage = chr(0).chr(0).chr(32).$token.chr(0).chr(strlen($output)).$output;	
+			$streamContext = stream_context_create();						
+			stream_context_set_option($streamContext, 'ssl', 'local_cert', $apnsCert);	
+			stream_context_set_option($streamContext, 'ssl', 'passphrase', $apnsPass);			
+			$apns = stream_socket_client('ssl://'.$apnsHost.':'.$apnsPort, $error, $errorString, 2, STREAM_CLIENT_CONNECT, $streamContext);
+			//echo json_encode($apns); die;	
+			fwrite($apns, $apnsMessage);						
+			fclose($apns);			
+		///////////////////////////////////////////////////////////					
+		}
+	} */
+	
+	
 /********************************************************************************/
 
 function echoResponse($status_code, $response){
