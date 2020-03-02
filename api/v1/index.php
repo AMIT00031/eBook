@@ -16,6 +16,38 @@ define("DOCUMENTROOT",$_SERVER['DOCUMENT_ROOT'].ROOT_FOLDER);*/
 $app = new \Slim\Slim(); 
 
 
+
+
+ $app->post('/payment_by_paypal', function () use ($app) {
+
+    verifyRequiredParams(array('amount'));
+
+    $amount = $app->request->post('amount');
+    $currency = $app->request->post('currency');
+    $transaction_id = $app->request->post('transaction_id');
+    $user_id = $app->request->post('user_id');
+    $email = $app->request->post('email');
+    $book_id = $app->request->post('book_id');
+	//$perpose = $app->request->post('perpose');
+    $mode = 'paypal';
+
+    $db = new DbOperation();
+    $response = array();
+    $result = $db->paypalPayment($user_id, $amount, $currency, $mode, $transaction_id, $email,$book_id);
+    if ($result) {
+        $response['status'] = 'success';
+        $response['result'] = $result;
+    } else {
+        $response['status'] = false;
+        $response['result'] = $result;
+        $response['message'] = 'Something went wrong';
+    }
+    echoResponse(200, $response);
+}); 
+
+
+
+
 /**
  * URL: http://dnddemo.com/ebooks/api/v1/userFaceLogin
  * Parameters: user_id, image_name
@@ -106,7 +138,7 @@ $app->post('/createUser', function () use ($app) {
     $response = array();
     $full_name = $app->request->post('full_name');
     
-    $email = $app->request->post('email');
+    $email = trim($app->request->post('email'));
     $phone_no = $app->request->post('phone_no');
     $device_token = $app->request->post('device_token');
     $device_type = $app->request->post('device_type');
@@ -205,7 +237,7 @@ $app->post('/createUser', function () use ($app) {
 $app->post('/userLogin', function () use ($app) {
     $_['en_login_msg'] = "Invalid username or password";
     verifyRequiredParams(array('password'));
-    $email = $app->request->post('email');
+    $email = trim($app->request->post('email'));
     $user_name = $app->request->post('user_name');
     $password = $app->request->post('password');
     $device_token = $app->request->post('device_token');
@@ -213,13 +245,15 @@ $app->post('/userLogin', function () use ($app) {
     $lang = 'en';
     $db = new DbOperation();
     $response = array();
-    if ($db->userlogin($email, $user_name, $password, $device_token, $device_type)){
+	$user_detail = $db->userlogin($email, $user_name, $password, $device_token, $device_type);
+	
+    if ($user_detail==1){
         $users = $db->getUser($email, $user_name, $password);
-        //echo "<pre>";print_r($users);exit();
+        //echo "<pre>";print_r($users);die();
         $response['error'] = false;
         $response['response'] = $users;
        
-    }else{
+    }else{ 
         $response['error'] = true;
         $response['message'] = $_[$lang . '_login_msg']; //"Invalid username or password";
     }
@@ -242,6 +276,7 @@ $app->post('/getUserInfo', function() use ($app) {
     $db = new DbOperation();
     $response = array();
     $res = $db->getUserInfo($user_id);
+	
     if($res!= 1){
         $response['error'] = false;
         $response['response'] = $res;
@@ -469,9 +504,9 @@ $app->post('/userEdit', function () use ($app) {
         $user_id = $app->request->post('user_id');
         $address = $app->request->post('address');
     	$country = $app->request->post('country');
-        $password = $app->request->post('password');
+        //$password = $app->request->post('password');
         $publisher_type = $app->request->post('publisher_type');
-        $email = $app->request->post('email');
+        $email = trim($app->request->post('email'));
         $about_me = $app->request->post('about_me');
         $lang = 'en';
         $upload_path = 'upload/';
@@ -485,7 +520,7 @@ $app->post('/userEdit', function () use ($app) {
 
         $db = new DbOperation();
         $response = array();
-        $res = $db->userEdit($address, $user_id, $file_url, $country, $password,$publisher_type, $email,$about_me);
+        $res = $db->userEdit($address, $user_id, $file_url, $country, $password='',$publisher_type, $email,$about_me);
         if ($res == 0) {
             $response["error"] = false;
             $response["message"] = $_[$lang . '_userEdit'];
@@ -584,7 +619,7 @@ $app->post('/forgetPassword', function () use ($app) {
     verifyRequiredParams(array('email'));
     $_['en_oops_error'] = "Oops! some error occurs.";
     $_['en_userEdit'] = "You are successfully updated.";
-    $email = $app->request->post('email');
+    $email = trim($app->request->post('email'));
     $pass = $app->request->post('pass');
     $lang = 'en';
     $db = new DbOperation();
@@ -664,6 +699,8 @@ $app->post('/addNewBook', function () use ($app){
     $author_name = $app->request->post('author_name');
     $isbn_number = $app->request->post('isbn_number');
     $questiondata = $app->request->post('questiondata');
+	$is_paid = $app->request->post('is_paid'); //Yes, No
+	$price = $app->request->post('price');
     $status = $app->request->post('status');
 	
 		/****Cover image*/
@@ -717,6 +754,7 @@ $app->post('/addNewBook', function () use ($app){
 			$file_path = $upload_path .'video_'.time().'.'.$extension;
 			move_uploaded_file($_FILES['video_url']['tmp_name'], $file_path);
 		}
+		
 		if(is_numeric($book_id) && $book_id!=''){ $status =1; }
 		$sendData = array( 
 			'book_id' => ($book_id)?$book_id:'',
@@ -732,9 +770,11 @@ $app->post('/addNewBook', function () use ($app){
 			'video_url' => $video_url,
 			'questiondata' => $questiondata,
 			'isbn_number' => $isbn_number,
+			'is_paid' => $is_paid,
+			'price' => ($is_paid=="Yes")?$price:0,
 			'status' => $status
 		);
-
+		
 		$db = new DbOperation();
 		$res = $db->publishNewBook($sendData);
 		if($res){
