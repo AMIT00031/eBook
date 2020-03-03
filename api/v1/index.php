@@ -15,35 +15,138 @@ define("DOCUMENTROOT",$_SERVER['DOCUMENT_ROOT'].ROOT_FOLDER);*/
 
 $app = new \Slim\Slim(); 
 
-
-
-
- $app->post('/payment_by_paypal', function () use ($app) {
-
-    verifyRequiredParams(array('amount'));
-
+ 
+ $app->post('/payment_by_paypal', function () use ($app) { //payment is done via androied end
+	
+	$_['en_success'] = "Successfully fetch";	
+	$_['en_failed'] = "Something went wrong! please try again.";	
+    verifyRequiredParams(array('amount','book_id','user_id'));
     $amount = $app->request->post('amount');
     $currency = $app->request->post('currency');
     $transaction_id = $app->request->post('transaction_id');
     $user_id = $app->request->post('user_id');
     $email = $app->request->post('email');
     $book_id = $app->request->post('book_id');
+    $intent  = $app->request->post('intent'); //sale
+    $state   = $app->request->post('state'); //approved
+    $commission   = ($app->request->post('commission'))?$app->request->post('commission'):5; 
+	
 	//$perpose = $app->request->post('perpose');
     $mode = 'paypal';
 
-    $db = new DbOperation();
+    $db = new DbOperation(); 
     $response = array();
-    $result = $db->paypalPayment($user_id, $amount, $currency, $mode, $transaction_id, $email,$book_id);
-    if ($result) {
-        $response['status'] = 'success';
-        $response['result'] = $result;
+	if($state=="approved"){
+		if($state=="approved") $state = "success"; else $state = "pending"; 
+		if(is_numeric($commission) && $commission!='')
+		{
+			$commission_amount = (($amount*$commission)/100);
+			$amount_after_commission = $amount-$commission_amount; 
+		}else{
+			$commission_amount = 0;
+			$amount_after_commission = 0;  
+		}
+		$data_array = array('user_id'=>$user_id,'mode'=>$mode,'transaction_id'=>$transaction_id,'email'=>$email,'book_id'=>$book_id,'state'=>$state,'intent'=>$intent,'amount'=>$amount,'currency'=>$currency,'commission_amount'=>$commission_amount,'commission'=>$commission,'amount_after_commission'=>$amount_after_commission);
+		$result = $db->paypalPayment($data_array);
+		if (!empty($result) && $result->is_payment_done=="Yes") {
+			
+			$response["error"] = false;
+			$response['user_data'] = $result;
+			$response["message"] = $_[$lang .'_success'];
+			echoResponse(200, $response);
+				
+		} else {
+			$response["error"] = false;
+			$response['user_data'] = '';
+			$response['message'] = $_[$lang .'_failed'];
+			echoResponse(200, $response);
+		}
+    }else{
+		$response["error"] = false;
+		$response['user_data'] = '';
+		$response['message'] = $_[$lang .'_failed'];
+		echoResponse(200, $response);
+	}
+}); 
+
+/* $app->post('/stripe_payment', function () use ($app) {
+    verifyRequiredParams(array('stripeToken'));
+    $amount = $app->request->post('amount');
+    $orignial_amount = $app->request->post('amount');
+    $currency = $app->request->post('currency');
+    $stripeToken = $app->request->post('stripeToken');
+    $user_id = $app->request->post('user_id');
+    $email = $app->request->post('email');
+	$perpose = $app->request->post('perpose');
+    $mode = 'stripe';
+    $db = new DbOperation();
+    require_once(GETWELL .'/third_party/Stripe/lib/Stripe.php');
+    Stripe::setApiKey("pk_live_oRt7HAX3LZCxhP0uZSnwqENs");
+    $charge = Stripe_Charge::create(array(
+                "amount" => $amount*100,
+                "currency" => $currency,
+                "card" => $stripeToken,
+                "description" => "Payment For Donation"
+    ));
+    
+    $response = array();
+    if ($charge->status == "succeeded") {
+        $transaction_id = $charge->id;
+        $payment_id = $db->userPayment($user_id, $orignial_amount, $currency, $mode, $transaction_id, $email,$perpose);
+        if ($payment_id) {
+            $response['status'] = 'success';
+            $response['payment_id'] = $payment_id;
+            $response['transaction_id'] = $transaction_id;
+            $response['date'] = date('Y-m-d H:i:s');
+            $response['payment_id'] = $payment_id;
+        } else {
+            $response['status'] = false;
+            $response['payment_id'] = NULL;
+            $response['message'] = 'congratulations! payment done.';
+        }
     } else {
+        $response['error'] = true;
         $response['status'] = false;
-        $response['result'] = $result;
-        $response['message'] = 'Something went wrong';
+        $response['payment_id'] = 'NULL';
+        $response['payment_id'] = 'payment failed please try again';
     }
     echoResponse(200, $response);
+}); */
+
+
+ $app->post('/checkPaymentDone', function () use ($app) {
+	$lang = "en";
+	$_['en_success'] = "Successfully fetch";	
+	$_['en_failed'] = "Something went wrong! please try again.";	
+    verifyRequiredParams(array('book_id','user_id'));
+
+    $book_id = $app->request->post('book_id');
+    $user_id = $app->request->post('user_id');
+
+    $db = new DbOperation();
+    $response = array();
+	
+	$result = $db->checkPaymentDoneForBook($user_id,$book_id);
+	
+	if (!empty($result)) {
+		
+		$response["error"] = false;
+		$response['user_data'] = $result;
+		$response["message"] = $_[$lang .'_success'];
+		echoResponse(200, $response);
+			
+	} else {
+		$result['is_payment_done']="No";
+		$result['payment_status']="No";
+		$response["error"] = false;
+		$response['user_data'] = $result;
+		$response["message"] = $_[$lang.'_failed'];
+		echoResponse(200, $response);
+	}
+   
 }); 
+
+
 
 
 
