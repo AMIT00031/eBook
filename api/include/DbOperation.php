@@ -14,8 +14,10 @@ class DbOperation {
     */
 
     public function createUser($full_name, $pass, $email, $phone_no, $file_url, $device_token, $device_type, $random_number, $country="",$gender,$publisher_type,$user_name,$about_me,$face_cordX='',$face_cordY='',$face_width='',$login_type='' ){
-        if (!$this->isUserExists($email,$user_name)){
-            $password = base64_encode($pass);
+        //if (!$this->isUserExists($email,$user_name)){
+        if (!$this->isUserExists($email)){
+            //$password = base64_encode($pass);
+            $password = md5($pass);
             date_default_timezone_set('America/Los_Angeles');
             //echo "<pre>";print_r($_POST);exit();
            $mysql = "INSERT INTO user_login_table set full_name       ='".$full_name."',
@@ -47,7 +49,7 @@ class DbOperation {
                             /* Let's Prepare The Message For The E-mail */
                             $message = 'Hello '.$username.'
                             Your email and password is following:
-                            Username : '.$user_name.'
+                            Username : '.$email.'
                             password: '.$pass.'';
                             /* Send The Message Using mail() Function */
                             if(mail($to, $subject, $message)){
@@ -79,11 +81,15 @@ class DbOperation {
 	
 	
     public function userlogin($email, $user_name, $pass, $device_token, $device_type){
-        $password = base64_encode($pass);
-        $mysql = "SELECT * FROM user_login_table WHERE (user_name='".$user_name."') and password='".$password."'";
+        //$password = base64_encode($pass);
+		//echo $pass; die;
+        $password = md5($pass);
+        //$mysql = "SELECT * FROM user_login_table WHERE (user_name='".$user_name."') and password='".$password."'"; 
+       $mysql ="SELECT * FROM user_login_table WHERE (email='".$email."') and password='".$password."'"; 
         $run = mysql_query($mysql);
-        $num_rows = mysql_num_rows($run);
-        $mysql = mysql_query("update user_login_table set device_token='".$device_token."' ,device_type='".$device_type."' where user_name='".$user_name."' and password='".$password."'");		
+        $num_rows = mysql_num_rows($run); 
+        //$mysql = mysql_query("update user_login_table set device_token='".$device_token."' ,device_type='".$device_type."' where user_name='".$user_name."' and password='".$password."'");		
+        $mysql = mysql_query("update user_login_table set device_token='".$device_token."' ,device_type='".$device_type."' where email='".$email."' and password='".$password."'");		
         return $num_rows > 0;
     }
 	
@@ -126,14 +132,25 @@ class DbOperation {
 *
 */
     function userEdit($address, $user_id, $file_url, $country="",$password,$publisher_type,$email,$about_me) {
-        $password = base64_encode($password);
-        $mysql = "update user_login_table set address ='".$address."',
+		
+        
+		if($password!=''){ 
+            $pass = md5($password);		
+			$mysql = "update user_login_table set address ='".$address."',
                                                country ='".$country."',
-                                               password ='".$password."',
+                                               password ='".$pass."',
                                                publisher_type ='".$publisher_type."',
                                                email ='".$email."',
                                                about_me ='".$about_me."' where id='".$user_id."'";
+		}else{ 
+         $mysql = "update user_login_table set address ='".$address."',
+                                               country ='".$country."',
+                                               publisher_type ='".$publisher_type."',
+                                               email ='".$email."',
+                                               about_me ='".$about_me."' where id='".$user_id."'";
+		}
         
+	
         $run = mysql_query($mysql);
         if($run > 0){
             return 0;
@@ -184,7 +201,7 @@ class DbOperation {
     function forgetPassword($email){
         $chars = "0123456789";
         $pass = substr(str_shuffle($chars), 0, 6);
-        $password = base64_encode($pass);
+        $password = md5($pass);
 
         $mysql = "update user_login_table set password='".$password."' where email='".$email."'";
 
@@ -242,8 +259,9 @@ class DbOperation {
 *
 */
 
-    private function isUserExists($email,$user_name) {
-        $mysql = "SELECT id from user_login_table WHERE email ='".$email."' AND user_name='".$user_name."'";
+    private function isUserExists($email,$user_name='') {
+        //$mysql = "SELECT id from user_login_table WHERE email ='".$email."' AND user_name='".$user_name."'";
+        $mysql = "SELECT id from user_login_table WHERE email ='".$email."'";
         //$mysql = "SELECT id from user_login_table WHERE email ='".$email."'";
         $result = mysql_query($mysql);
         $num_rows = mysql_num_rows($result);
@@ -273,8 +291,9 @@ class DbOperation {
 */
 
     public function getUser($email, $user_name, $pass) {
-        $password = base64_encode($pass);
-        $mysql = "SELECT * FROM user_login_table WHERE (user_name = '".$user_name."') and password='".$password."'";
+        $password = md5($pass);
+       //$mysql = "SELECT * FROM user_login_table WHERE (user_name = '".$user_name."') and password='".$password."'"; die;
+        $mysql = "SELECT * FROM user_login_table WHERE (email = '".$email."') and password='".$password."' limit 1"; 
         $run = mysql_query($mysql);
         $user = mysql_fetch_object($run);
         return $user;
@@ -309,7 +328,7 @@ class DbOperation {
 
     public function getUserInfo($user_id) {
 		
-        $mysql = "SELECT * FROM user_login_table WHERE   id ='" . $user_id . "'";
+        $mysql = "SELECT * FROM user_login_table WHERE   id ='" . $user_id . "'"; 
         $result = mysql_query($mysql);
         $num_rows = mysql_num_rows($result);
         $rows = array();
@@ -317,6 +336,7 @@ class DbOperation {
             while ($res = mysql_fetch_object($result)) {
                 $rows[] = $res;
             }
+			//'password' => base64_decode($rows[0]->password),
             $rows = array(
                 'id' => $rows[0]->id,
                 'register_id' => $rows[0]->register_id,
@@ -327,7 +347,7 @@ class DbOperation {
                 'gender' => $rows[0]->gender,
                 'phone_no' => $rows[0]->phone_no,
                 'country' => $rows[0]->country,
-                'password' => base64_decode($rows[0]->password),
+                'password' => $rows[0]->password,
                 'date_edited' => $rows[0]->date_edited,
                 'status' => $rows[0]->status,
                 'message_status' => $rows[0]->message_status,
@@ -523,6 +543,8 @@ public function publishNewBook($data){
         $video_url        = $data['video_url'];
         $questiondata     = $data['questiondata'];
         $isbn_number      = $data['isbn_number'];
+		$is_paid     	  = $data['is_paid'];
+		$price      	  = $data['price'];
         $date             = date('Y-m-d');
         $status           = $data['status'];
         $book_slug = $replaced = str_replace(' ', '-', strtolower($data['book_title'])); 
@@ -542,6 +564,8 @@ public function publishNewBook($data){
                                        isbn_number      = '".$isbn_number."',
                                        book_description = '".$book_description."',
                                        author_name      = '".$author_name."',
+									   is_paid      	= '".$is_paid."',
+									   price      		= '".$price."',
                                        status           = '".$status."',
                                        created_at       = '".$date."' where id='".$book_update_id."' ";   
 		  
@@ -560,6 +584,8 @@ public function publishNewBook($data){
                                        isbn_number      = '".$isbn_number."',
                                        book_description = '".$book_description."',
                                        author_name      = '".$author_name."',
+									   is_paid      	= '".$is_paid."',
+									   price      		= '".$price."',
                                        status           = '".$status."',
                                        created_at       = '".$date."'";  
 	   }									   
@@ -2080,7 +2106,111 @@ public function deleteNoteBook($note_id) {
 	 
 		
 		
+	//function paypalPayment($user_id, $amount, $currency, $mode, $transaction_id, $payer_email,$book_id,$state,$intent) {
+	function paypalPayment($data_array) {
+       // $dbConn = new DbConnect();
+        date_default_timezone_set('America/Los_Angeles');
+        $date = date('Y-m-d H:i:s'); 
+        $rows = array();
+        $mysql = "INSERT INTO tbl_payment set amount   ='" . $data_array['amount'] . "',
+                        currency       ='" . $data_array['currency'] . "',
+                        date_added  ='" . $date . "',
+                        user_id  ='" . $data_array['user_id'] . "',
+                        is_payment_done ='Yes',
+                        payment_status ='" . $data_array['state'] . "',
+                        mode    ='" . $mode . "',
+                        transaction_id    ='" . $data_array['transaction_id'] . "',
+                        book_id    ='" . $data_array['book_id'] . "',
+                        commission    ='" . $data_array['commission'] . "',
+                        commission_amount    ='" . $data_array['commission_amount'] . "',
+						amount_after_commission    ='" . $data_array['amount_after_commission'] . "',
+                        payer_email    ='" . $data_array['payer_email'] . "'"; 
+		
+		$result = mysql_query($mysql);
+        $last_id = mysql_insert_id();
+		
+        //$result = mysqli_query($dbConn->db,$mysql);
+       // $last_id = mysqli_insert_id($dbConn->db);
+
+        if ($last_id) {
+
+            $mysql = "SELECT * FROM tbl_payment WHERE id ='" . $last_id . "'";
+            $run = mysql_query($mysql);
+            $user = mysql_fetch_object($run);
+            //$rows[] = $user;
+            return $user;
+        } else {
+            return false;
+        }
+    }
 	
+	function checkPaymentDoneForBook($user_id,$book_id,$payment_id='') {
+       
+        if ($book_id!='' && $user_id!='') {
+			//SELECT pay.*,books.category_name,books.book_title FROM tbl_payment as pay left join tbl_books as books on pay.book_id=books.id left join user_login_table as ult on ult.id=books.id WHERE pay.user_id =79 and pay.book_id =53 and books.status =1 order by pay.date_added desc
+			 $mysql = "SELECT pay.*,books.category_name,books.book_title FROM tbl_payment as pay left join tbl_books as books on pay.book_id=books.id WHERE pay.user_id ='".$user_id."' and pay.book_id ='".$book_id."' and books.status =1 order by pay.date_added desc";
+          
+            $run = mysql_query($mysql);
+            $paydetails = mysql_fetch_object($run);
+            //$rows[] = $user;
+            return $paydetails;
+        } else {
+            return false;
+        }
+    }
+	
+	 public function stripePayment($user_id, $amount, $currency, $mode, $transaction_id, $payer_email,$book_id,$state,$intent) {
+        $dbConn = new DbConnect();
+        date_default_timezone_set('America/Los_Angeles');
+        $admin_email = "dilip@seoessence.com";
+        $date = date('Y-m-d H:i:s');
+        $mysql = "INSERT INTO tble_payment set amount   ='" . $amount . "',
+                        currency       ='" . $currency . "',
+                        date_added  ='" . $date . "',
+                        user_id  ='" . $user_id . "',
+                        is_payment_done ='Yes',
+                        mode    ='" . $mode . "',
+                        transaction_id    ='" . $transaction_id . "',
+                        payer_email    ='" . $payer_email . "'";
+//        echo $mysql;die;
+
+        //$result = mysqli_query($dbConn->db,$mysql);
+        //$payment_id = mysqli_insert_id($dbConn->db);
+		
+		$result = mysql_query($mysql);
+        $payment_id = mysql_insert_id();
+
+        if ($result) {
+            $mailText = '';
+            $mailText = "Hi,<br/><br/>
+
+						An payment has done with this  Email address :" . $customer_email . "<br/><br/>
+                                                    <p><strong>Amount : </strong> " . $_POST['amount'] . "</p>
+                                                    <p><strong>Currecny : </strong> " . $_POST['currency'] . "</p>
+						
+                                                Thanks						
+						";
+
+            $subject = "Payment Notificaion For UEbooks";
+
+            // Always set content-type when sending HTML email
+            $headers = "MIME-Version: 1.0" . "\r\n";
+            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+
+            // More headers
+            $headers .= 'From: <dnddemo@support.com>' . "\r\n";
+
+            $recipients = array(
+                $admin_email,
+                $payer_email
+            );
+            $email_to = implode(',', $recipients);
+            mail($email_to, $subject, $mailText, $headers);
+            return $payment_id;
+        } else {
+            return false;
+        }
+    }
 
 		
  
