@@ -10,12 +10,68 @@ define('API_ACCESS_KEY','AAAA2RSvweQ:APA91bEnwlkf53HXU4559AUAIgsoEgnPLwDT3tw1cpj
 
 require_once "FaceDetector.php";
 
+define("DOC_ROOT",$_SERVER['DOCUMENT_ROOT']);
+define("FOLDER_PATH",'/ebooks'); //for demo
+//define("FOLDER_PATH",''); //for live
+
+		
+
+
+
 /*define("ROOT_FOLDER","/ebooks/development/");
 define("DOCUMENTROOT",$_SERVER['DOCUMENT_ROOT'].ROOT_FOLDER);*/
 
 $app = new \Slim\Slim(); 
 
- 
+
+$app->post('/admin_percentage', function () use ($app) { //payment is done via androied end
+	
+	$lang ="en";
+	$_['en_success'] = "Successfully fetch";	
+	$_['en_failed'] = "Something went wrong! please try again.";	
+    verifyRequiredParams(array('amount'));
+    $amount = $app->request->post('amount'); 
+	$fixed_amount = array(1,50,100,200,500);
+	$percentage_array   = array(2,4,6,10,15);
+
+    $db = new DbOperation(); 
+    $response = array();
+	$percentage = 0;
+	$count_percent = count($percentage_array);
+	if($amount!=''){
+		for($i=0;$i<count($fixed_amount);$i++){ 
+		
+			if($amount>=$fixed_amount[$i] && $amount<=$fixed_amount[$i+1]){ 
+				//echo $fixed_amount[$i]."<br>".$amount;
+			    $percentage = $percentage_array[$i] ;
+			    break;
+					
+			}else{
+			
+				$percentage = $percentage_array[$count_percent-1];
+			}
+		}  
+		if (!empty($percentage) && $percentage!="") {
+			
+			$response["error"] = false;
+			$response['percentage'] = $percentage;
+			$response["message"] = $_[$lang .'_success'];
+			echoResponse(200, $response);
+				
+		} else {
+			$response["error"] = false;
+			$response['percentage'] = '';
+			$response['message'] = $_[$lang .'_failed'];
+			echoResponse(200, $response);
+		}
+    }else{
+		$response["error"] = false;
+		$response['user_data'] = '';
+		$response['message'] = $_[$lang .'_failed'];
+		echoResponse(200, $response);
+	}
+}); 
+
  $app->post('/payment_by_paypal', function () use ($app) { //payment is done via androied end
 	
 	$_['en_success'] = "Successfully fetch";	
@@ -29,7 +85,8 @@ $app = new \Slim\Slim();
     $book_id = $app->request->post('book_id');
     $intent  = $app->request->post('intent'); //sale
     $state   = $app->request->post('state'); //approved
-    $commission   = ($app->request->post('commission'))?$app->request->post('commission'):5; 
+	$book_name   = $app->request->post('book_name');
+    $commission   = ($app->request->post('admin_commission'))?$app->request->post('admin_commission'):5; 
 	
 	//$perpose = $app->request->post('perpose');
     $mode = 'paypal';
@@ -69,49 +126,89 @@ $app = new \Slim\Slim();
 	}
 }); 
 
-/* $app->post('/stripe_payment', function () use ($app) {
-    verifyRequiredParams(array('stripeToken'));
+ $app->post('/stripe_payment', function () use ($app) {
+	$lang ="en";
+	$_['en_success'] = "Successfully paid";	
+	$_['en_failed'] = "Something went wrong! please try again.";	
+    
+	verifyRequiredParams(array('stripeToken','amount','book_id','user_id'));
     $amount = $app->request->post('amount');
     $orignial_amount = $app->request->post('amount');
     $currency = $app->request->post('currency');
     $stripeToken = $app->request->post('stripeToken');
     $user_id = $app->request->post('user_id');
     $email = $app->request->post('email');
-	$perpose = $app->request->post('perpose');
+	$book_id = $app->request->post('book_id');
+	//$perpose = $app->request->post('perpose');
+	$book_name   = $app->request->post('book_name');	
+	$commission   = ($app->request->post('admin_commission'))?$app->request->post('admin_commission'):5; 
     $mode = 'stripe';
     $db = new DbOperation();
-    require_once(GETWELL .'/third_party/Stripe/lib/Stripe.php');
-    Stripe::setApiKey("pk_live_oRt7HAX3LZCxhP0uZSnwqENs");
+    require_once(DOC_ROOT .FOLDER_PATH.'/third_party/Stripe/lib/Stripe.php');
+    //Stripe::setApiKey("pk_live_oRt7HAX3LZCxhP0uZSnwqENs"); live
+    //Stripe::setApiKey("pk_test_oyBQWUp0YSEE3kcZBXwLMItT"); //demo
+    //Stripe::setApiKey("pk_test_YI02rzpQTHWOkPT0vo22NDC900JyjFn3wv"); //demo
+    Stripe::setApiKey("sk_test_U82jk8WrPLKnRZi9tiUUkXR600BgnhWrPc"); //demo
+	
     $charge = Stripe_Charge::create(array(
                 "amount" => $amount*100,
                 "currency" => $currency,
                 "card" => $stripeToken,
-                "description" => "Payment For Donation"
+                "description" => "Payment For Book"
     ));
-    
+    //print_r($charge); die; */
     $response = array();
     if ($charge->status == "succeeded") {
-        $transaction_id = $charge->id;
-        $payment_id = $db->userPayment($user_id, $orignial_amount, $currency, $mode, $transaction_id, $email,$perpose);
-        if ($payment_id) {
-            $response['status'] = 'success';
-            $response['payment_id'] = $payment_id;
-            $response['transaction_id'] = $transaction_id;
-            $response['date'] = date('Y-m-d H:i:s');
-            $response['payment_id'] = $payment_id;
-        } else {
-            $response['status'] = false;
-            $response['payment_id'] = NULL;
-            $response['message'] = 'congratulations! payment done.';
-        }
-    } else {
-        $response['error'] = true;
-        $response['status'] = false;
-        $response['payment_id'] = 'NULL';
-        $response['payment_id'] = 'payment failed please try again';
-    }
-    echoResponse(200, $response);
-}); */
+		if($charge->status=="succeeded") $state = "success"; else $state = "pending"; 
+		if(is_numeric($commission) && $commission!='')
+		{
+			$commission_amount = (($orignial_amount*$commission)/100);
+			$amount_after_commission = $orignial_amount-$commission_amount; 
+		}else{
+			$commission_amount = 0;
+			$amount_after_commission = 0;  
+		}
+		$transaction_id = $charge->id;
+		$data_array = array('user_id'=>$user_id,'mode'=>$mode,'transaction_id'=>$transaction_id,'email'=>$email,'book_id'=>$book_id,'state'=>$state,'intent'=>'sale','amount'=>$orignial_amount,'currency'=>$currency,'commission_amount'=>$commission_amount,'commission'=>$commission,'amount_after_commission'=>$amount_after_commission);
+		
+		$result = $db->paypalPayment($data_array);
+        //$payment_id = $db->userPayment($user_id, $orignial_amount, $currency, $mode, $transaction_id, $email,$perpose);
+        if (!empty($result) && $result->is_payment_done=="Yes") {
+			
+			$mailText = "";
+            $mailText = "Hi Admin,<br/><br/>
+				An payment has done for the book  " . $book_id . " with following details<br/><br/>
+				<p><strong>Email :</strong> " . $email . "<br/><br/>
+				<p><strong>Amount : </strong> " . $orignial_amount . "</p>
+				<p><strong>Currecny : </strong> " . $currency . "</p>
+				Thanks & Regards<br>
+				" . $email . " ";
+
+            $subject = "Payment Notificaion For UEbooks";
+			$email_to = 'dilip@seoessence.com';
+			$email_from = $email;
+			
+			$isEmailSend = $db->sendEmailNew($email_to,$email_from,$subject,$mailText);
+			
+			$response["error"] = false;
+			$response['user_data'] = $result;
+			$response["message"] = $_[$lang .'_success'];
+			echoResponse(200, $response);
+				
+		} else {
+			$response["error"] = false;
+			$response['user_data'] = '';
+			$response['message'] = $_[$lang .'_failed'];
+			echoResponse(200, $response);
+		}
+    }else{
+		$response["error"] = false;
+		$response['user_data'] = '';
+		$response['message'] = $_[$lang .'_failed'];
+		echoResponse(200, $response);
+	}
+    //echoResponse(200, $response);
+}); 
 
 
  $app->post('/checkPaymentDone', function () use ($app) {
@@ -135,7 +232,7 @@ $app = new \Slim\Slim();
 		$response["message"] = $_[$lang .'_success'];
 		echoResponse(200, $response);
 			
-	} else {
+	} else { 
 		$result['is_payment_done']="No";
 		$result['payment_status']="No";
 		$response["error"] = false;
@@ -804,6 +901,7 @@ $app->post('/addNewBook', function () use ($app){
     $questiondata = $app->request->post('questiondata');
 	$is_paid = $app->request->post('is_paid'); //Yes, No
 	$price = $app->request->post('price');
+	$admin_commission = $app->request->post('admin_commission');
     $status = $app->request->post('status');
 	
 		/****Cover image*/
@@ -875,6 +973,7 @@ $app->post('/addNewBook', function () use ($app){
 			'isbn_number' => $isbn_number,
 			'is_paid' => $is_paid,
 			'price' => ($is_paid=="Yes")?$price:0,
+			'admin_commission' => ($is_paid=="Yes")?$admin_commission:0,
 			'status' => $status
 		);
 		
