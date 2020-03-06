@@ -16,13 +16,103 @@ define("FOLDER_PATH",'/ebooks'); //for demo
 
 		
 
-
-
 /*define("ROOT_FOLDER","/ebooks/development/");
 define("DOCUMENTROOT",$_SERVER['DOCUMENT_ROOT'].ROOT_FOLDER);*/
 
 $app = new \Slim\Slim(); 
 
+
+
+
+//URL: http://dnddemo.com/ebooks/api/v1/currency_converter
+
+$app->post('/currency_converter', function () use ($app) { 
+	
+	$lang ="en";
+	$_['en_success'] = "Successfully fetch";	
+	$_['en_failed'] = "Something went wrong! please try again.";
+
+    verifyRequiredParams(array('amount','from','to'));	
+	$amount = $app->request->post('amount'); 
+	$from   = $app->request->post('from'); 
+	$to 	= $app->request->post('to'); 
+	//$return_amount = $this->exchangeRate( $amount, $from, $to);
+	
+    $db = new DbOperation();
+
+	switch ($from) {
+        case "euro":
+            $from_Currency = "EUR";
+            break;
+        case "dollar":
+            $from_Currency = "USD";
+            break;
+        case "pounds":
+            $from_Currency = "GBP";
+            break;
+		default:
+         	$to_Currency = $from;	
+    }
+
+    switch ($to) {
+        case "euro":
+            $to_Currency = "EUR";
+            break;
+        case "dollar":
+            $to_Currency = "USD";
+            break;
+        case "pound":
+            $to_Currency = "GBP";
+            break;
+		default:
+         	$to_Currency = $to;	
+    }
+   
+    $amount = urlencode($amount); 
+	$from = urlencode($from_Currency); 
+	$to = urlencode($to_Currency);
+	$url = "https://www.google.com/search?q=".$from."+to+".$to; 
+	// echo $url    = "http://www.google.com/ig/calculator?hl=en&q=$amount$from=?$to"; die;
+	
+	$ch     = @curl_init();
+	$timeout= 0;
+	curl_setopt ($ch, CURLOPT_URL, $url);
+	curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt ($ch,  CURLOPT_USERAGENT , "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)");
+	curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+	 
+	$rawdata = curl_exec($ch);
+	
+	curl_close($ch);
+
+	$data = preg_split('/\D\s(.*?)\s=\s/',$rawdata);
+	
+	$exhangeRate = (float) substr($data[1],0,7);
+	$exhangeRate = ($exhangeRate)?$exhangeRate:"";
+	$convertedAmount = $amount*$exhangeRate;
+	$convertedAmount = ($convertedAmount)?$convertedAmount:"";
+	
+	$conerted_data = array( 'exhange_rate' => $exhangeRate, 'converted_amount' =>$convertedAmount, 'from_currency' => strtoupper($from), 'to_currency' => strtoupper($to));
+	//echo json_encode( $data );
+
+    $response = array();
+	
+	if($convertedAmount!=''){
+		 
+		$response["error"] = false;
+		$response['data'] = $conerted_data;
+		$response["message"] = $_[$lang .'_success'];
+		echoResponse(200, $response);
+			
+	} else {
+		$response["error"] = false;
+		$response['data'] = $conerted_data;
+		$response['message'] = $_[$lang .'_failed'];
+		echoResponse(200, $response);
+	}
+    
+}); 
+  
 
 $app->post('/admin_percentage', function () use ($app) { //payment is done via androied end
 	
@@ -31,6 +121,7 @@ $app->post('/admin_percentage', function () use ($app) { //payment is done via a
 	$_['en_failed'] = "Something went wrong! please try again.";	
     verifyRequiredParams(array('amount'));
     $amount = $app->request->post('amount'); 
+	
 	$fixed_amount = array(1,50,100,200,500);
 	$percentage_array   = array(2,4,6,10,15);
 
