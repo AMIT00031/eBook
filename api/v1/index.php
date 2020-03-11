@@ -3,7 +3,7 @@
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
 require_once '../include/DbOperation.php';
-require_once '../include/Braintree_lib.php'; 
+require_once '../include/Braintree_lib.php';  
 require '.././libs/Slim/Slim.php';
 \Slim\Slim::registerAutoloader();
 define('API_ACCESS_KEY','AAAA2RSvweQ:APA91bEnwlkf53HXU4559AUAIgsoEgnPLwDT3tw1cpju0WIPPdguWgmYEHHWGONZ4aNaxn8jAw0s5lbNbbJqFd1w-aEnHJ-5G-36bw3m5lj3u53e15RoERzNBoUX8O8cam40Qmy77d8G'); 
@@ -240,12 +240,14 @@ $app->post('/admin_percentage', function () use ($app) { //payment is done via a
     //Stripe::setApiKey("pk_test_oyBQWUp0YSEE3kcZBXwLMItT"); //demo
     //Stripe::setApiKey("pk_test_YI02rzpQTHWOkPT0vo22NDC900JyjFn3wv"); //demo
     Stripe::setApiKey("sk_test_U82jk8WrPLKnRZi9tiUUkXR600BgnhWrPc"); //demo
-	
+	if($currency=="USD"){
+		$amount = $amount*100;
+	}
     $charge = Stripe_Charge::create(array(
-                "amount" => $amount*100,
+                "amount" => $amount,
                 "currency" => $currency,
-                "card" => $stripeToken,
-                "description" => "Payment For Book"
+                "card" => $stripeToken,	
+                "description" => "Payment to UEbooks for book ".$book_name
     ));
     //print_r($charge); die; */
     $response = array();
@@ -455,7 +457,6 @@ $app->post('/createUser', function () use ($app) {
 	$file_url = $upload_url . 'pic_' . time() . '.' . $extension;
 	$file_path = $upload_path . 'pic_' . time() . '.' . $extension;
 	move_uploaded_file($_FILES['image']['tmp_name'], $file_path);
-	
 	
 	//$upload_path = 'upload/';
 	
